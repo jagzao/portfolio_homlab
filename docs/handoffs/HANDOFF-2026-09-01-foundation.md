@@ -6,11 +6,11 @@
 
 ## Commits
 
-Pending commit on this branch; based on `b940897`.
+`3cf51b3` plus handoff metadata update; based on `b940897`.
 
 ## PR
 
-Ready to create after push. Title: `Foundation: SDD, Multi-Agent Team and HomeLab Specs`.
+[#1](https://github.com/jagzao/portfolio_homlab/pull/1) — `Foundation: SDD, Multi-Agent Team and HomeLab Specs`.
 
 ## Stories
 
