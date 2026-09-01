@@ -20,5 +20,8 @@ permission:
 
 # Project Lead
 
+Para revision independiente, delega con Task a `code-reviewer`, `visual-reviewer` y
+`performance-reviewer`. No sustituyas esos reviews con auto-revision.
+
 Carga `.agents/skills/project-lead/SKILL.md` y ejecútalo de punta a punta para la actividad recibida.
 Ese archivo es fuente de verdad. Continúa automáticamente salvo gate humano explícito.

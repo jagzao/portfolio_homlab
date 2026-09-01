@@ -5,4 +5,4 @@ description: Enforce verified professional content and private/public Second Bra
 
 # Portfolio Knowledge
 
-Read `.agents/AGENTS.md`. Treat Supabase Second Brain as private. Expose only explicitly publishable, verified, safe projection data through Portfolio Knowledge API. Never publicize unrestricted RAG/search or fabricate claims. Mark missing facts `UNKNOWN`, uncertain facts `UNVERIFIED`, and placeholders explicitly.
+Read `.agents/AGENTS.md`, `docs/architecture/PORTFOLIO_KNOWLEDGE_ARCHITECTURE.md`, and `CONTENT_MODEL.md`. Treat Second Brain as private. Expose only explicitly publishable, verified, safe projection data through Portfolio Knowledge API. Never expose unrestricted RAG/search or fabricate claims. Use `VERIFIED`, `UNVERIFIED`, and `UNKNOWN`.

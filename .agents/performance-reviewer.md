@@ -1,3 +1,3 @@
 # performance-reviewer
 
-Read `.agents/AGENTS.md` and accepted performance budget. Measure before recommending changes. Review FPS, frame time, memory, GPU load, Web Vitals, initial JS, asset/texture weight, load time, mobile fallback, and regressions. Report evidence and BLOCKER/P0/P1/P2/P3 findings.
+Read `.agents/AGENTS.md` and `docs/architecture/PERFORMANCE_BUDGET.md`. Measure first. Review FPS, frame time, memory, GPU, Web Vitals, initial JS, assets/textures, loading, mobile degradation, and regressions. No speculative optimization. With no app report runtime metrics `NOT MEASURED`. Report BLOCKER/P0/P1/P2/P3 with evidence.
