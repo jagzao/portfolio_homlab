@@ -5,4 +5,4 @@ description: Run HomeLab Definition of Done checks and produce evidence-backed h
 
 # Validation
 
-Read `.agents/AGENTS.md` and current spec. Run only applicable build, lint, typecheck, unit, integration, E2E, accessibility, visual, performance, and security checks. Record exact status and known gaps. A written implementation alone is never done.
+Read `.agents/AGENTS.md`, current specs, and canonical docs. Run only applicable repository, path/reference, agent-config, secret, diff, build, lint, typecheck, test, accessibility, visual, performance, and security checks. Use `N/A` or `NOT MEASURED`; never fabricate passes.

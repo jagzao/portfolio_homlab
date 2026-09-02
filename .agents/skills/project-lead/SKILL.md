@@ -41,17 +41,7 @@ AWS entran únicamente cuando una capacidad real los necesita.
 
 ### 2. Documentación fundacional
 
-Crea y mantén:
-
-- `docs/HOMELAB_VISION.md`
-- `docs/WORLD_ARCHITECTURE.md`
-- `docs/ART_DIRECTION.md`
-- `docs/USER_JOURNEY.md`
-- `docs/SOFTWARE_ENGINEERING_LAB.md`
-- `docs/TECHNICAL_ARCHITECTURE.md`
-- `docs/PERFORMANCE_BUDGET.md`
-- `docs/CONTENT_MODEL.md`
-- `docs/ROADMAP.md`
+Usa exclusivamente la estructura canónica de `.agents/AGENTS.md`: `docs/vision/`, `docs/architecture/`, `docs/product/`, `docs/specs/`, `docs/adr/`, `docs/audits/` y `docs/handoffs/`. No definas rutas alternativas.
 
 Materializa decisiones concretas, no repitas el brief. Define mapa del campus, escalas, conexiones,
 recorrido, estados, ownership, budgets y criterios verificables. Usa diagramas Mermaid cuando aclaren
@@ -70,6 +60,8 @@ Usa ADRs solo para decisiones costosas de revertir. Inicialmente evalúa:
 8. fallback móvil/accesible.
 
 Guárdalos en `docs/adr/ADR-NNN-slug.md` con contexto, decisión, alternativas, consecuencias y estado.
+
+Antes de implementar trabajo significativo exige spec `ACCEPTED` por Juan. Trabaja en rama, invoca reviewers independientes mediante subagents nativos del runtime, valida, crea handoff y PR, y detente para auditoría externa. No hagas push directo de features/foundation a `main` ni merges antes de `AUDITED`.
 
 ### 3. Primer vertical slice
 
@@ -159,7 +151,7 @@ teclado, reduced motion y modo accesible. Mobile recibe experiencia adaptada, no
 
 ## Rendimiento
 
-Define budgets numéricos en `docs/PERFORMANCE_BUDGET.md` antes de producir assets. Mide, no supone.
+Define budgets numéricos en `docs/architecture/PERFORMANCE_BUDGET.md` antes de producir assets. Mide, no supone.
 Aplica progressive enhancement, lazy loading por zona, code splitting, LOD y texturas/modelos comprimidos
 (Meshopt/Draco/KTX2 cuando el ahorro medido justifique pipeline). Reserva experiencia completa para GPU
 capaz; laptop normal fluida; mobile conserva narrativa y contenido con escena reducida o fallback.

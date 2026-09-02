@@ -59,6 +59,17 @@ Every meaningful feature requires specification before implementation:
 
 Never jump from IDEA to CODE.
 
+Story lifecycle:
+
+- `DRAFT`: incomplete; open questions allowed.
+- `READY`: refinement complete and feasible.
+- `ACCEPTED`: Juan explicitly approves scope and acceptance criteria. Only this state permits meaningful implementation.
+- `IMPLEMENTED`: implementation and applicable internal validation complete on a working branch.
+- `AUDITED`: External Auditor reviewed the PR and required BLOCKER/P0 findings are resolved.
+- `DONE`: audited work merged to `main`; durable artifacts reflect final result.
+
+Only Juan can move a story to `ACCEPTED`. External Auditor may refine but cannot accept product scope. `project-lead` records transitions in the spec. Trivial low-risk maintenance changing no product behavior, architecture, contract, security boundary, or public claim may skip a User Story.
+
 ## 6. SPEC HIERARCHY
 
 ```text
@@ -73,16 +84,27 @@ docs/
   architecture/
     TECHNICAL_ARCHITECTURE.md
     PORTFOLIO_KNOWLEDGE_ARCHITECTURE.md
+    CONTENT_MODEL.md
     PERFORMANCE_BUDGET.md
+    DELIVERY_WORKFLOW.md
+    RUNTIME_AGENT_INTEGRATION.md
+  product/
+    SOFTWARE_ENGINEERING_LAB.md
+    ROADMAP.md
   specs/
+    US-TEMPLATE.md
     US-001-...
   adr/
     ADR-001-...
   audits/
-    AUDIT-YYYY-MM-DD.md
+    AUDIT-YYYY-MM-DD-...
+  handoffs/
+    HANDOFF-YYYY-MM-DD-...
 ```
 
 Specs may evolve. Implementation follows latest accepted version.
+
+This tree is canonical. Skills and runtime wrappers link here; they must not define alternate document locations.
 
 ## 7. USER STORY STANDARD
 
@@ -120,6 +142,8 @@ Acceptance criteria must be observable, testable, and unambiguous.
 Preferred chain: `USER STORY → SPEC → IMPLEMENTATION → TEST → COMMIT/PR → AUDIT`.
 
 Code without traceability is technical debt. Reference `US-XXX` in commits and PRs when practical, e.g. `feat(US-014): add architecture table`.
+
+Meaningful work uses a branch and PR. Direct feature/foundation commits to `main` are prohibited.
 
 ## 9. REFINEMENT GATE
 
@@ -230,6 +254,10 @@ Prefer free tier, static hosting, serverless, scale-to-zero, and usage-based inf
 
 After meaningful batches, prepare repository for external audit. Reviewer must understand what changed, why, which story it implements, validation performed, and incomplete work. Create concise handoff.
 
+Required flow: `ACCEPTED SPEC → BRANCH → IMPLEMENTATION → INDEPENDENT INTERNAL REVIEW → VALIDATION → HANDOFF → PR → EXTERNAL AUDIT → FIXES → AUDITED → MERGE → DONE`.
+
+`project-lead` must not merge before `AUDITED`. External findings use BLOCKER/P0/P1/P2/P3; BLOCKER and milestone P0 findings prevent `AUDITED`.
+
 ## 30. HANDOFF FORMAT
 
 ```markdown
@@ -288,6 +316,8 @@ Existing code never overrides accepted specs.
 ## 34. PROJECT-LEAD STARTUP PROCEDURE
 
 For every meaningful session: read `.agents/AGENTS.md`; inspect relevant specs and ADRs; check repository/open work; identify dependencies; confirm scope; create/refine implementation plan; execute. Never code from prompt alone when repository context exists.
+
+Use runtime-native subagents for independent reviews when supported. If unsupported, stop self-approval: record fallback, request review from an independent agent/session, and leave review status pending.
 
 ## 35. PROJECT-LEAD COMPLETION PROCEDURE
 

@@ -20,5 +20,8 @@ permission:
 
 # Project Lead
 
-Carga `.agents/skills/project-lead/SKILL.md` y ejecútalo de punta a punta para la actividad recibida.
-Ese archivo es fuente de verdad. Continúa automáticamente salvo gate humano explícito.
+Lee primero `.agents/AGENTS.md` y `.agents/project-lead.md`. Si existen, carga también `.agents/memory/PROJECT_STATE.md` y `.agents/tasks/MASTER_BACKLOG.md` como memoria/coordinación durable; nunca sustituyen specs/ADRs aceptados.
+
+Para revisión independiente, delega con Task a `code-reviewer`, `visual-reviewer` y `performance-reviewer`. No sustituyas esos reviews con auto-revisión.
+
+Carga `.agents/skills/project-lead/SKILL.md` y ejecútalo de punta a punta para la actividad recibida. Ese archivo y las specs aceptadas son fuente normativa. Ejecuta el milestone no bloqueado más temprano del backlog y respeta gates SDD, aceptación de Juan y auditoría externa.
