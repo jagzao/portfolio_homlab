@@ -1,9 +1,9 @@
 # US-010 — Vertical Slice 01
 
-Status: `READY`
-Accepted by: —
-Accepted on: —
-Last transition: `DRAFT → READY` on 2026-09-02
+Status: `ACCEPTED`
+Accepted by: Juan
+Accepted on: 2026-09-02
+Last transition: `READY → ACCEPTED` on 2026-09-02
 
 ## User Story
 
@@ -141,3 +141,4 @@ Deferred to implementation time, after `ACCEPTED`. This story's refinement outpu
 | 2026-08-31 | — | DRAFT | project-lead | Foundation roadmap candidate only |
 | 2026-09-02 | DRAFT | READY | project-lead | Journey, movement/input model, and `ADR-001`..`ADR-005` refinement complete; measurable Acceptance Criteria defined; performance budget reconciled against `ADR-001`/`ADR-003`; test matrix defined. |
 | 2026-09-02 | READY | READY | project-lead | Independent `code-reviewer` pass: no BLOCKER/P0; P1 (stale contradictory line in `PROJECT_STATE.md`) and P2 (Out of Scope missing explicit deferral of Engineering Decisions Wall/Technology Wall/Current Workbench/Flagship Projects to `M5`) fixed; P3 noted for Juan (ADRs presented as project-lead technical-authority decisions, not open questions). Awaiting Juan `ACCEPTED` gate. |
+| 2026-09-02 | READY | ACCEPTED | Juan | Explicit acceptance of scope, acceptance criteria, ADR-001..005, and risks/costs as presented at the M1 gate ("si adelante con todo") |
