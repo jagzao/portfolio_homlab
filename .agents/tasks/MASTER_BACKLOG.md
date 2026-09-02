@@ -32,18 +32,18 @@ Foundation audit fixes are present on `foundation/sdd-agent-workflow`; External 
 
 ## Required completion
 
-- [ ] External Auditor re-audits current PR #1 head.
-- [ ] No BLOCKER/P0 foundation findings remain.
-- [ ] P1 findings required for Foundation are closed or explicitly deferred with rationale.
-- [ ] US-001..US-004 move from `IMPLEMENTED` to `AUDITED` only after External Audit confirms this.
-- [ ] PR #1 becomes merge-eligible.
-- [ ] Merge according to `docs/architecture/DELIVERY_WORKFLOW.md`.
-- [ ] After merge, durable story state is reconciled to `DONE` without bypassing traceability.
-- [ ] `.agents/memory/PROJECT_STATE.md` is updated to identify the new active milestone.
+- [x] External Auditor re-audits current PR #1 head. (review `5080741521`; PASS comments `5089914053`, `5089927962`)
+- [x] No BLOCKER/P0 foundation findings remain.
+- [x] P1 findings required for Foundation are closed or explicitly deferred with rationale. (see `docs/audits/AUDIT-2026-09-01-pr1-review-5080741521.md`)
+- [x] US-001..US-004 move from `IMPLEMENTED` to `AUDITED` only after External Audit confirms this. (commit `9851c27`)
+- [x] PR #1 becomes merge-eligible.
+- [x] Merge according to `docs/architecture/DELIVERY_WORKFLOW.md`. (merged as `5e610e4` on 2026-09-02)
+- [x] After merge, durable story state is reconciled to `DONE` without bypassing traceability. (`docs/foundation-done-reconciliation`)
+- [x] `.agents/memory/PROJECT_STATE.md` is updated to identify the new active milestone. (`M1`)
 
 ## Stop condition
 
-Do not implement M1+ until Foundation is `AUDITED` and merged.
+Foundation is `AUDITED` and merged. M1 is now active; do not begin M2+ implementation until `US-010` is `ACCEPTED` by Juan.
 
 ---
 

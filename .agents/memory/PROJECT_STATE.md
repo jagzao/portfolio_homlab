@@ -19,13 +19,15 @@ It does **not** replace accepted product specs, ADRs, or `.agents/AGENTS.md`. Wh
 
 ## Current gate
 
-External Re-Audit on 2026-09-02: **PASS** on PR #1 current reviewed head after the original P0/P1 corrections and durable task/memory additions.
+Foundation is closed. `M0 — Foundation Closeout` is complete:
 
-No Foundation BLOCKER/P0 remains from the External Auditor perspective. US-001..US-004 may move from `IMPLEMENTED` to `AUDITED`, then PR #1 may be merged according to `docs/architecture/DELIVERY_WORKFLOW.md`.
+- US-001..US-004 moved `IMPLEMENTED → AUDITED` on 2026-09-02 (commit `9851c27`), citing External Re-Audit PASS (review `5080741521` CHANGES REQUIRED resolved; PASS comments `5089914053`, `5089927962` on head `6b5a4789`).
+- PR #1 merged to `main` as `5e610e4` on 2026-09-02.
+- `main` synced locally; `docs/foundation-done-reconciliation` closes US-001..US-004 `AUDITED → DONE` (trivial/no-behavior-change exception per `docs/architecture/DELIVERY_WORKFLOW.md`) since the merge itself is the only remaining DONE criterion and no new audit is required for pure lifecycle bookkeeping.
 
-GitHub cannot record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comment `5089914053`.
+GitHub could not record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comments `5089914053` and `5089927962`.
 
-Do not begin UI implementation until Foundation is marked `AUDITED` and merged. After merge, reconcile US-001..US-004 to `DONE`, update this memory, then refine/accept US-010 before meaningful UI implementation.
+**Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** No UI/3D/backend implementation begins until `US-010` is refined to `READY` and Juan explicitly moves it to `ACCEPTED`. Work in the interim is refinement, ADR drafting, and spikes only — never implementation ahead of acceptance.
 
 ## Foundation audit history
 
