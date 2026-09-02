@@ -29,21 +29,9 @@ Define constraints and decision gates for HomeLab before application implementat
 
 Professional information must remain discoverable through semantic HTML, keyboard navigation, SEO-compatible pages, reduced-motion behavior, and a mobile-adapted mode.
 
-## Candidate Frontend Stack
+## Frontend Stack
 
-The current candidate is React + TypeScript + Three.js + React Three Fiber. It is **not locked**.
-
-Before implementation, an ADR must compare at least:
-
-- React Three Fiber versus direct Three.js ownership;
-- bundle and runtime cost;
-- accessibility integration;
-- asset loading and disposal behavior;
-- testability and developer ergonomics;
-- degraded/mobile experience;
-- maintenance risk.
-
-Selection requires an accepted ADR and an executable spike tied to a story. Framework preference alone is insufficient.
+**Decided:** React + TypeScript + React Three Fiber, per `docs/adr/ADR-001-rendering-framework.md`, backed by an executable bundle-size spike comparing it against direct Three.js ownership across bundle/runtime cost, accessibility integration, asset loading/disposal, testability, degraded/mobile experience, and maintenance risk. This decision governs `US-010` and later milestones unless superseded by a new ADR with new evidence.
 
 ## Capability and Loading Boundaries
 
@@ -90,12 +78,14 @@ ASP.NET Core, PostgreSQL, Python, Azure, AWS, and OpenTelemetry are candidates o
 
 ## Required Decisions Before US-010 Implementation
 
-- rendering framework ADR;
-- hosting and deployment baseline;
-- mobile/degraded-mode threshold;
-- asset pipeline and compression strategy;
-- public content delivery method for the first slice;
-- measurable performance test matrix.
+All resolved during `M1` refinement; implementation may proceed once `US-010` reaches `ACCEPTED`.
+
+- rendering framework ADR — `docs/adr/ADR-001-rendering-framework.md`;
+- hosting and deployment baseline — `docs/adr/ADR-004-hosting-baseline.md`;
+- mobile/degraded-mode threshold — `docs/adr/ADR-002-degraded-mode-strategy.md`;
+- asset pipeline and compression strategy — `docs/adr/ADR-003-asset-pipeline.md`;
+- public content delivery method for the first slice — `docs/adr/ADR-005-public-content-delivery-alpha.md`;
+- measurable performance test matrix — `docs/specs/US-010-vertical-slice-01.md` Testing Requirements.
 
 ## Out of Scope
 
