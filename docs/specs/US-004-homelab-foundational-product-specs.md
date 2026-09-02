@@ -1,9 +1,9 @@
 # US-004 — HomeLab Foundational Product Specs
 
-Status: `IMPLEMENTED`
+Status: `AUDITED`
 Accepted by: Juan
 Accepted on: 2026-08-31
-Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-01
+Last transition: `IMPLEMENTED → AUDITED` on 2026-09-02
 
 ## User Story
 
@@ -45,3 +45,4 @@ Write canonical product and architecture docs; cross-check claims, boundaries, p
 | 2026-08-31 | DRAFT | READY | project-lead | Refinement gate complete |
 | 2026-08-31 | READY | ACCEPTED | Juan | Foundation iteration instruction |
 | 2026-09-01 | ACCEPTED | IMPLEMENTED | project-lead | Canonical product/architecture docs complete |
+| 2026-09-02 | IMPLEMENTED | AUDITED | External Auditor | PR #1 review 5080741521 (CHANGES REQUIRED) resolved; re-audit PASS comments 5089914053 and 5089927962 on head `6b5a4789`, no BLOCKER/P0 remaining |

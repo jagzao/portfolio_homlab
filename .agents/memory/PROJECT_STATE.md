@@ -36,7 +36,7 @@ Required fixes included:
 - make specialist reviewers genuinely read-only;
 - prove native Task/subagent invocation end-to-end;
 - make lifecycle headers/checklists consistent;
-- fix canonical `CONTENT_MODEL.md` reference;
+- fix canonical `docs/architecture/CONTENT_MODEL.md` reference;
 - strengthen foundation validation;
 - document the OpenCode `tools.invalid` diagnostic without inventing a fix.
 
