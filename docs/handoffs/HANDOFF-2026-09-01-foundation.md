@@ -1,4 +1,4 @@
-# HANDOFF — FOUNDATION ITERATION
+# HANDOFF - FOUNDATION ITERATION
 
 ## Branch
 
@@ -6,93 +6,73 @@
 
 ## Commits
 
-`3cf51b3` plus handoff metadata update; based on `b940897`.
+`3cf51b3` (foundation) and pending fix commit; based on `b940897`.
 
 ## PR
 
-[#1](https://github.com/jagzao/portfolio_homlab/pull/1) — `Foundation: SDD, Multi-Agent Team and HomeLab Specs`.
+[#1](https://github.com/jagzao/portfolio_homlab/pull/1) - `Foundation: SDD, Multi-Agent Team and HomeLab Specs`.
 
 ## Stories
 
-`US-001`, `US-002`, `US-003`, `US-004`
+`US-001`, `US-002`, `US-003`, `US-004` -> `IMPLEMENTED`.
 
 ## Implemented
 
-- Canonical `docs/vision`, `docs/architecture`, `docs/product`, `docs/specs`, `docs/adr`, `docs/audits`, and `docs/handoffs` tree.
-- Formal lifecycle: `DRAFT → READY → ACCEPTED → IMPLEMENTED → AUDITED → DONE`; only Juan accepts scope.
-- Operational OpenCode and Claude registrations for project-lead plus three read-only specialist reviewers.
-- Git/PR workflow with explicit External Audit gate and pull-request template.
-- Actionable HomeLab product, world, UX, Software Lab, content, security, architecture, and provisional performance specs.
+- Canonical docs tree and formal lifecycle.
+- OpenCode and Claude project-lead plus three read-only specialist agents.
+- Git/PR workflow, External Audit gate, pull-request template.
+- HomeLab product, architecture, security, content, and provisional performance specs.
 - `US-010` remains `DRAFT`; no 3D, backend, migration, or cloud implementation.
-
-## Changed Files
-
-`.agents/`, `.opencode/agent/`, `.claude/agents/`, `.github/pull_request_template.md`, `docs/`, `scripts/validate-foundation.ps1`.
-
-## Architecture Changes
-
-Documentation and operating model only. No application architecture selected; candidate frontend stack remains uncommitted. Private Second Brain boundary remains design-only.
-
-## Agent Changes
-
-OpenCode discovers `code-reviewer`, `visual-reviewer`, and `performance-reviewer` as `mode: subagent`; edit/write/task are disabled. Claude registrations expose read/search/command tools only. Central role behavior remains in `.agents/`.
-
-## SDD Changes
-
-One canonical path tree, explicit story state, acceptance authority, refinement gate, branch/PR traceability, and audit-to-merge gate. `docs/specs/US-TEMPLATE.md` is the durable template.
 
 ## Validation Executed
 
-- `scripts/validate-foundation.ps1`: PASS
-- `git diff --check`: PASS
-- OpenCode `debug agent` for all three reviewers: resolved named `subagent`; intended read-only tools effective; CLI reports a non-blocking global `tools.invalid` flag.
-- Claude CLI `doctor`: PASS (`2.1.251`); config registrations present.
-- Secret scan over repository text: no credential-like assignments found.
+- `scripts/validate-foundation.ps1`: PASS (required docs/wrappers, canonical references, lifecycle, checklists, permissions).
+- `git diff --check`: PASS.
+- OpenCode `1.18.25 --pure debug agent`: all three reviewers `mode=subagent`, `read=true`, `edit=false`, `write=false`, `bash=false`, `task=false`, `skill=false`.
+- OpenCode `--pure run --agent project-lead` Task smoke: all three named reviewers invoked and returned results.
+- Claude `2.1.251 -p --agent project-lead --tools Read,Grep,Glob,Task`: all three named reviewers invoked; no Bash/edits.
+- Claude `doctor`: PASS.
+- Secret scan: no credential-like assignments found.
 
 ## Internal Reviewer Results
 
 ### code-reviewer
 
-Executed in separate OpenCode session; named subagent fell back to default because OpenCode `run` does not directly run a `subagent`. It inspected current docs, specs, runtime registrations, workflow, and validation script; no final BLOCKER/P0 finding was emitted. Runtime-native delegation remains available through project-lead Task. Status: `PASS — no blockers emitted; fallback limitation documented`.
+OpenCode and Claude native Task smokes returned named results; no BLOCKER/P0 findings. Direct OpenCode `run --agent <subagent>` fallback is expected; parent Task path is tested.
 
 ### visual-reviewer
 
-`NOT APPLICABLE — DESIGN ONLY`. No UI/3D exists. Design docs reviewed. Findings: P2 future interaction details and P1/P0 reported by the fallback session were rechecked; canonical architecture docs exist and the missing-file P0 was stale during that session. No implementation PASS claimed.
+`NOT APPLICABLE - DESIGN ONLY`. No UI/3D exists. No implementation PASS claimed.
 
 ### performance-reviewer
 
-Runtime metrics: `NOT MEASURED`. Strategy reviewed. Findings: P1 future budget reconciliation/ADR gate, P2 reference-device and measurement-method detail. Added provisional frame-time triggers and mandatory budget reconciliation before US-010 acceptance.
+Runtime metrics `NOT MEASURED`. No executable app/assets exist. Strategy and provisional budgets reviewed.
 
-## Validation Status
+## External Findings Resolved
 
-Repository consistency: PASS
-Documentation: PASS
-Agent invocation: PASS (OpenCode); Claude registrations/doctor PASS
-Build: N/A
-Tests: N/A
-E2E: N/A
-Visual implementation: N/A
-Runtime performance: NOT MEASURED
-Security checks: PASS (boundary documented; no runtime data path)
+| Finding | Reproduction | Root-cause fix | Evidence |
+|---|---|---|---|
+| P0 reviewer permissions | OpenCode reviewer had `bash=allow`; Claude listed `Bash` | Denied OpenCode bash/edit/task/skill; removed Claude Bash | Debug output + validator |
+| P0 invocation gate | Separate reviewer run fell back; parent Task unproven | Native Task smoke in OpenCode and Claude, three named results | Commands/results above |
+| P0 lifecycle evidence | Implemented stories had unchecked AC and stale header | Checked ACs, updated headers, validator enforces consistency | US-001..004 + validator PASS |
+| P0 canonical path | Bare content-model filename reference | Full `docs/architecture/CONTENT_MODEL.md`; validator rejects bare refs | `rg` + validator PASS |
+| P1 weak validator | Runtime/lifecycle/reference checks absent | Added required artifact, wrapper, path, lifecycle, checklist, and permission checks | Validator PASS |
+| P1 `tools.invalid` | Reproduced in HomeLab debug | Reproduced on built-in Explore with `--pure`; documented CLI 1.18.25 diagnostic flag and effective permissions | Runtime integration evidence |
+| P2 handoff SHA | Second SHA omitted | Exact SHA recorded below after commit | Git section |
 
 ## Known Issues
 
-- OpenCode debug exposes a global `tools.invalid: true` flag while effective reviewer permissions are correct; investigate when runtime configuration is next upgraded.
-- Named OpenCode subagents cannot be launched directly with `opencode run`; project-lead Task is the intended invocation. Separate-session fallback is documented.
-- No executable app exists, so build/E2E/visual-runtime/FPS checks are N/A or NOT MEASURED.
-
-## Deviations From Specs
-
-None. Foundation intentionally stops before US-010.
+- OpenCode 1.18.25 emits `tools.invalid=true` even for built-in Explore under `--pure`; effective reviewer permissions remain read-only. Revisit on runtime upgrade.
+- No executable app: build/tests/E2E/visual runtime/FPS are N/A or NOT MEASURED.
 
 ## Decisions Required
 
-External Auditor must review the PR. Juan must approve any future US-010 acceptance and expensive architecture/cost decisions.
+External Auditor must re-review PR. Juan must approve future US-010 acceptance and expensive architecture/cost decisions.
 
 ## External Audit
 
-`PENDING` — External Auditor: ChatGPT. Do not merge.
+`PENDING` - External Auditor: ChatGPT. Do not merge.
 
 ## Recommended Next Story
 
-`US-010 — Vertical Slice 01`, refine from DRAFT after External Audit; no implementation in this iteration.
+`US-010 - Vertical Slice 01`, refine only after re-audit. No implementation in this iteration.

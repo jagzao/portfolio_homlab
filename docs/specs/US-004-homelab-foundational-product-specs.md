@@ -3,7 +3,7 @@
 Status: `IMPLEMENTED`
 Accepted by: Juan
 Accepted on: 2026-08-31
-Last transition: `READY → ACCEPTED` on 2026-08-31
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-01
 
 ## User Story
 
@@ -22,16 +22,16 @@ As the HomeLab engineering team, I want agreed vision materialized as durable sp
 
 ## Acceptance Criteria
 
-- [ ] Four vision docs exist under `docs/vision/`.
-- [ ] Four architecture docs exist under `docs/architecture/`.
-- [ ] Software Lab and roadmap exist under `docs/product/`.
-- [ ] HomeLab remains living lab, not 3D CV.
-- [ ] Continuous world, single portal, Zavit identity, accessibility, and first flagship lab are actionable.
-- [ ] Second Brain project `oweqrcmxmmxzyahyleap` remains private; no migration exists.
-- [ ] Claims use `VERIFIED/UNVERIFIED/UNKNOWN` and publication gate.
-- [ ] Candidate stack remains decision candidate, not locked.
-- [ ] Performance budgets are numerical, `PROVISIONAL`, and testable.
-- [ ] US-010 is future refinement only; no 3D implementation exists.
+- [x] Four vision docs exist under `docs/vision/`.
+- [x] Four architecture docs exist under `docs/architecture/`.
+- [x] Software Lab and roadmap exist under `docs/product/`.
+- [x] HomeLab remains living lab, not 3D CV.
+- [x] Continuous world, single portal, Zavit identity, accessibility, and first flagship lab are actionable.
+- [x] Second Brain project `oweqrcmxmmxzyahyleap` remains private; no migration exists.
+- [x] Claims use `VERIFIED/UNVERIFIED/UNKNOWN` and publication gate.
+- [x] Candidate stack remains decision candidate, not locked.
+- [x] Performance budgets are numerical, `PROVISIONAL`, and testable.
+- [x] US-010 is future refinement only; no 3D implementation exists.
 
 ## Implementation Plan
 

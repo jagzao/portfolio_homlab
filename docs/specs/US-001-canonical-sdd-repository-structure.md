@@ -3,7 +3,7 @@
 Status: `IMPLEMENTED`
 Accepted by: Juan
 Accepted on: 2026-08-31
-Last transition: `READY → ACCEPTED` on 2026-08-31
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-01
 
 ## User Story
 
@@ -34,14 +34,14 @@ Application, 3D, backend, cloud, CI platform automation.
 
 ## Acceptance Criteria
 
-- [ ] One canonical structure exists in `.agents/AGENTS.md`.
-- [ ] project-lead and specialist skills use it without conflicting paths.
-- [ ] `docs/specs/US-TEMPLATE.md` exists.
-- [ ] State is visible in every story.
-- [ ] Lifecycle `DRAFT/READY/ACCEPTED/IMPLEMENTED/AUDITED/DONE` is defined.
-- [ ] `ACCEPTED` means Juan approved scope and acceptance criteria.
-- [ ] Meaningful implementation is blocked before `ACCEPTED`.
-- [ ] Trivial low-risk maintenance exception is documented.
+- [x] One canonical structure exists in `.agents/AGENTS.md` (canonical tree section).
+- [x] project-lead and specialist skills use it without conflicting paths (`rg` + validator).
+- [x] `docs/specs/US-TEMPLATE.md` exists.
+- [x] State is visible in every story.
+- [x] Lifecycle `DRAFT/READY/ACCEPTED/IMPLEMENTED/AUDITED/DONE` is defined.
+- [x] `ACCEPTED` means Juan approved scope and acceptance criteria.
+- [x] Meaningful implementation is blocked before `ACCEPTED`.
+- [x] Trivial low-risk maintenance exception is documented.
 
 ## Implementation Plan
 

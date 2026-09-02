@@ -3,7 +3,7 @@
 Status: `IMPLEMENTED`
 Accepted by: Juan
 Accepted on: 2026-08-31
-Last transition: `READY → ACCEPTED` on 2026-08-31
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-01
 
 ## User Story
 
@@ -22,15 +22,15 @@ As Juan and the agent team, I want meaningful work isolated and auditable, so ex
 
 ## Acceptance Criteria
 
-- [ ] Git flow is documented.
-- [ ] Meaningful work uses branches and PRs referencing US IDs.
-- [ ] Direct feature/foundation pushes to `main` are prohibited.
-- [ ] External audit is explicit and severity-based.
-- [ ] Findings may become Bug/User Story specs.
-- [ ] Handoff is durable.
-- [ ] Merge eligibility requires `AUDITED` and resolved BLOCKER/P0 findings.
-- [ ] Emergency/trivial exceptions preserve traceability.
-- [ ] This iteration stops at PR ready; project-lead does not merge.
+- [x] Git flow is documented (`docs/architecture/DELIVERY_WORKFLOW.md`).
+- [x] Meaningful work uses branches and PRs referencing US IDs.
+- [x] Direct feature/foundation pushes to `main` are prohibited.
+- [x] External audit is explicit and severity-based.
+- [x] Findings may become Bug/User Story specs.
+- [x] Handoff is durable (`docs/handoffs/`).
+- [x] Merge eligibility requires `AUDITED` and resolved BLOCKER/P0 findings.
+- [x] Emergency/trivial exceptions preserve traceability.
+- [x] This iteration stops at PR ready; project-lead does not merge.
 
 ## Implementation Plan
 

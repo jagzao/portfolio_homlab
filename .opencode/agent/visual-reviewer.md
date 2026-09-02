@@ -5,14 +5,14 @@ permission:
   read: allow
   glob: allow
   grep: allow
-  bash: allow
+  bash: deny
   edit: deny
   task: deny
   todowrite: deny
   question: deny
   webfetch: deny
   websearch: deny
-  skill: allow
+  skill: deny
 ---
 
 Read and execute `.agents/visual-reviewer.md`; it is the central source for responsibility and output.

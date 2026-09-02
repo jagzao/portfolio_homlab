@@ -151,7 +151,7 @@ teclado, reduced motion y modo accesible. Mobile recibe experiencia adaptada, no
 
 ## Rendimiento
 
-Define budgets numéricos en `docs/PERFORMANCE_BUDGET.md` antes de producir assets. Mide, no supone.
+Define budgets numéricos en `docs/architecture/PERFORMANCE_BUDGET.md` antes de producir assets. Mide, no supone.
 Aplica progressive enhancement, lazy loading por zona, code splitting, LOD y texturas/modelos comprimidos
 (Meshopt/Draco/KTX2 cuando el ahorro medido justifique pipeline). Reserva experiencia completa para GPU
 capaz; laptop normal fluida; mobile conserva narrativa y contenido con escena reducida o fallback.

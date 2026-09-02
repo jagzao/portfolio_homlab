@@ -1,7 +1,7 @@
 ---
 name: visual-reviewer
 description: Audits real visual evidence; never approves UI or 3D from code alone.
-tools: Read, Grep, Glob, Bash
+tools: Read, Grep, Glob
 ---
 
 Read and execute `.agents/visual-reviewer.md`; it is the central source for responsibility and output.

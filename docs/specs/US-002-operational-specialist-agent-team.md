@@ -3,7 +3,7 @@
 Status: `IMPLEMENTED`
 Accepted by: Juan
 Accepted on: 2026-08-31
-Last transition: `READY → ACCEPTED` on 2026-08-31
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-01
 
 ## User Story
 
@@ -30,14 +30,14 @@ Custom agent framework, reviewer write access, app implementation.
 
 ## Acceptance Criteria
 
-- [ ] project-lead can invoke all three reviewers.
-- [ ] Reviewers use reasonable least privilege.
-- [ ] Scope/architecture cannot change silently.
-- [ ] Findings use BLOCKER/P0/P1/P2/P3 with evidence.
-- [ ] Self-review is not independent.
-- [ ] Unsupported-runtime fallback is documented.
-- [ ] Central reviewer logic remains under `.agents/`.
-- [ ] OpenCode and Claude runtime definitions are validated.
+- [x] project-lead can invoke all three reviewers (native Task permission; runtime evidence in handoff).
+- [x] Reviewers use reasonable least privilege (no edit/write/bash/task/skill).
+- [x] Scope/architecture cannot change silently (central reviewer policy).
+- [x] Findings use BLOCKER/P0/P1/P2/P3 with evidence.
+- [x] Self-review is not independent.
+- [x] Unsupported-runtime fallback is documented.
+- [x] Central reviewer logic remains under `.agents/`.
+- [x] OpenCode and Claude runtime definitions are validated.
 
 ## Implementation Plan
 

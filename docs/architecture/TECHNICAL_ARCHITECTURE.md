@@ -86,7 +86,7 @@ ASP.NET Core, PostgreSQL, Python, Azure, AWS, and OpenTelemetry are candidates o
 - 3D resources need deterministic loading, cancellation, reuse, and disposal.
 - Visitor flows require keyboard-accessible equivalents for spatial interactions.
 - Simulated architecture data must be labeled `SIMULATION` and cannot be presented as production evidence.
-- Public data contracts carry verification and publication metadata defined in `CONTENT_MODEL.md`.
+- Public data contracts carry verification and publication metadata defined in `docs/architecture/CONTENT_MODEL.md`.
 
 ## Required Decisions Before US-010 Implementation
 
