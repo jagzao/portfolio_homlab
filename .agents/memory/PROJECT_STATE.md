@@ -19,9 +19,13 @@ It does **not** replace accepted product specs, ADRs, or `.agents/AGENTS.md`. Wh
 
 ## Current gate
 
-Foundation corrections for External Audit review `5080741521` have been pushed. The branch currently requires External Re-Audit before merge.
+External Re-Audit on 2026-09-02: **PASS** on PR #1 current reviewed head after the original P0/P1 corrections and durable task/memory additions.
 
-Do not start UI implementation from this branch until Foundation is `AUDITED` and merged according to `docs/architecture/DELIVERY_WORKFLOW.md`.
+No Foundation BLOCKER/P0 remains from the External Auditor perspective. US-001..US-004 may move from `IMPLEMENTED` to `AUDITED`, then PR #1 may be merged according to `docs/architecture/DELIVERY_WORKFLOW.md`.
+
+GitHub cannot record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comment `5089914053`.
+
+Do not begin UI implementation until Foundation is marked `AUDITED` and merged. After merge, reconcile US-001..US-004 to `DONE`, update this memory, then refine/accept US-010 before meaningful UI implementation.
 
 ## Foundation audit history
 
@@ -36,7 +40,7 @@ Required fixes included:
 - strengthen foundation validation;
 - document the OpenCode `tools.invalid` diagnostic without inventing a fix.
 
-The current branch reports those findings resolved and is waiting for External Re-Audit.
+Those findings were corrected and re-audited. External Re-Audit result: `PASS`.
 
 ## Product identity
 
