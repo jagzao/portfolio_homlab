@@ -157,7 +157,7 @@ Use the accepted concept direction:
 
 ## Technical direction
 
-Current frontend candidate: React + TypeScript + Three.js, likely React Three Fiber, but final rendering ownership requires accepted ADR/spike evidence.
+**Decided:** React + TypeScript + React Three Fiber, per `docs/adr/ADR-001-rendering-framework.md`, backed by a real bundle-size spike (129.37 KB gzip vanilla Three.js vs 294.08 KB gzip React Three Fiber for an equivalent minimal scene). This is no longer an open candidate.
 
 Do not add ASP.NET Core, PostgreSQL, Python, Azure, AWS, or other backend/cloud services simply to display technologies. Each service must support an accepted capability and have a defensible cost/security reason.
 

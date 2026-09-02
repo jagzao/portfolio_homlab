@@ -42,6 +42,8 @@ Foundation (`US-001`..`US-004`) is `DONE`. `docs/vision/USER_JOURNEY.md`, `docs/
 
 Full campus (AI Lab, Robotics Lab, Smart Home, Library, Observatory, Innovation Vault), final visual fidelity beyond graybox (`M7`), live Second Brain integration (`M6`'s real API — Alpha uses the `ADR-005` static artifact only), any paid cloud resource, day/night cycle, sound, and any professional claim not yet verified and approved by Juan.
 
+Within the Software Engineering Lab itself, this slice implements only the Architecture Table and `SIMULATE FAILURE` (`docs/vision/USER_JOURNEY.md` step 7 names five stations). The Engineering Decisions Wall, Technology Wall, Current Workbench, and Flagship Projects are explicitly deferred to `M5 — Software Engineering Lab UI + Interactive Architecture`, not silently dropped.
+
 ## Confirmed Journey
 
 `semantic shell → forest approach → HomeLab exterior → one energy portal → Central Atrium → Zavit encounter → Guided Mode / Free Exploration choice → bridge over water → Software Engineering Lab entry → interactive architecture demonstration (SIMULATE FAILURE) → slice endpoint / next-area teaser`
@@ -137,4 +139,5 @@ Deferred to implementation time, after `ACCEPTED`. This story's refinement outpu
 | Date | From | To | Authority | Evidence |
 |---|---|---|---|---|
 | 2026-08-31 | — | DRAFT | project-lead | Foundation roadmap candidate only |
-| 2026-09-02 | DRAFT | READY | project-lead | Journey, movement/input model, and `ADR-001`..`ADR-005` refinement complete; measurable Acceptance Criteria defined; performance budget reconciled against `ADR-001`/`ADR-003`; test matrix defined. Awaiting Juan `ACCEPTED` gate. |
+| 2026-09-02 | DRAFT | READY | project-lead | Journey, movement/input model, and `ADR-001`..`ADR-005` refinement complete; measurable Acceptance Criteria defined; performance budget reconciled against `ADR-001`/`ADR-003`; test matrix defined. |
+| 2026-09-02 | READY | READY | project-lead | Independent `code-reviewer` pass: no BLOCKER/P0; P1 (stale contradictory line in `PROJECT_STATE.md`) and P2 (Out of Scope missing explicit deferral of Engineering Decisions Wall/Technology Wall/Current Workbench/Flagship Projects to `M5`) fixed; P3 noted for Juan (ADRs presented as project-lead technical-authority decisions, not open questions). Awaiting Juan `ACCEPTED` gate. |
