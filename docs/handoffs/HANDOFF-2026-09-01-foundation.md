@@ -14,7 +14,7 @@
 
 ## Stories
 
-`US-001`, `US-002`, `US-003`, `US-004` -> `IMPLEMENTED`.
+`US-001`, `US-002`, `US-003`, `US-004` -> `DONE` (External Re-Audit PASS on head `6b5a4789`, review `5080741521` resolved, PASS comments `5089914053`/`5089927962`; merged to `main` as `5e610e4` on 2026-09-02; `AUDITED -> DONE` reconciled in `docs/foundation-done-reconciliation`).
 
 ## Implemented
 
@@ -71,8 +71,8 @@ External Auditor must re-review PR. Juan must approve future US-010 acceptance a
 
 ## External Audit
 
-`PENDING` - External Auditor: ChatGPT. Do not merge.
+`PASS` - External Auditor: ChatGPT. Review `5080741521` (CHANGES REQUIRED) resolved; re-audit PASS comments `5089914053` and `5089927962` on head `6b5a4789`. PR #1 merged as `5e610e4` on 2026-09-02.
 
 ## Recommended Next Story
 
-`US-010 - Vertical Slice 01`, refine only after re-audit. No implementation in this iteration.
+`US-010 - Vertical Slice 01`, active refinement under `M1`. No implementation begins until `ACCEPTED` by Juan.
