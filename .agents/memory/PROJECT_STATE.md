@@ -29,6 +29,8 @@ GitHub could not record a formal `APPROVE` from the connected account because th
 
 **Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** `US-010` is refined to `READY` (2026-09-02): journey/movement model defined with measurable Acceptance Criteria, `docs/adr/ADR-001`..`ADR-005` decided (rendering framework, degraded-mode strategy, asset pipeline, hosting baseline, alpha content delivery — the rendering-framework ADR is backed by a real Vite bundle-size spike), and `docs/architecture/PERFORMANCE_BUDGET.md` reconciled against that spike.
 
+Refinement lives on branch `refine/US-010-vertical-slice-01`, open as PR `#3` (not merged). Independent `code-reviewer` pass complete: no BLOCKER/P0; P1/P2 fixed in `ee3e75f`.
+
 **Gate: awaiting Juan's explicit `ACCEPTED` decision on `US-010`.** No M2+ implementation begins until then. Only Juan may move a story to `ACCEPTED` (AGENTS.md §5).
 
 ## Foundation audit history
