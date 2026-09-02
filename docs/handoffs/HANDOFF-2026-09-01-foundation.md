@@ -6,7 +6,7 @@
 
 ## Commits
 
-`3cf51b3` (foundation) and pending fix commit; based on `b940897`.
+`3cf51b3` (foundation), `575a0da` (PR metadata), `87532cb` (audit fixes); based on `b940897`.
 
 ## PR
 
