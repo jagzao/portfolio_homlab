@@ -101,7 +101,7 @@ Triggers are provisional and must be calibrated against US-010 reference devices
 5. Compare results with each provisional budget; record PASS, FAIL, or NOT MEASURED.
 6. If a budget is unrealistic, revise it with evidence through the accepted spec/ADR process.
 
-Before US-010 can move from `READY` to `ACCEPTED`, reconcile these provisional budgets with the selected rendering/asset-pipeline ADR. The ADR must compare candidate stacks against shell JS, lazy 3D chunk, playable payload, frame-time, memory, and mobile-mode targets.
+Reconciled against `docs/adr/ADR-001-rendering-framework.md` and `docs/adr/ADR-003-asset-pipeline.md`: the React Three Fiber spike measured ~294 KB gzip for an empty scene against the 500 KB gzip 3D-runtime-chunk budget above, leaving ~200 KB gzip headroom for the actual graybox scene and interaction code. This is workable but tight, and it is why `ADR-003` defers all compression tooling until a measured trigger and why per-zone code splitting (`docs/architecture/TECHNICAL_ARCHITECTURE.md` Capability and Loading Boundaries) is required, not optional, for `US-010`. See `docs/specs/US-010-vertical-slice-01.md` Performance Requirements for the full reconciliation.
 
 ## Current Measurement Status
 

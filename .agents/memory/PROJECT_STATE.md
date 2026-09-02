@@ -27,7 +27,11 @@ Foundation is closed. `M0 — Foundation Closeout` is complete:
 
 GitHub could not record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comments `5089914053` and `5089927962`.
 
-**Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** No UI/3D/backend implementation begins until `US-010` is refined to `READY` and Juan explicitly moves it to `ACCEPTED`. Work in the interim is refinement, ADR drafting, and spikes only — never implementation ahead of acceptance.
+**Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** `US-010` is refined to `READY` (2026-09-02): journey/movement model defined with measurable Acceptance Criteria, `docs/adr/ADR-001`..`ADR-005` decided (rendering framework, degraded-mode strategy, asset pipeline, hosting baseline, alpha content delivery — the rendering-framework ADR is backed by a real Vite bundle-size spike), and `docs/architecture/PERFORMANCE_BUDGET.md` reconciled against that spike.
+
+Refinement lives on branch `refine/US-010-vertical-slice-01`, open as PR `#3` (not merged). Independent `code-reviewer` pass complete: no BLOCKER/P0; P1/P2 fixed in `ee3e75f`.
+
+**Gate: awaiting Juan's explicit `ACCEPTED` decision on `US-010`.** No M2+ implementation begins until then. Only Juan may move a story to `ACCEPTED` (AGENTS.md §5).
 
 ## Foundation audit history
 
@@ -155,7 +159,7 @@ Use the accepted concept direction:
 
 ## Technical direction
 
-Current frontend candidate: React + TypeScript + Three.js, likely React Three Fiber, but final rendering ownership requires accepted ADR/spike evidence.
+**Decided:** React + TypeScript + React Three Fiber, per `docs/adr/ADR-001-rendering-framework.md`, backed by a real bundle-size spike (129.37 KB gzip vanilla Three.js vs 294.08 KB gzip React Three Fiber for an equivalent minimal scene). This is no longer an open candidate.
 
 Do not add ASP.NET Core, PostgreSQL, Python, Azure, AWS, or other backend/cloud services simply to display technologies. Each service must support an accepted capability and have a defensible cost/security reason.
 

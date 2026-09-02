@@ -146,12 +146,12 @@ Define thresholds/behavior for:
 
 ## Required output
 
-- [ ] US-010 fully refined with measurable Acceptance Criteria.
-- [ ] required ADRs created and accepted according to SDD.
-- [ ] provisional performance budget reconciled with chosen approach.
-- [ ] visual evidence target viewports/devices defined.
-- [ ] test matrix defined.
-- [ ] no implementation begins until US-010 is `ACCEPTED` by Juan.
+- [x] US-010 fully refined with measurable Acceptance Criteria. (`docs/specs/US-010-vertical-slice-01.md`, `READY` since 2026-09-02)
+- [x] required ADRs created and accepted according to SDD. (`docs/adr/ADR-001`..`ADR-005`, project-lead technical authority)
+- [x] provisional performance budget reconciled with chosen approach. (`docs/architecture/PERFORMANCE_BUDGET.md` reconciliation note)
+- [x] visual evidence target viewports/devices defined. (`US-010` Testing Requirements)
+- [x] test matrix defined. (`US-010` Testing Requirements)
+- [ ] no implementation begins until US-010 is `ACCEPTED` by Juan. **BLOCKED ON JUAN — awaiting explicit acceptance of scope, acceptance criteria, ADR decisions, and risks/costs presented at the M1 gate.**
 
 ---
 

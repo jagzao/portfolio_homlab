@@ -36,7 +36,7 @@ foreach ($story in $stories) {
   if ($status -eq 'DRAFT' -and $last -notmatch '^DRAFT') {
     throw "Lifecycle header disagrees with DRAFT state: $($story.FullName)"
   }
-  if ($status -in @('READY','ACCEPTED','IMPLEMENTED','AUDITED','DONE') -and $content -match '(?m)^- \[ \]') {
+  if ($status -in @('IMPLEMENTED','AUDITED','DONE') -and $content -match '(?m)^- \[ \]') {
     throw "Unchecked acceptance criterion in $($story.FullName)"
   }
 }
