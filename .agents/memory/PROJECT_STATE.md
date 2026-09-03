@@ -64,7 +64,14 @@ Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha ha
 
 **`M6 — Public Portfolio Projection v1` is blocked, not skipped.** Its own scope requires real `VERIFIED + PUBLISHED` content (Profile, at least one Project/Experience record) sourced from Juan's private Second Brain — this session has no Second Brain access, and AGENTS.md §17/§36 forbid inventing it or unilaterally deciding what crosses the publication boundary. `ADR-005` already anticipated this: Alpha ships on the static-empty artifact, content arrives later once Juan supplies/approves it. Per `MASTER_BACKLOG.md`'s own Project Lead Execution Rule ("do not skip forward into implementation" when blocked, but also don't stall on a blocked gate), moving to the next actually-unblocked milestone.
 
-**Active milestone: `M7 — Visual Fidelity Alpha`**, continuing on the same branch. Raises the validated graybox toward the accepted visual language (glass, black metal, subtle gold, water, vegetation) without needing any new professional content — pure art/engineering polish on what M2-M5 already built and proved functionally correct.
+`M7 — Visual Fidelity Alpha` is complete on the same branch:
+
+- Hemisphere sky/ground lighting, manual day/night toggle with restrained night stars, glass/water materials, vertical-garden leaf accents, multi-lobe atrium tree canopy — procedural fidelity within `ADR-003`'s primitives-only constraint, no new asset pipeline.
+- Self-investigating a visual-reviewer note found a real, non-obvious bug: the corridor's single opaque ground plane had been sitting on top of both water planes since `M3` — water was never actually visible, in any prior milestone's evidence, despite screenshots being reviewed and passed at the time. Fixed by reordering the Y-layering. **Worth remembering**: a visual review pass can miss things that are only "not there" rather than "wrong," and evidence gets re-approved without anyone noticing an element was silently absent the whole time.
+- code-reviewer's flag of an unmeasured `meshPhysicalMaterial` rollout caught a real signal (desktop p95 briefly measured at ~28ms vs. the 20ms budget), though follow-up measurement showed the dev machine has genuine 18-31ms run-to-run variance — applied the budget's prescribed mitigation (fewer clearcoat surfaces, fewer vine draw calls) regardless of how much was signal vs. noise.
+- 40 unit + 50 E2E tests pass.
+
+**Active milestone: `M8 — Quality, Performance, Accessibility and UI Audit Readiness`**, continuing on the same branch.
 
 ## Foundation audit history
 
