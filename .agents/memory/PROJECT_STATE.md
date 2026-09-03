@@ -46,9 +46,16 @@ Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this
 - Independent `visual-reviewer`: took **3 rounds** — round 1 found BLOCKER (empty Lab zone) + 3×P0 (Atrium FOV overflow, Portal not framed, Bridge near-black) + P1 (Exterior indistinct); round 2 fixed 2 of 3 P0s; round 3 (lighter sky/fog, real Lab doorway geometry, wider mullioned Exterior facade) resolved everything. See `docs/handoffs/HANDOFF-2026-09-03-m3-graybox-journey.md` for the full trail — worth reading before trusting a first-pass visual review as sufficient on later milestones.
 - 25 unit + 44 E2E tests pass; real frame-time sample (~60fps avg, p95 ~18ms on both viewport projects — confirms the code path, not real mobile-hardware headroom).
 
+`M4 — Zavit v1` is complete on the same branch:
+
+- Graybox Zavit at the Central Atrium (black body, white belly, state-colored eyes, head buttons, red claw hands, per `ART_DIRECTION.md` — nothing fabricated beyond the accepted description). Proximity-triggered greeting offers Guided Mode / Free Exploration / Skip, never retriggers, never traps navigation. Guided Mode adds a "Continue" control (click/Space/right-arrow) walking the route stop by stop.
+- Independent `code-reviewer` found a real **P0**: the keyboard-bound guided-advance handler closed over `guidedIndex` at mount time (empty-dep listener), so Space/ArrowRight always re-targeted the same landmark while the mouse button worked — fixed via a ref read at call time, with a regression e2e test (two consecutive keyboard advances land on different stops) that would have caught it. Also fixed: Zavit missing from the keyboard-movement obstacle list (click-to-walk had it, arrow keys didn't), a timer race (greeting could pop up somewhere the visitor already walked away from), a fragile landmark-index fallback, and dialog focus management (WCAG 2.4.3/4.1.2).
+- Independent `visual-reviewer` found one **P1**: Zavit's position fell almost entirely outside the horizontal FOV on mobile/portrait viewports — repositioned. Also fixed proactively: red hands sat near the floor with nothing else nearby, reading as feet — added a base and raised the arms.
+- 32 unit + 62 E2E tests pass (both self-verified against fresh evidence after each fix round).
+
 Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
 
-**Active milestone: `M4 — Zavit v1`**, continuing on the same branch.
+**Active milestone: `M5 — Software Engineering Lab UI + Interactive Architecture`**, continuing on the same branch.
 
 ## Foundation audit history
 
