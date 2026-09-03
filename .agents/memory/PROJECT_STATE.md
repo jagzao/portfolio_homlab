@@ -27,11 +27,21 @@ Foundation is closed. `M0 — Foundation Closeout` is complete:
 
 GitHub could not record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comments `5089914053` and `5089927962`.
 
-**Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** `US-010` is refined to `READY` (2026-09-02): journey/movement model defined with measurable Acceptance Criteria, `docs/adr/ADR-001`..`ADR-005` decided (rendering framework, degraded-mode strategy, asset pipeline, hosting baseline, alpha content delivery — the rendering-framework ADR is backed by a real Vite bundle-size spike), and `docs/architecture/PERFORMANCE_BUDGET.md` reconciled against that spike.
+`M1 — US-010 Refinement` is complete. `US-010` reached `READY` (2026-09-02), then Juan explicitly `ACCEPTED` scope/AC/ADR-001..005 in chat ("si adelante con todo"). PR #3 merged to `main`.
 
-Refinement lives on branch `refine/US-010-vertical-slice-01`, open as PR `#3` (not merged). Independent `code-reviewer` pass complete: no BLOCKER/P0; P1/P2 fixed in `ee3e75f`.
+`M2 — Application Foundation + Semantic UI` is complete on branch `feat/US-010-m2-application-foundation`:
 
-**Gate: awaiting Juan's explicit `ACCEPTED` decision on `US-010`.** No M2+ implementation begins until then. Only Juan may move a story to `ACCEPTED` (AGENTS.md §5).
+- React + TypeScript + Vite + React Three Fiber app (per `ADR-001`) with a real semantic shell, ADR-002 capability-detection boundary, ADR-003 graybox 3D entry, and an ADR-005 static knowledge-client interface proven end-to-end via `ProfileSummary`.
+- Independent `code-reviewer`, `visual-reviewer`, and `performance-reviewer` passes all complete: no BLOCKER/P0 from any; code-reviewer's one P1 (missing recoverable-failure test coverage) and several P2s fixed in `750821b`.
+- Validation: typecheck/lint/build clean; 17 unit tests and 24 E2E tests (desktop+mobile) pass; production bundle measured (shell 62.65 KB gzip, 3D chunk 233.87 KB gzip, both under `PERFORMANCE_BUDGET.md`); 7 required visual states captured at both viewports.
+
+Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this **one** branch with an internal `IMPLEMENT → BUILD → TEST → RUN → VISUAL INSPECTION → MEASURE → REVIEW → FIX → RETEST` loop (specialist reviewers = the required independent internal review) at each milestone; a single PR opens only once, at the end of the achievable Alpha scope, for External Audit. No merge before that audit.
+
+`US-010` itself stays `ACCEPTED` (not `IMPLEMENTED`) until the full journey (`M3` graybox + `M4` Zavit + `M5` Software Lab minimum) closes its remaining Acceptance Criteria.
+
+Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
+
+**Active milestone: `M3 — 3D Graybox: First Physical Journey`**, continuing on the same branch.
 
 ## Foundation audit history
 

@@ -209,14 +209,14 @@ At minimum visually validate:
 
 ## Quality gates
 
-- [ ] lint/typecheck/build.
-- [ ] basic unit/integration coverage where valuable.
-- [ ] Playwright semantic navigation smoke.
-- [ ] keyboard flow.
-- [ ] reduced-motion test.
-- [ ] visual captures at accepted viewports.
-- [ ] no console/runtime errors.
-- [ ] bundle baseline measured.
+- [x] lint/typecheck/build. (oxlint + tsc -b --noEmit + vite build, all PASS)
+- [x] basic unit/integration coverage where valuable. (17 vitest tests: capability detection, App shell, ExperienceBoundary recovery, knowledge client, ProfileSummary)
+- [x] Playwright semantic navigation smoke. (e2e/smoke.spec.ts)
+- [x] keyboard flow. (keyboard-only entry test in e2e/smoke.spec.ts)
+- [x] reduced-motion test. (e2e/smoke.spec.ts + capture-evidence.spec.ts)
+- [x] visual captures at accepted viewports. (7 required states x 2 viewports, see HANDOFF-2026-09-02-m2-application-foundation.md)
+- [x] no console/runtime errors. (e2e pageerror assertions + manual console check)
+- [x] bundle baseline measured. (shell 62.65 KB gzip, 3D chunk 233.87 KB gzip; both under budget)
 
 ---
 
