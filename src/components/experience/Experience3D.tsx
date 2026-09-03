@@ -3,6 +3,7 @@ import { Canvas } from '@react-three/fiber'
 import { WorldScene } from '../../experience/world/WorldScene'
 import { LandmarkHud } from '../../experience/world/LandmarkHud'
 import { GuidedControls } from '../../experience/world/GuidedControls'
+import { DayNightToggle } from '../../experience/world/DayNightToggle'
 import { LANDMARKS } from '../../experience/world/landmarks'
 import { JOURNEY_OBSTACLES } from '../../experience/world/journeyObstacles'
 import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, nearestLandmarkId, type Point2D } from '../../experience/world/navigation'
@@ -34,6 +35,7 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
   const [encounterPhase, setEncounterPhase] = useState<EncounterPhase>('idle')
   const [journeyMode, setJourneyMode] = useState<'unset' | 'guided' | 'free'>('unset')
   const [guidedIndex, setGuidedIndex] = useState(INITIAL_GUIDED_INDEX)
+  const [isDay, setIsDay] = useState(true)
   const resolvedTier: 'full' | 'adapted' = tier === 'adapted' ? 'adapted' : 'full'
 
   // The keydown listener below binds once (see the empty-deps effect) and
@@ -138,10 +140,12 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
           reducedMotion={reducedMotion}
           tier={resolvedTier}
           zavitState={encounterPhase === 'noticing' || encounterPhase === 'greeting' ? encounterPhase : 'idle'}
+          isDay={isDay}
           onPositionChange={setCurrentPosition}
           onGroundSelect={setTarget}
         />
       </Canvas>
+      <DayNightToggle isDay={isDay} onToggle={() => setIsDay((d) => !d)} />
       <LandmarkHud currentId={currentLandmarkId} onSelect={setTarget} />
       {encounterPhase === 'greeting' && <ZavitGreeting onChoose={chooseMode} />}
       {journeyMode === 'guided' && (
