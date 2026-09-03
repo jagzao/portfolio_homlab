@@ -62,7 +62,9 @@ Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this
 
 Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
 
-**Active milestone: `M6 — Public Portfolio Projection v1`** (or skip directly to `M7` visual fidelity, since Alpha can ship entirely on `ADR-005`'s static-empty artifact with no real content yet to project — decide when reached), continuing on the same branch.
+**`M6 — Public Portfolio Projection v1` is blocked, not skipped.** Its own scope requires real `VERIFIED + PUBLISHED` content (Profile, at least one Project/Experience record) sourced from Juan's private Second Brain — this session has no Second Brain access, and AGENTS.md §17/§36 forbid inventing it or unilaterally deciding what crosses the publication boundary. `ADR-005` already anticipated this: Alpha ships on the static-empty artifact, content arrives later once Juan supplies/approves it. Per `MASTER_BACKLOG.md`'s own Project Lead Execution Rule ("do not skip forward into implementation" when blocked, but also don't stall on a blocked gate), moving to the next actually-unblocked milestone.
+
+**Active milestone: `M7 — Visual Fidelity Alpha`**, continuing on the same branch. Raises the validated graybox toward the accepted visual language (glass, black metal, subtle gold, water, vegetation) without needing any new professional content — pure art/engineering polish on what M2-M5 already built and proved functionally correct.
 
 ## Foundation audit history
 
