@@ -1,9 +1,9 @@
 # US-010 — Vertical Slice 01
 
-Status: `ACCEPTED`
+Status: `IMPLEMENTED`
 Accepted by: Juan
 Accepted on: 2026-09-02
-Last transition: `READY → ACCEPTED` on 2026-09-02
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-03
 
 ## User Story
 
@@ -64,28 +64,28 @@ This matches `docs/vision/USER_JOURNEY.md`'s primary journey; no scope split was
 
 ### Journey steps
 
-- [ ] Semantic shell identifies Juan and HomeLab and is interactive before or independent of 3D initialization; no blank loading screen (`docs/vision/USER_JOURNEY.md` step 1).
-- [ ] On capable devices, the visitor sees a forest approach and the HomeLab exterior before entering (step 2).
-- [ ] Exactly one energy portal exists at the entrance; entering it transitions into the Central Atrium; no other internal teleport exists anywhere in the slice (step 3; AGENTS.md §13).
-- [ ] On arrival, Zavit is performing a purposeful activity, then detects the visitor and offers Guided Mode or Free Exploration; the choice is skippable (step 4; `docs/vision/ART_DIRECTION.md` Zavit identity).
-- [ ] Atrium landmarks and semantic navigation expose the Software Engineering Lab and an accessible portfolio mode without requiring the visitor to guess (step 5).
-- [ ] The route to the Software Engineering Lab crosses a bridge visibly over water, preserving spatial continuity with no cut/teleport (step 6).
-- [ ] On entering the Software Lab, the visitor can identify it as Juan's flagship professional area through clear hierarchy, not a simultaneous wall of every technology (step 7; `docs/product/SOFTWARE_ENGINEERING_LAB.md`).
-- [ ] The visitor can inspect an `API → QUEUE → WORKER → DATABASE` topology (CACHE optional) and run `SIMULATE FAILURE`, observing service degradation, queue growth, retry, circuit breaker, recovery, and latency/error/recovery-time indicators, all visibly labeled `SIMULATION` (step 7; `docs/product/SOFTWARE_ENGINEERING_LAB.md` architecture simulation concept).
-- [ ] After the architecture interaction, the visitor sees an explicit slice endpoint or next-area teaser rather than a dead end (step 8).
-- [ ] A visitor can return to orientation without restarting, and a direct link can open the Software Lab's semantic content without replaying arrival (`docs/vision/USER_JOURNEY.md` Recovery and alternate paths).
+- [x] Semantic shell identifies Juan and HomeLab and is interactive before or independent of 3D initialization; no blank loading screen (`docs/vision/USER_JOURNEY.md` step 1). — `SemanticShell.tsx`, `e2e/smoke.spec.ts`
+- [x] On capable devices, the visitor sees a forest approach and the HomeLab exterior before entering (step 2). — `WorldScene.tsx`, `e2e/world.spec.ts`, `e2e/m3-evidence.spec.ts`
+- [x] Exactly one energy portal exists at the entrance; entering it transitions into the Central Atrium; no other internal teleport exists anywhere in the slice (step 3; AGENTS.md §13). — `WorldScene.tsx` (single gold arch), continuous walking, no teleport mechanism anywhere in the codebase
+- [x] On arrival, Zavit is performing a purposeful activity, then detects the visitor and offers Guided Mode or Free Exploration; the choice is skippable (step 4; `docs/vision/ART_DIRECTION.md` Zavit identity). — `Zavit.tsx`, `encounter.ts`, `e2e/zavit.spec.ts`
+- [x] Atrium landmarks and semantic navigation expose the Software Engineering Lab and an accessible portfolio mode without requiring the visitor to guess (step 5). — `LandmarkHud.tsx`, `JourneyList.tsx`
+- [x] The route to the Software Engineering Lab crosses a bridge visibly over water, preserving spatial continuity with no cut/teleport (step 6). — `WorldScene.tsx`, `e2e/m3-evidence.spec.ts`
+- [x] On entering the Software Lab, the visitor can identify it as Juan's flagship professional area through clear hierarchy, not a simultaneous wall of every technology (step 7; `docs/product/SOFTWARE_ENGINEERING_LAB.md`). — doorway entry marker, single "Open Architecture Table" entry point
+- [x] The visitor can inspect an `API → QUEUE → WORKER → DATABASE` topology (CACHE optional) and run `SIMULATE FAILURE`, observing service degradation, queue growth, retry, circuit breaker, recovery, and latency/error/recovery-time indicators, all visibly labeled `SIMULATION` (step 7; `docs/product/SOFTWARE_ENGINEERING_LAB.md` architecture simulation concept). — `topology.ts`, `simulation.ts`, `ArchitecturePanel.tsx`, `e2e/architecture.spec.ts`
+- [x] After the architecture interaction, the visitor sees an explicit slice endpoint or next-area teaser rather than a dead end (step 8). — `SemanticShell.tsx` "That's the current slice" section
+- [x] A visitor can return to orientation without restarting, and a direct link can open the Software Lab's semantic content without replaying arrival (`docs/vision/USER_JOURNEY.md` Recovery and alternate paths). — single-page app, `SoftwareLabSection` always present in the semantic shell regardless of 3D state
 
 ### Cross-cutting
 
-- [ ] The chosen movement/input model (above) works in both Guided and Free modes on the desktop test profile.
-- [ ] Every interactive target and journey step has a keyboard-reachable equivalent per the model above; a keyboard-only Playwright run completes the critical path.
-- [ ] `prefers-reduced-motion` removes forced camera sweeps and continuous decorative motion without removing any content or interaction, per `ADR-002`.
-- [ ] The mobile-adapted path (`ADR-002` Adapted tier) preserves the full journey narrative and Software Lab content, with reduced visual fidelity where needed.
-- [ ] A WebGL-unavailable or WebGL-context-lost condition immediately renders the semantic equivalent with a visible notice; no retry loop blocks content, per `ADR-002`.
-- [ ] Entry-time capability detection (`ADR-002`) correctly routes at least one simulated case per tier (full desktop, adapted mobile, data-saver semantic-only, WebGL-absent) in Playwright.
-- [ ] No professional claim in the slice is invented; every claim is either sourced from the `ADR-005` static artifact with `VERIFIED` provenance or visibly labeled `PLACEHOLDER — REQUIRES EVIDENCE`.
-- [ ] No request from the browser reaches Supabase or any private Second Brain endpoint (network capture proves this; `ADR-005`).
-- [ ] All `SIMULATION` telemetry in the architecture demo is visibly and unambiguously labeled as simulated, never presented as production evidence.
+- [x] The chosen movement/input model (above) works in both Guided and Free modes on the desktop test profile. — `e2e/critical-path.spec.ts`, `e2e/zavit.spec.ts`, `e2e/world.spec.ts`
+- [x] Every interactive target and journey step has a keyboard-reachable equivalent per the model above; a keyboard-only Playwright run completes the critical path. — `e2e/critical-path.spec.ts` "full critical path, keyboard only"
+- [x] `prefers-reduced-motion` removes forced camera sweeps and continuous decorative motion without removing any content or interaction, per `ADR-002`. — `stepToward`/`navigation.test.ts`, `e2e/smoke.spec.ts`, `e2e/zavit.spec.ts`
+- [x] The mobile-adapted path (`ADR-002` Adapted tier) preserves the full journey narrative and Software Lab content, with reduced visual fidelity where needed. — every e2e spec runs both `desktop-chromium` and `mobile-chromium` projects
+- [x] A WebGL-unavailable or WebGL-context-lost condition immediately renders the semantic equivalent with a visible notice; no retry loop blocks content, per `ADR-002`. — `ExperienceBoundary.tsx`, `CanvasErrorBoundary.tsx`, `e2e/smoke.spec.ts`
+- [x] Entry-time capability detection (`ADR-002`) correctly routes at least one simulated case per tier (full desktop, adapted mobile, data-saver semantic-only, WebGL-absent) in Playwright. — `detectCapability.test.ts` (unit) + `e2e/smoke.spec.ts` (data-saver, WebGL-absent) + all mobile-project e2e runs (adapted tier)
+- [x] No professional claim in the slice is invented; every claim is either sourced from the `ADR-005` static artifact with `VERIFIED` provenance or visibly labeled `PLACEHOLDER — REQUIRES EVIDENCE`. — `portfolio.public.json` ships empty; `ProfileSummary.tsx` renders neutral absence, not filler
+- [x] No request from the browser reaches Supabase or any private Second Brain endpoint (network capture proves this; `ADR-005`). — `e2e/critical-path.spec.ts` "never contacts Supabase"
+- [x] All `SIMULATION` telemetry in the architecture demo is visibly and unambiguously labeled as simulated, never presented as production evidence. — `ArchitecturePanel.tsx` inline `SIMULATION` prefix on every dynamic line
 
 ## UX / Visual Requirements
 
@@ -142,3 +142,4 @@ Deferred to implementation time, after `ACCEPTED`. This story's refinement outpu
 | 2026-09-02 | DRAFT | READY | project-lead | Journey, movement/input model, and `ADR-001`..`ADR-005` refinement complete; measurable Acceptance Criteria defined; performance budget reconciled against `ADR-001`/`ADR-003`; test matrix defined. |
 | 2026-09-02 | READY | READY | project-lead | Independent `code-reviewer` pass: no BLOCKER/P0; P1 (stale contradictory line in `PROJECT_STATE.md`) and P2 (Out of Scope missing explicit deferral of Engineering Decisions Wall/Technology Wall/Current Workbench/Flagship Projects to `M5`) fixed; P3 noted for Juan (ADRs presented as project-lead technical-authority decisions, not open questions). Awaiting Juan `ACCEPTED` gate. |
 | 2026-09-02 | READY | ACCEPTED | Juan | Explicit acceptance of scope, acceptance criteria, ADR-001..005, and risks/costs as presented at the M1 gate ("si adelante con todo") |
+| 2026-09-03 | ACCEPTED | IMPLEMENTED | project-lead | Full Confirmed Journey built across `M2`-`M5` on `feat/US-010-m2-application-foundation` (commits `9f08a78`..`1a4e46a`): semantic shell, capability detection, graybox world (6 zones), Zavit v1, Architecture Table + SIMULATE FAILURE. Every Acceptance Criterion checked with file/test evidence above. Independent `code-reviewer`, `visual-reviewer`, and `performance-reviewer` passes at each milestone (see `docs/handoffs/HANDOFF-2026-09-0{2,3}-*.md`) — code-reviewer found and fixed 1 P0 and 6 P1s across the milestones (notably: a stale-closure keyboard bug in Guided Mode, and a duplicate-simultaneous-dialog bug where a "fix" verified by a passing regression test was still wrong, caught by a broader full-critical-path test and confirmed by screenshot); visual-reviewer found and fixed 1 BLOCKER, 6 P0s, 3 P1s (mostly in `M3`'s graybox lighting/framing). 40 unit tests, 62 e2e tests pass (both desktop and mobile Chromium projects). Bundle: shell 65.66 KB gzip, 3D chunk 237.13 KB gzip, both under `PERFORMANCE_BUDGET.md`. `AUDITED`/`DONE` await the `M9` External Audit at the end of the achievable UI Alpha scope, per the accumulate-then-audit-once model already recorded in `PROJECT_STATE.md`. |

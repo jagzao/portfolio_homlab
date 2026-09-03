@@ -37,8 +37,6 @@ GitHub could not record a formal `APPROVE` from the connected account because th
 
 Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this **one** branch with an internal `IMPLEMENT → BUILD → TEST → RUN → VISUAL INSPECTION → MEASURE → REVIEW → FIX → RETEST` loop (specialist reviewers = the required independent internal review) at each milestone; a single PR opens only once, at the end of the achievable Alpha scope, for External Audit. No merge before that audit.
 
-`US-010` itself stays `ACCEPTED` (not `IMPLEMENTED`) until the full journey (`M3` graybox + `M4` Zavit + `M5` Software Lab minimum) closes its remaining Acceptance Criteria.
-
 `M3 — 3D Graybox: First Physical Journey` is complete on the same branch:
 
 - Full graybox route: forest → exterior → portal → atrium → bridge → Software Lab entry, primitives only (`ADR-003`). Click-to-walk + keyboard landmark HUD + arrow keys, path-and-endpoint collision, semantic `JourneyList` equivalent.
@@ -53,9 +51,18 @@ Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this
 - Independent `visual-reviewer` found one **P1**: Zavit's position fell almost entirely outside the horizontal FOV on mobile/portrait viewports — repositioned. Also fixed proactively: red hands sat near the floor with nothing else nearby, reading as feet — added a base and raised the arms.
 - 32 unit + 62 E2E tests pass (both self-verified against fresh evidence after each fix round).
 
+`M5 — Software Engineering Lab: Architecture Table + SIMULATE FAILURE` is complete (the explicit UI Alpha minimum; Engineering Decisions Wall/Technology Wall/Current Workbench remain out of scope pending Juan's verified content):
+
+- `API → QUEUE → WORKER → CACHE → DATABASE`, inspectable, with a labeled `SIMULATION` failure/recovery sequence explaining real engineering reasoning (queue absorbing backpressure, retries, circuit breaker opening/closing). One component works both in the semantic shell and as a 3D overlay.
+- **Two rounds of real bugs**, worth remembering for how later milestones get reviewed: round 1's "fix" for a duplicate-dialog P1 (shared context) was itself still broken — both mount points independently rendered the panel — and the regression test for it passed anyway on what looks like a `toHaveCount` timing fluke. Caught only by writing a broader full-critical-path e2e test with stricter locators, confirmed by screenshot. Real fix: the panel renders exactly once, globally, as a real fixed-position modal. A second focused review then found the modal didn't actually block background 3D movement despite `aria-modal="true"` — fixed by gating the movement listener on any overlay being open.
+- Also closed, found while auditing every `US-010` AC before marking it `IMPLEMENTED`: no slice-endpoint teaser existed, no single keyboard-only full-critical-path test existed, no test proved zero browser requests to Supabase, and the simulation never mentioned "retry" despite the AC listing it.
+- 40 unit + 62 E2E tests pass.
+
+**`US-010` moves `ACCEPTED → IMPLEMENTED`** — every Acceptance Criterion checked with file/test evidence in the spec itself. `AUDITED`/`DONE` await the `M9` External Audit at the end of the achievable UI Alpha scope.
+
 Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
 
-**Active milestone: `M5 — Software Engineering Lab UI + Interactive Architecture`**, continuing on the same branch.
+**Active milestone: `M6 — Public Portfolio Projection v1`** (or skip directly to `M7` visual fidelity, since Alpha can ship entirely on `ADR-005`'s static-empty artifact with no real content yet to project — decide when reached), continuing on the same branch.
 
 ## Foundation audit history
 
