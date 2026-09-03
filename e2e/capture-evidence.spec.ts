@@ -49,4 +49,30 @@ test.describe('visual evidence capture (not a correctness assertion — see smok
     await page.waitForTimeout(300)
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${testInfo.project.name}-05-reduced-motion.png`) })
   })
+
+  test('loading 3D state', async ({ page }, testInfo) => {
+    // Delay the lazy chunk so the Suspense fallback is guaranteed visible
+    // long enough to capture, instead of racing a fast local network.
+    await page.route('**/Experience3D-*.js', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      await route.continue()
+    })
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    await page.getByRole('status').waitFor({ state: 'visible' })
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, `${testInfo.project.name}-06-loading-3d.png`) })
+  })
+
+  test('recoverable 3D load failure', async ({ page }, testInfo) => {
+    // Corrupt the lazy chunk response so the dynamic import() rejects at
+    // runtime, exercising the same path a real WebGL init failure would.
+    await page.route('**/Experience3D-*.js', async (route) => {
+      await route.fulfill({ contentType: 'application/javascript', body: 'throw new Error("simulated chunk failure")' })
+    })
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    const notice = page.getByRole('alert')
+    await notice.waitFor({ state: 'visible' })
+    await page.screenshot({ path: path.join(EVIDENCE_DIR, `${testInfo.project.name}-07-recoverable-failure.png`) })
+  })
 })
