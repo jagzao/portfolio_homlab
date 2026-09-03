@@ -26,11 +26,11 @@ export function LandmarkHud({ currentId, onSelect }: LandmarkHudProps) {
         overflowY: 'auto',
         display: 'flex',
         flexDirection: 'column',
-        gap: '0.25rem',
+        gap: '0.1rem',
         background: 'rgba(11, 12, 14, 0.75)',
         border: '1px solid var(--color-glass-border)',
         borderRadius: '4px',
-        padding: 'var(--space-1)',
+        padding: '0.35rem',
       }}
     >
       {LANDMARKS.map((landmark) => {
@@ -47,9 +47,10 @@ export function LandmarkHud({ currentId, onSelect }: LandmarkHudProps) {
               border: 'none',
               borderLeft: isCurrent ? '2px solid var(--color-gold)' : '2px solid transparent',
               color: isCurrent ? 'var(--color-gold)' : 'var(--color-text-muted)',
-              padding: '0.25rem 0.5rem',
+              padding: '0.15rem 0.4rem',
               cursor: 'pointer',
-              fontSize: '0.85rem',
+              fontSize: '0.75rem',
+              lineHeight: 1.3,
             }}
           >
             {landmark.label}

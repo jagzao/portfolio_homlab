@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, nearestLandmarkId, stepToward } from './navigation'
+import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, isSegmentBlocked, nearestLandmarkId, stepToward } from './navigation'
 
 describe('clampToBounds', () => {
   it('leaves an in-bounds point unchanged', () => {
@@ -23,6 +23,28 @@ describe('isPointBlocked', () => {
 
   it('is true when the point falls inside an obstacle radius', () => {
     expect(isPointBlocked({ x: 1, z: -21 }, obstacles)).toBe(true)
+  })
+
+  it('is true exactly at the boundary distance (< radius is strict, so on-edge counts as clear)', () => {
+    expect(isPointBlocked({ x: 3, z: -20 }, obstacles)).toBe(false)
+  })
+})
+
+describe('isSegmentBlocked', () => {
+  const obstacles = [{ x: 0, z: -38, radius: 2.5 }]
+
+  it('is false for a path that never comes near the obstacle', () => {
+    expect(isSegmentBlocked({ x: -10, z: 0 }, { x: -10, z: -80 }, obstacles)).toBe(false)
+  })
+
+  it('is true for a clear endpoint whose straight-line path still crosses the obstacle', () => {
+    // Endpoint is well past the obstacle and clear on its own, but the
+    // direct line from start to end still passes through it.
+    expect(isSegmentBlocked({ x: 0, z: -20 }, { x: 0, z: -60 }, obstacles)).toBe(true)
+  })
+
+  it('is false when the path passes beside the obstacle', () => {
+    expect(isSegmentBlocked({ x: 6, z: -20 }, { x: 6, z: -60 }, obstacles)).toBe(false)
   })
 })
 

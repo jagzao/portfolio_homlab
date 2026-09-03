@@ -26,14 +26,37 @@ test.describe('M3 graybox journey', () => {
     await expect(atriumButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
   })
 
-  test('every landmark button is reachable via Tab without a mouse', async ({ page }) => {
+  test('every landmark button is reachable via real Tab presses, in order', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /enter homelab/i }).click()
     const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
     await expect(nav).toBeVisible()
-    const softwareLabButton = nav.getByRole('button', { name: 'Software Engineering Lab' })
-    await softwareLabButton.focus()
-    await expect(softwareLabButton).toBeFocused()
+
+    const forestButton = nav.getByRole('button', { name: 'Forest Approach' })
+    await forestButton.focus() // establish a known starting point, not the assertion itself
+    await expect(forestButton).toBeFocused()
+
+    // 5 real Tab presses across the other 5 buttons, in DOM/tabindex order —
+    // proves the native tab sequence, not just that .focus() works.
+    for (const label of ['HomeLab Exterior', 'Energy Portal', 'Central Atrium', 'Bridge', 'Software Engineering Lab']) {
+      await page.keyboard.press('Tab')
+      await expect(nav.getByRole('button', { name: label, exact: true })).toBeFocused()
+    }
+  })
+
+  test('arrow keys move the current position (supplemental Free Exploration control)', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    await page.locator('canvas').waitFor({ state: 'visible' })
+    // The movement listener is window-level, so no click/focus target is needed.
+
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+    const forestButton = nav.getByRole('button', { name: 'Forest Approach' })
+    await expect(forestButton).toHaveAttribute('aria-current', 'location')
+
+    for (let i = 0; i < 6; i++) await page.keyboard.press('ArrowUp')
+
+    await expect(forestButton).not.toHaveAttribute('aria-current', 'location', { timeout: 5000 })
   })
 })
 

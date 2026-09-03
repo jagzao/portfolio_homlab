@@ -29,15 +29,16 @@ export const LANDMARKS: Landmark[] = [
     id: 'portal',
     label: 'Energy Portal',
     description: 'The one entrance into HomeLab.',
-    position: [0, 1.7, -22],
+    // Short of the arch at z=-22 (see WorldScene) so it's framed ahead, not straddling the camera.
+    position: [0, 1.7, -18],
   },
   {
     id: 'atrium',
     label: 'Central Atrium',
     description: 'The glass atrium, water, and central tree.',
-    // Offset from the tree at z=-38 (trunk + canopy, see WorldScene) so the
-    // camera lands with a clear view of it instead of inside its geometry.
-    position: [0, 1.7, -34],
+    // 8 units from the tree at z=-38 (canopy radius 2, see WorldScene) so
+    // the canopy doesn't fill the whole FOV at close range.
+    position: [0, 1.7, -30],
   },
   {
     id: 'bridge',

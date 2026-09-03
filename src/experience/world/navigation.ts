@@ -32,9 +32,39 @@ export interface CircleObstacle {
   radius: number
 }
 
-/** Solid graybox volumes a click-to-walk target may not land inside (portal posts, atrium tree, lab walls). */
+// Portal posts + atrium tree trunk: solid graybox volumes a click-to-walk
+// target may not land inside, or a straight-line path may not cross.
+export const CAMPUS_OBSTACLES: CircleObstacle[] = [
+  { x: -3, z: -22, radius: 1 }, // portal post (left)
+  { x: 3, z: -22, radius: 1 }, // portal post (right)
+  { x: 0, z: -38, radius: 2.5 }, // atrium tree (trunk + canopy footprint)
+]
+
+/** Solid graybox volumes a click-to-walk target may not land inside. */
 export function isPointBlocked(point: Point2D, obstacles: CircleObstacle[]): boolean {
   return obstacles.some((o) => Math.hypot(point.x - o.x, point.z - o.z) < o.radius)
+}
+
+/** Shortest distance from a point to a line segment. */
+function distanceToSegment(p: Point2D, a: Point2D, b: Point2D): number {
+  const dx = b.x - a.x
+  const dz = b.z - a.z
+  const lengthSquared = dx * dx + dz * dz
+  if (lengthSquared === 0) return Math.hypot(p.x - a.x, p.z - a.z)
+  const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.z - a.z) * dz) / lengthSquared))
+  const projX = a.x + t * dx
+  const projZ = a.z + t * dz
+  return Math.hypot(p.x - projX, p.z - projZ)
+}
+
+/**
+ * True if the straight path from `a` to `b` passes through any obstacle —
+ * catches the case an endpoint check alone misses: a clear target on the
+ * far side of an obstacle sitting mid-route (e.g. the atrium tree, which
+ * sits on the corridor centerline most north-south travel uses).
+ */
+export function isSegmentBlocked(a: Point2D, b: Point2D, obstacles: CircleObstacle[]): boolean {
+  return obstacles.some((o) => distanceToSegment(o, a, b) < o.radius)
 }
 
 /**
