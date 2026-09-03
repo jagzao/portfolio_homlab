@@ -9,6 +9,7 @@ import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, nearestLandmarkId, type P
 import { isWithinNoticeRadius, nextEncounterPhase, type EncounterPhase } from '../../experience/zavit/encounter'
 import { ZavitGreeting } from '../../experience/zavit/ZavitGreeting'
 import { SoftwareLabSection } from '../../experience/architecture/SoftwareLabSection'
+import { useArchitectureTable } from '../../experience/architecture/ArchitectureTableContext'
 import type { ExperienceTier } from '../../capability/detectCapability'
 
 interface Experience3DProps {
@@ -45,6 +46,14 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
   const guidedIndexRef = useRef(guidedIndex)
   guidedIndexRef.current = guidedIndex
   const withinRadiusRef = useRef(false)
+
+  // Any full-viewport overlay (Zavit's greeting, the Architecture Table)
+  // must actually block world movement while it's open — aria-modal="true"
+  // asserts background content is inert, and a keydown listener bound to
+  // `window` doesn't respect visual layering the way pointer events do.
+  const { open: architectureTableOpen } = useArchitectureTable()
+  const inputBlockedRef = useRef(false)
+  inputBlockedRef.current = encounterPhase === 'greeting' || architectureTableOpen
 
   useEffect(() => {
     withinRadiusRef.current = isWithinNoticeRadius(currentPosition)
@@ -84,6 +93,8 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
   // Input Model. Bound once; reads current state via the refs above.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
+      if (inputBlockedRef.current) return
+
       if (journeyModeRef.current === 'guided') {
         if (event.key === ' ' || event.key === 'ArrowRight') {
           event.preventDefault()

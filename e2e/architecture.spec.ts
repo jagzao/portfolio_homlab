@@ -98,4 +98,27 @@ test.describe('M5 Architecture Table (from within the 3D journey)', () => {
     // not two independently-opened ones with the same accessible name.
     await expect(page.getByRole('dialog', { name: 'Architecture Table' })).toHaveCount(1)
   })
+
+  test('background 3D movement is blocked while the dialog is open (aria-modal is real, not just declared)', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+    await nav.getByRole('button', { name: 'Software Engineering Lab', exact: true }).click()
+    const labButton = nav.getByRole('button', { name: 'Software Engineering Lab', exact: true })
+    await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
+
+    await page.getByRole('button', { name: 'Open Architecture Table' }).first().click({ timeout: 8000 })
+    const panel = page.getByRole('dialog', { name: 'Architecture Table' })
+    await expect(panel).toBeVisible()
+
+    // Arrow keys must stay inside the dialog (Tab-trap territory), not
+    // leak through to the world-movement listener underneath.
+    await page.keyboard.press('ArrowUp')
+    await page.keyboard.press('ArrowUp')
+    await page.waitForTimeout(500)
+
+    // Still at the Software Lab landmark, and the dialog is still the only one.
+    await expect(labButton).toHaveAttribute('aria-current', 'location')
+    await expect(page.getByRole('dialog', { name: 'Architecture Table' })).toHaveCount(1)
+  })
 })
