@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { ProfileSummary } from './ProfileSummary'
 
 interface SemanticShellProps {
   children: ReactNode
@@ -29,7 +30,7 @@ export function SemanticShell({ children }: SemanticShellProps) {
             rel="noreferrer"
             style={{ color: 'var(--color-text-muted)', textDecoration: 'none' }}
           >
-            Contact
+            GitHub
           </a>
         </nav>
       </header>
@@ -44,6 +45,7 @@ export function SemanticShell({ children }: SemanticShellProps) {
             portfolio. Explore it in 3D, or stay here in the accessible, fully semantic version —
             every essential piece of content works either way.
           </p>
+          <ProfileSummary />
         </section>
 
         {children}

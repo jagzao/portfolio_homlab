@@ -9,7 +9,7 @@
     "lint": "oxlint",
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run",
-    "test:e2e": "playwright test",
+    "test:e2e": "npm run build && playwright test",
     "preview": "vite preview"
   },
   "dependencies": {
