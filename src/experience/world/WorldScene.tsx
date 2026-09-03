@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import type { ThreeEvent } from '@react-three/fiber'
-import { CAMPUS_BOUNDS, CAMPUS_OBSTACLES, clampToBounds, isPointBlocked, isSegmentBlocked, type Point2D } from './navigation'
+import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, isSegmentBlocked, type Point2D } from './navigation'
+import { JOURNEY_OBSTACLES } from './journeyObstacles'
 import { PlayerCamera } from './PlayerCamera'
+import { Zavit } from '../zavit/Zavit'
+import type { ZavitState } from '../zavit/ZavitEyeColor'
 
 const TREE_POSITIONS: Array<[number, number]> = [
   [-5, -2], [5, -3], [-6, -6], [6, -7], [-4.5, -9], [5.5, -10],
@@ -12,18 +15,19 @@ interface WorldSceneProps {
   currentPosition: Point2D
   reducedMotion: boolean
   tier: 'full' | 'adapted'
+  zavitState: ZavitState
   onPositionChange: (point: Point2D) => void
   onGroundSelect: (point: Point2D) => void
 }
 
-export function WorldScene({ target, currentPosition, reducedMotion, tier, onPositionChange, onGroundSelect }: WorldSceneProps) {
+export function WorldScene({ target, currentPosition, reducedMotion, tier, zavitState, onPositionChange, onGroundSelect }: WorldSceneProps) {
   const trees = useMemo(() => (tier === 'adapted' ? TREE_POSITIONS.slice(0, 3) : TREE_POSITIONS), [tier])
 
   function handleGroundClick(event: ThreeEvent<PointerEvent>) {
     event.stopPropagation()
     const clamped = clampToBounds({ x: event.point.x, z: event.point.z }, CAMPUS_BOUNDS)
-    if (isPointBlocked(clamped, CAMPUS_OBSTACLES)) return
-    if (isSegmentBlocked(currentPosition, clamped, CAMPUS_OBSTACLES)) return
+    if (isPointBlocked(clamped, JOURNEY_OBSTACLES)) return
+    if (isSegmentBlocked(currentPosition, clamped, JOURNEY_OBSTACLES)) return
     onGroundSelect(clamped)
   }
 
@@ -103,6 +107,8 @@ export function WorldScene({ target, currentPosition, reducedMotion, tier, onPos
         <sphereGeometry args={[2, 12, 12]} />
         <meshStandardMaterial color="#4caf7d" />
       </mesh>
+
+      <Zavit state={zavitState} reducedMotion={reducedMotion} />
 
       {/* Bridge over water to the Software Engineering Lab. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.4, -52]}>

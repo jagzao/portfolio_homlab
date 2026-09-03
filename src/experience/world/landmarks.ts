@@ -35,7 +35,7 @@ export const LANDMARKS: Landmark[] = [
   {
     id: 'atrium',
     label: 'Central Atrium',
-    description: 'The glass atrium, water, and central tree.',
+    description: 'The glass atrium, water, and central tree — where Zavit greets visitors and offers a guided tour or free exploration.',
     // 8 units from the tree at z=-38 (canopy radius 2, see WorldScene) so
     // the canopy doesn't fill the whole FOV at close range.
     position: [0, 1.7, -30],
