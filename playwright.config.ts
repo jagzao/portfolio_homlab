@@ -5,11 +5,12 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   reporter: 'list',
-  // Each test spins up a real WebGL context; >4 concurrent Chromium
-  // instances caused flaky ERR_ABORTED navigations under GPU/CPU
-  // contention on a dev machine. Raise this only on a runner with
-  // matching headroom (verify with a repeated-run check first).
-  workers: 4,
+  // Each test spins up a real WebGL context; more than a couple concurrent
+  // Chromium instances caused flaky navigations/timeouts under GPU/CPU
+  // contention on a dev machine, worse once the M3 world scene added real
+  // geometry. Raise this only on a runner with matching headroom (verify
+  // with a repeated-run check first).
+  workers: 2,
   use: {
     baseURL: 'http://localhost:4173',
     trace: 'on-first-retry',

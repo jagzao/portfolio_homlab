@@ -1,44 +1,40 @@
-import { useRef } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import type { Mesh } from 'three'
-
-interface GrayboxMarkerProps {
-  reducedMotion: boolean
-}
-
-/**
- * Minimal graybox primitive proving the 3D entry boundary end to end.
- * Per ADR-003 this is the only 3D content M2 ships — procedural geometry,
- * zero external assets. The real journey (forest/portal/atrium/...) is M3.
- */
-function GrayboxMarker({ reducedMotion }: GrayboxMarkerProps) {
-  const ref = useRef<Mesh>(null!)
-  useFrame(() => {
-    if (reducedMotion) return
-    ref.current.rotation.y += 0.005
-  })
-  return (
-    <mesh ref={ref}>
-      <boxGeometry args={[1, 1, 1]} />
-      <meshStandardMaterial color="#c9a24b" />
-    </mesh>
-  )
-}
+import { useState } from 'react'
+import { Canvas } from '@react-three/fiber'
+import { WorldScene } from '../../experience/world/WorldScene'
+import { LandmarkHud } from '../../experience/world/LandmarkHud'
+import { LANDMARKS } from '../../experience/world/landmarks'
+import { nearestLandmarkId, type Point2D } from '../../experience/world/navigation'
+import type { ExperienceTier } from '../../capability/detectCapability'
 
 interface Experience3DProps {
   reducedMotion: boolean
+  tier: ExperienceTier
 }
 
-export default function Experience3D({ reducedMotion }: Experience3DProps) {
+const START: Point2D = { x: LANDMARKS[0].position[0], z: LANDMARKS[0].position[2] }
+
+export default function Experience3D({ reducedMotion, tier }: Experience3DProps) {
+  const [target, setTarget] = useState<Point2D>(START)
+  const [currentPosition, setCurrentPosition] = useState<Point2D>(START)
+  const resolvedTier: 'full' | 'adapted' = tier === 'adapted' ? 'adapted' : 'full'
+
   return (
-    <Canvas
-      camera={{ position: [0, 0, 4] }}
-      style={{ height: '60vh', minHeight: '20rem' }}
-      aria-label="HomeLab graybox preview"
-    >
-      <ambientLight intensity={0.6} />
-      <directionalLight position={[2, 3, 4]} intensity={0.8} />
-      <GrayboxMarker reducedMotion={reducedMotion} />
-    </Canvas>
+    <div style={{ position: 'relative', height: '60vh', minHeight: '20rem' }}>
+      <Canvas
+        camera={{ position: [START.x, 1.7, START.z], fov: 60 }}
+        dpr={resolvedTier === 'adapted' ? 1 : undefined}
+        shadows={resolvedTier === 'full'}
+        aria-label="HomeLab 3D journey — click the ground to walk, or use the landmark list below"
+      >
+        <WorldScene
+          target={target}
+          reducedMotion={reducedMotion}
+          tier={resolvedTier}
+          onPositionChange={setCurrentPosition}
+          onGroundSelect={setTarget}
+        />
+      </Canvas>
+      <LandmarkHud currentId={nearestLandmarkId(currentPosition, LANDMARKS)} onSelect={setTarget} />
+    </div>
   )
 }

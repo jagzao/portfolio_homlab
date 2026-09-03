@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { ProfileSummary } from './ProfileSummary'
+import { JourneyList } from './JourneyList'
 
 interface SemanticShellProps {
   children: ReactNode
@@ -49,6 +50,8 @@ export function SemanticShell({ children }: SemanticShellProps) {
         </section>
 
         {children}
+
+        <JourneyList />
       </main>
 
       <footer

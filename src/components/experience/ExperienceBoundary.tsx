@@ -8,8 +8,6 @@ import { CanvasErrorBoundary } from './CanvasErrorBoundary'
 const Experience3D = lazy(() => import('./Experience3D'))
 
 type BoundaryState =
-  // `tier` is captured for M3, which will use 'adapted' to scale quality
-  // (ADR-002); M2's graybox has nothing to scale yet, so it's not consumed.
   | { kind: 'idle' }
   | { kind: 'active'; tier: ExperienceTier }
   | { kind: 'notice'; message: string; canOptIntoFull: boolean }
@@ -81,7 +79,7 @@ export function ExperienceBoundary() {
   return (
     <CanvasErrorBoundary onError={() => setState({ kind: 'runtime-error' })}>
       <Suspense fallback={<LoadingState />}>
-        <Experience3D reducedMotion={reducedMotion} />
+        <Experience3D reducedMotion={reducedMotion} tier={state.tier} />
       </Suspense>
     </CanvasErrorBoundary>
   )
