@@ -34,6 +34,10 @@ describe('SIMULATION_FRAMES', () => {
     expect(last.errorRatePct).toBe(0)
   })
 
+  it('mentions retry behavior, not just degradation and queue growth (US-010 AC)', () => {
+    expect(SIMULATION_FRAMES.some((f) => /retry|retrying/i.test(f.note))).toBe(true)
+  })
+
   it('is sorted by atSeconds (frameAt depends on this)', () => {
     for (let i = 1; i < SIMULATION_FRAMES.length; i++) {
       expect(SIMULATION_FRAMES[i].atSeconds).toBeGreaterThan(SIMULATION_FRAMES[i - 1].atSeconds)

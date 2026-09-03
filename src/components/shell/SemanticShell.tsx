@@ -64,6 +64,20 @@ export function SemanticShell({ children }: SemanticShellProps) {
           </p>
           <SoftwareLabSection />
         </section>
+
+        <section
+          aria-labelledby="slice-end-heading"
+          style={{ padding: '0 var(--space-3) var(--space-4)', borderTop: '1px solid var(--color-glass-border)', paddingTop: 'var(--space-3)' }}
+        >
+          <h2 id="slice-end-heading" style={{ fontSize: '1rem', color: 'var(--color-gold)' }}>
+            That&rsquo;s the current slice
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+            This is the first inspectable part of HomeLab. The AI Lab, Robotics Lab, Smart Home Lab, Library, Observatory, and
+            Innovation Vault are planned but not built yet — this slice exists to prove the journey, visual identity, and
+            engineering credibility before the rest of the campus is added.
+          </p>
+        </section>
       </main>
 
       <footer

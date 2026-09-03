@@ -46,7 +46,7 @@ export const SIMULATION_FRAMES: SimulationFrame[] = [
     latencyMs: 890,
     errorRatePct: 11,
     circuitBreaker: 'closed',
-    note: 'QUEUE is backing up: WORKER can’t drain it as fast as API enqueues work. This is the queue absorbing the failure instead of API rejecting requests outright.',
+    note: 'QUEUE is backing up: WORKER can’t drain it as fast as API enqueues work. WORKER is retrying its DATABASE calls, which is adding load to an already-struggling DATABASE instead of failing fast.',
   },
   {
     atSeconds: 6,
