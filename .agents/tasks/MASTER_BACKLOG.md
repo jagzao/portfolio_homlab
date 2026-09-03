@@ -266,13 +266,13 @@ It should feel like a transition threshold, not a reusable navigation gimmick.
 
 ## Validation
 
-- [ ] no dead ends/collision traps on primary route;
-- [ ] recruiter can identify next destination without trial-and-error;
-- [ ] route works through accepted input model;
-- [ ] semantic/direct navigation offers equivalent content access;
-- [ ] reduced-motion path avoids forced cinematic camera sweeps;
-- [ ] representative FPS/frame-time captured even for graybox;
-- [ ] visual reviewer receives actual captures/video evidence.
+- [x] no dead ends/collision traps on primary route. (isSegmentBlocked: endpoint + path collision, unit-tested)
+- [x] recruiter can identify next destination without trial-and-error. (LandmarkHud + JourneyList; visual-reviewer confirmed each zone reads as a distinct place after 3 fix rounds)
+- [x] route works through accepted input model. (click-to-walk + keyboard landmark jump + arrow keys, all e2e-tested)
+- [x] semantic/direct navigation offers equivalent content access. (JourneyList, e2e-tested independent of 3D)
+- [x] reduced-motion path avoids forced cinematic camera sweeps. (stepToward snaps instantly under reducedMotion, unit + e2e tested)
+- [x] representative FPS/frame-time captured even for graybox. (real Playwright rAF sample: ~60fps avg, p95 frame ~18ms on both desktop and mobile-viewport projects — same GPU under both, so this confirms the code path, not real mobile-hardware headroom; that remains M8's job on representative devices)
+- [x] visual reviewer receives actual captures/video evidence. (independent visual-reviewer pass, 3 rounds: BLOCKER+3×P0+P1 found and fixed; see HANDOFF-2026-09-03-m3-graybox-journey.md)
 
 ---
 

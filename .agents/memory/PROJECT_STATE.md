@@ -39,9 +39,16 @@ Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this
 
 `US-010` itself stays `ACCEPTED` (not `IMPLEMENTED`) until the full journey (`M3` graybox + `M4` Zavit + `M5` Software Lab minimum) closes its remaining Acceptance Criteria.
 
+`M3 — 3D Graybox: First Physical Journey` is complete on the same branch:
+
+- Full graybox route: forest → exterior → portal → atrium → bridge → Software Lab entry, primitives only (`ADR-003`). Click-to-walk + keyboard landmark HUD + arrow keys, path-and-endpoint collision, semantic `JourneyList` equivalent.
+- Independent `code-reviewer`/`performance-reviewer`: no BLOCKER/P0; found P1s (missed mid-path collision, per-frame React churn, weak keyboard test) and P2s, all fixed in `d54562c`.
+- Independent `visual-reviewer`: took **3 rounds** — round 1 found BLOCKER (empty Lab zone) + 3×P0 (Atrium FOV overflow, Portal not framed, Bridge near-black) + P1 (Exterior indistinct); round 2 fixed 2 of 3 P0s; round 3 (lighter sky/fog, real Lab doorway geometry, wider mullioned Exterior facade) resolved everything. See `docs/handoffs/HANDOFF-2026-09-03-m3-graybox-journey.md` for the full trail — worth reading before trusting a first-pass visual review as sufficient on later milestones.
+- 25 unit + 44 E2E tests pass; real frame-time sample (~60fps avg, p95 ~18ms on both viewport projects — confirms the code path, not real mobile-hardware headroom).
+
 Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
 
-**Active milestone: `M3 — 3D Graybox: First Physical Journey`**, continuing on the same branch.
+**Active milestone: `M4 — Zavit v1`**, continuing on the same branch.
 
 ## Foundation audit history
 
