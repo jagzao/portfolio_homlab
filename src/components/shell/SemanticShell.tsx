@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { ProfileSummary } from './ProfileSummary'
 import { JourneyList } from './JourneyList'
+import { SoftwareLabSection } from '../../experience/architecture/SoftwareLabSection'
 
 interface SemanticShellProps {
   children: ReactNode
@@ -52,6 +53,17 @@ export function SemanticShell({ children }: SemanticShellProps) {
         {children}
 
         <JourneyList />
+
+        <section aria-labelledby="lab-heading" style={{ padding: '0 var(--space-3) var(--space-3)' }}>
+          <h2 id="lab-heading" style={{ fontSize: '1.1rem', color: 'var(--color-text)' }}>
+            Software Engineering Lab
+          </h2>
+          <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
+            An interactive distributed-systems demonstration — inspect the components, then run a labeled simulation of a
+            downstream failure and recovery.
+          </p>
+          <SoftwareLabSection />
+        </section>
       </main>
 
       <footer

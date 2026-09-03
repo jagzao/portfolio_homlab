@@ -1,11 +1,14 @@
 import { SemanticShell } from './components/shell/SemanticShell'
 import { ExperienceBoundary } from './components/experience/ExperienceBoundary'
+import { ArchitectureTableProvider } from './experience/architecture/ArchitectureTableContext'
 
 function App() {
   return (
-    <SemanticShell>
-      <ExperienceBoundary />
-    </SemanticShell>
+    <ArchitectureTableProvider>
+      <SemanticShell>
+        <ExperienceBoundary />
+      </SemanticShell>
+    </ArchitectureTableProvider>
   )
 }
 

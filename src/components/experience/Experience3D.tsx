@@ -8,6 +8,7 @@ import { JOURNEY_OBSTACLES } from '../../experience/world/journeyObstacles'
 import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, nearestLandmarkId, type Point2D } from '../../experience/world/navigation'
 import { isWithinNoticeRadius, nextEncounterPhase, type EncounterPhase } from '../../experience/zavit/encounter'
 import { ZavitGreeting } from '../../experience/zavit/ZavitGreeting'
+import { SoftwareLabSection } from '../../experience/architecture/SoftwareLabSection'
 import type { ExperienceTier } from '../../capability/detectCapability'
 
 interface Experience3DProps {
@@ -110,6 +111,8 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
     // eslint-disable-next-line react-hooks/exhaustive-deps -- reads latest values via refs, intentionally binds once
   }, [])
 
+  const currentLandmarkId = nearestLandmarkId(currentPosition, LANDMARKS)
+
   return (
     <div style={{ position: 'relative', height: '60vh', minHeight: '20rem' }}>
       <Canvas
@@ -128,10 +131,24 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
           onGroundSelect={setTarget}
         />
       </Canvas>
-      <LandmarkHud currentId={nearestLandmarkId(currentPosition, LANDMARKS)} onSelect={setTarget} />
+      <LandmarkHud currentId={currentLandmarkId} onSelect={setTarget} />
       {encounterPhase === 'greeting' && <ZavitGreeting onChoose={chooseMode} />}
       {journeyMode === 'guided' && (
         <GuidedControls nextIndex={guidedIndex} onContinue={advanceGuided} onExitToFree={() => setJourneyMode('free')} />
+      )}
+      {currentLandmarkId === 'software-lab' && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            maxHeight: 'calc(100% - 2 * var(--space-3))',
+            overflowY: 'auto',
+          }}
+        >
+          <SoftwareLabSection />
+        </div>
       )}
     </div>
   )
