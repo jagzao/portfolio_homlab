@@ -83,7 +83,9 @@ Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha ha
 - Security/content validation: secret scan clean, network-isolation proof already covered by `critical-path.spec.ts`, public-content contract already tested (`client.test.ts`), no unsupported claims found.
 - 41 unit + 116 E2E tests pass (desktop+mobile, final full run 2026-09-04).
 
-**Active milestone: `M9 — External Audit: UI Alpha`**, continuing on the same branch. Final step: open the accumulated branch as a PR (do not merge), with the complete handoff.
+`M9 — External Audit: UI Alpha` is complete: PR #4 opened (`feat/US-010-m2-application-foundation` → `main`, https://github.com/jagzao/portfolio_homlab/pull/4) with the full handoff (scope, changed files, validation, all three reviewers' findings and fixes, performance measurements, accessibility/security evidence, professional-claims provenance, known issues, deferred decisions, placeholders). **Not merged**, per instruction — development stops here pending External Audit.
+
+**Stopped for External Audit. No active milestone until Juan or the External Audit reviews PR #4.** M10+ (M6 unblock once real content is supplied, or further UI Alpha iteration per audit findings) resumes only after that review.
 
 ## Foundation audit history
 
