@@ -3,6 +3,14 @@
  * Consumed by both the 3D world (camera waypoints, keyboard jump targets)
  * and the semantic/no-WebGL equivalent nav list — one source of truth so
  * the two presentations can never silently diverge.
+ *
+ * Unlike ground-click and keyboard nudge, jumping straight to a landmark
+ * (Guided Mode advance, or the LandmarkHud list) does not run an
+ * isSegmentBlocked check against JOURNEY_OBSTACLES - these positions are
+ * curated, not user-picked, so obstacle placement (see CAMPUS_OBSTACLES in
+ * navigation.ts) must keep every consecutive-landmark straight line clear
+ * instead. Verified clear as of the current obstacle layout; re-check this
+ * if either list changes.
  */
 export interface Landmark {
   id: string
@@ -36,9 +44,13 @@ export const LANDMARKS: Landmark[] = [
     id: 'atrium',
     label: 'Central Atrium',
     description: 'The glass atrium, water, and central tree — where Zavit greets visitors and offers a guided tour or free exploration.',
-    // 8 units from the tree at z=-38 (canopy radius 2, see WorldScene) so
-    // the canopy doesn't fill the whole FOV at close range.
-    position: [0, 1.7, -30],
+    // z=-32: close enough that the water plane (18x18 centered at z=-38,
+    // near edge z=-29) actually falls inside the camera's forward view -
+    // the camera looks dead level (see PlayerCamera's lookAt), so ground
+    // right at the visitor's feet sits below the frame; anything closer
+    // than this left the water plane entirely in that dead zone. Clear of
+    // the tree (now offset to x=-3, see CAMPUS_OBSTACLES) either way.
+    position: [0, 1.7, -32],
   },
   {
     id: 'bridge',

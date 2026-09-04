@@ -11,6 +11,7 @@ interface ZavitGreetingProps {
  * where it came from on dismiss (WCAG 2.4.3/4.1.2), without a keyboard trap.
  */
 export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
+  const dialogRef = useRef<HTMLDivElement>(null)
   const firstButtonRef = useRef<HTMLButtonElement>(null)
   const previouslyFocused = useRef<Element | null>(null)
 
@@ -22,8 +23,38 @@ export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
     }
   }, [])
 
+  // Modal dialog per WAI-ARIA APG, same pattern as ArchitecturePanel: Escape
+  // dismisses (equivalent to Skip - never traps the visitor), Tab/Shift+Tab
+  // stays inside rather than escaping into background content.
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onChoose('free')
+        return
+      }
+      if (event.key !== 'Tab' || !dialogRef.current) return
+      const focusable = dialogRef.current.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [onChoose])
+
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Zavit"

@@ -100,4 +100,35 @@ test.describe('M4 Zavit v1', () => {
 
     await expect(page.getByRole('dialog', { name: 'Zavit' })).toBeVisible({ timeout: 2000 })
   })
+
+  test('Escape dismisses the greeting, same as Skip', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+    await nav.getByRole('button', { name: 'Central Atrium', exact: true }).click()
+
+    const greeting = page.getByRole('dialog', { name: 'Zavit' })
+    await expect(greeting).toBeVisible({ timeout: 8000 })
+
+    await page.keyboard.press('Escape')
+    await expect(greeting).not.toBeVisible()
+  })
+
+  test('Tab wraps focus inside the greeting instead of escaping into background content', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+    await nav.getByRole('button', { name: 'Central Atrium', exact: true }).click()
+
+    const greeting = page.getByRole('dialog', { name: 'Zavit' })
+    const guidedButton = greeting.getByRole('button', { name: 'Guided Mode' })
+    await expect(guidedButton).toBeFocused({ timeout: 8000 })
+
+    // Shift+Tab from the first focusable element must land on the last one
+    // inside the dialog (Skip), never on background content.
+    await page.keyboard.press('Shift+Tab')
+    const focusedHandle = await page.evaluateHandle(() => document.activeElement)
+    const isInsideDialog = await greeting.evaluate((dialogEl, el) => dialogEl.contains(el as Node), focusedHandle)
+    expect(isInsideDialog).toBe(true)
+  })
 })

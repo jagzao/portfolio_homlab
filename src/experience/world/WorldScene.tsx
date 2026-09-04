@@ -169,26 +169,31 @@ export function WorldScene({
           floor sits above the water in turn. */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -38]}>
         <planeGeometry args={[18, 18]} />
-        <meshPhysicalMaterial color="#2d5570" transparent opacity={0.75} roughness={0.15} clearcoat={0.8} clearcoatRoughness={0.1} />
+        <meshPhysicalMaterial color="#123449" transparent opacity={0.88} roughness={0.15} clearcoat={0.8} clearcoatRoughness={0.1} />
       </mesh>
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -38]}>
         <circleGeometry args={[6, 24]} />
         <meshPhysicalMaterial color="#e8e6df" transparent opacity={0.3} roughness={0.1} clearcoat={0.9} clearcoatRoughness={0.1} />
       </mesh>
-      <mesh position={[0, 1.5, -38]}>
+      {/* Off the corridor centerline (x=-3, matching the CAMPUS_OBSTACLES
+          entry in navigation.ts) so it doesn't block the camera's straight-
+          ahead view down the corridor - previously centered at x=0, which
+          both hid the water behind it in the arrival shot and sat on every
+          landmark-to-landmark straight line through the Atrium. */}
+      <mesh position={[-3, 1.5, -38]}>
         <cylinderGeometry args={[0.4, 0.5, 3]} />
         <meshStandardMaterial color="#5a4230" />
       </mesh>
       {/* Canopy: three overlapping clusters instead of one perfect sphere, for an organic read. */}
-      <mesh position={[0, 3.6, -38]}>
+      <mesh position={[-3, 3.6, -38]}>
         <sphereGeometry args={[1.9, 12, 12]} />
         <meshStandardMaterial color="#4caf7d" />
       </mesh>
-      <mesh position={[-1.1, 3.2, -37.3]}>
+      <mesh position={[-4.1, 3.2, -37.3]}>
         <sphereGeometry args={[1.2, 10, 10]} />
         <meshStandardMaterial color="#458f6b" />
       </mesh>
-      <mesh position={[1.2, 3.1, -38.6]}>
+      <mesh position={[-1.8, 3.1, -38.6]}>
         <sphereGeometry args={[1.3, 10, 10]} />
         <meshStandardMaterial color="#56c98a" />
       </mesh>
@@ -200,7 +205,7 @@ export function WorldScene({
           the deck (deck box spans y=0..0.1). */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -52]}>
         <planeGeometry args={[18, 16]} />
-        <meshPhysicalMaterial color="#2d5570" transparent opacity={0.75} roughness={0.15} clearcoat={0.8} clearcoatRoughness={0.1} />
+        <meshPhysicalMaterial color="#123449" transparent opacity={0.88} roughness={0.15} clearcoat={0.8} clearcoatRoughness={0.1} />
       </mesh>
       <mesh position={[0, 0.05, -52]}>
         <boxGeometry args={[3, 0.1, 14]} />

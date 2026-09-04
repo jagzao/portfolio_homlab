@@ -37,7 +37,12 @@ export interface CircleObstacle {
 export const CAMPUS_OBSTACLES: CircleObstacle[] = [
   { x: -3, z: -22, radius: 1 }, // portal post (left)
   { x: 3, z: -22, radius: 1 }, // portal post (right)
-  { x: 0, z: -38, radius: 2.5 }, // atrium tree (trunk + canopy footprint)
+  // Atrium tree (trunk + canopy footprint). Off the x=0 centerline (was
+  // centered) so it no longer sits directly on every north-south landmark
+  // hop (Atrium -> Bridge, both at x=0) - that straight line used to run
+  // right through the trunk for Guided Mode/landmark-jump movement, which
+  // (unlike click-to-walk and keyboard nudge) never routed around obstacles.
+  { x: -3, z: -38, radius: 2.5 },
 ]
 
 /** Solid graybox volumes a click-to-walk target may not land inside. */

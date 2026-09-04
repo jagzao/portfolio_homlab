@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { CAMPUS_BOUNDS, clampToBounds, isPointBlocked, isSegmentBlocked, nearestLandmarkId, stepToward } from './navigation'
+import { LANDMARKS } from './landmarks'
+import { JOURNEY_OBSTACLES } from './journeyObstacles'
 
 describe('clampToBounds', () => {
   it('leaves an in-bounds point unchanged', () => {
@@ -45,6 +47,19 @@ describe('isSegmentBlocked', () => {
 
   it('is false when the path passes beside the obstacle', () => {
     expect(isSegmentBlocked({ x: 6, z: -20 }, { x: 6, z: -60 }, obstacles)).toBe(false)
+  })
+
+  it('every consecutive pair of real landmarks has a clear straight-line path against the real obstacles', () => {
+    // Guided Mode advance and the LandmarkHud jump both set target directly,
+    // with no obstacle check of their own (unlike click-to-walk/keyboard
+    // nudge) - see the tradeoff documented in landmarks.ts. This is the
+    // regression guard for that tradeoff: it fails loudly if a future
+    // landmark or obstacle change reintroduces a blocked hop.
+    for (let i = 0; i < LANDMARKS.length - 1; i++) {
+      const a = { x: LANDMARKS[i].position[0], z: LANDMARKS[i].position[2] }
+      const b = { x: LANDMARKS[i + 1].position[0], z: LANDMARKS[i + 1].position[2] }
+      expect(isSegmentBlocked(a, b, JOURNEY_OBSTACLES)).toBe(false)
+    }
   })
 })
 

@@ -70,11 +70,16 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
     const timer = setTimeout(() => {
       // If the visitor walked out of range during the notice window, don't
       // pop the greeting up wherever they ended up - go back to idle and
-      // let proximity retrigger it naturally.
+      // let proximity retrigger it naturally. Same if the Architecture
+      // Table opened in the meantime - two independent real modals
+      // (aria-modal="true" each) must never be visible at once; staying in
+      // 'noticing' lets this same timer retry once the table closes,
+      // rather than dropping the encounter entirely.
+      if (architectureTableOpen) return
       setEncounterPhase(withinRadiusRef.current ? 'greeting' : 'idle')
     }, delay)
     return () => clearTimeout(timer)
-  }, [encounterPhase, reducedMotion])
+  }, [encounterPhase, reducedMotion, architectureTableOpen])
 
   function chooseMode(mode: 'guided' | 'free') {
     setJourneyMode(mode)
@@ -151,7 +156,7 @@ export default function Experience3D({ reducedMotion, tier }: Experience3DProps)
       {journeyMode === 'guided' && (
         <GuidedControls nextIndex={guidedIndex} onContinue={advanceGuided} onExitToFree={() => setJourneyMode('free')} />
       )}
-      {currentLandmarkId === 'software-lab' && (
+      {currentLandmarkId === 'software-lab' && encounterPhase !== 'greeting' && (
         <div
           style={{
             position: 'absolute',
