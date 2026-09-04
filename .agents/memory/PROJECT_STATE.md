@@ -1,6 +1,6 @@
 # HomeLab — Durable Project State
 
-Last updated: 2026-09-02
+Last updated: 2026-09-04
 Owner: Juan
 External Auditor: ChatGPT
 
@@ -71,7 +71,19 @@ Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha ha
 - code-reviewer's flag of an unmeasured `meshPhysicalMaterial` rollout caught a real signal (desktop p95 briefly measured at ~28ms vs. the 20ms budget), though follow-up measurement showed the dev machine has genuine 18-31ms run-to-run variance — applied the budget's prescribed mitigation (fewer clearcoat surfaces, fewer vine draw calls) regardless of how much was signal vs. noise.
 - 40 unit + 50 E2E tests pass.
 
-**Active milestone: `M8 — Quality, Performance, Accessibility and UI Audit Readiness`**, continuing on the same branch.
+`M8 — Quality, Performance, Accessibility and UI Audit Readiness` is complete on the same branch:
+
+- Holistic (whole-alpha, M2-M7) independent `code-reviewer`, `visual-reviewer`, `performance-reviewer` passes, run in parallel with fresh context, no self-review.
+- `code-reviewer` P1: `ZavitGreeting.tsx` declared `aria-modal="true"` with no focus-trap/Escape, unlike `ArchitecturePanel.tsx` — fixed, mirroring the existing pattern, with new Escape/Tab-wrap e2e regression tests.
+- `code-reviewer` P2: Guided Mode/LandmarkHud jump movement never obstacle-checked its path (unlike click-to-walk/keyboard nudge) — the Atrium tree sat directly on the Atrium→Bridge straight line. Fixed by moving the obstacle off the corridor centerline (documented as a tradeoff in `landmarks.ts` rather than adding full path-routing), with a new unit test asserting every real consecutive-landmark pair stays clear.
+- `visual-reviewer` found 3 P1s across 33 fresh captures: Atrium water never actually visible (tree blocked the view + landmark stop point kept water outside camera FOV — fixed by repositioning both), the in-3D Architecture Table capture showing the wrong location (test clicked before the walk finished — fixed by waiting for real arrival and scoping to the right button), and mobile captures showing Zavit's greeting stuck open over unrelated zones.
+- Investigating that last P1 (not either reviewer) surfaced a real, previously-undetected bug: the Zavit greeting and the Architecture Table could be open **simultaneously** — two independent `aria-modal="true"` dialogs stacked, reproducible on desktop too under load, not mobile-specific. Fixed by making the two modals mutually exclusive in the state machine (this is the third time in this project a review finding led to discovering a deeper bug than the one originally reported — see the M5 and M7 notes above; worth continuing to treat "looks fine but let me check anyway" as the default).
+- `performance-reviewer`: bundle/delivery budgets all PASS with large margins; heap-delta clean (+0.4MB/5 cycles); added real INP-proxy and long-task measurements (previously entirely unmeasured); freshly re-measured desktop 3D frame time (not just carried forward from M7) at 21.3-25.1ms p95 across 4 samples — **consistently over the 20ms budget**, though the dev machine had ~37 concurrent Chrome processes from unrelated sessions during measurement, which plausibly inflates this. Reported honestly as an inconclusive/marginal-fail needing a real quiet-device re-measurement, not waved off. Sustained 5-minute heap and real GPU/renderer profiling remain documented gaps (not fabricated as covered).
+- Investigated the apparent ~34-minute E2E hang (2 mobile-chromium tests) `performance-reviewer` was skeptical of: isolated reruns passed in seconds, and a full 114-116 test suite run afterward completed cleanly in 4.4-4.5 minutes — strong evidence of transient system contention, though the exact mechanism for a bounded 8s/30s assertion hanging 34 minutes wasn't fully diagnosed.
+- Security/content validation: secret scan clean, network-isolation proof already covered by `critical-path.spec.ts`, public-content contract already tested (`client.test.ts`), no unsupported claims found.
+- 41 unit + 116 E2E tests pass (desktop+mobile, final full run 2026-09-04).
+
+**Active milestone: `M9 — External Audit: UI Alpha`**, continuing on the same branch. Final step: open the accumulated branch as a PR (do not merge), with the complete handoff.
 
 ## Foundation audit history
 

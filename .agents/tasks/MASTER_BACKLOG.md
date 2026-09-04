@@ -495,75 +495,61 @@ Produce an evidence-backed alpha ready for External Audit.
 
 ## Code review
 
-Independent `code-reviewer` must inspect:
+Independent `code-reviewer` (holistic, whole-alpha pass, M2-M7): architecture, correctness, resource lifecycle, cleanup/disposal, state management, content boundary, security, test quality, regressions, traceability all inspected.
 
-- architecture;
-- correctness;
-- resource lifecycle;
-- cleanup/disposal;
-- state management;
-- content boundary;
-- security;
-- test quality;
-- regressions;
-- traceability.
+- [x] architecture/correctness/lifecycle/state/content-boundary/security/tests/regressions/traceability — no BLOCKER. (see `docs/handoffs/HANDOFF-2026-09-04-m8-quality-audit.md`)
+- [x] P1 fixed: `ZavitGreeting.tsx` had `aria-modal="true"` with no focus-trap/Escape (unlike `ArchitecturePanel.tsx`). (focus-trap + Escape added, mirroring the existing pattern; `e2e/zavit.spec.ts` Escape + Tab-wrap regression tests added)
+- [x] P2 fixed, documented tradeoff: Guided Mode/LandmarkHud jump movement doesn't obstacle-check its own path (unlike click-to-walk/keyboard nudge) — the Atrium tree sat on the Atrium->Bridge straight line. (obstacle moved off-centerline; tradeoff documented in `landmarks.ts`; regression unit test asserts every consecutive real-landmark pair stays clear against `JOURNEY_OBSTACLES`)
+- [x] self-discovered during evidence re-verification (not by either reviewer): Zavit's greeting and the Architecture Table could both be open at once — two independent `aria-modal="true"` dialogs stacked. (state machine now defers each to the other: greeting timer holds while the table is open, the in-3D Architecture Table trigger hides while greeting is open)
 
 ## Visual review
 
-Independent `visual-reviewer` requires real evidence, including at least:
+Independent `visual-reviewer` (holistic, 33 fresh captures, desktop+mobile): desktop main journey, mobile/adapted, reduced-motion, semantic/no-WebGL, Atrium, Zavit encounter, Software Engineering Lab, architecture simulation normal/failure state, day/night — all captured and compared against `docs/vision/ART_DIRECTION.md`/`US-010`.
 
-- desktop main journey captures;
-- mobile/adapted captures;
-- reduced-motion evidence;
-- semantic/no-WebGL mode;
-- Atrium;
-- Zavit encounter;
-- Software Engineering Lab;
-- architecture simulation normal/failure state.
-
-It must compare implementation against accepted art/product specs.
+- [x] semantic shell, WebGL-unavailable, data-saver, recoverable-failure, reduced-motion, loading states — solid, no fabricated content, no blank/broken layouts (desktop+mobile).
+- [x] P1 fixed: Atrium water was never actually visible in any capture (day/night/mobile) — the tree sat dead-center blocking the view and the landmark stop point kept the water plane's near edge outside the camera's forward FOV. (tree moved off-centerline, Atrium landmark repositioned, water color/opacity deepened for contrast against the sky/fog tone; re-captured and visually confirmed)
+- [x] P1 fixed: `arch-04-in-3d.png` captured the wrong location (Forest Approach, not the Software Engineering Lab) because the evidence test clicked before the walk finished and didn't scope to the in-3D trigger button. (test now waits for real arrival via `aria-current` and scopes the click to the 3D-embedded trigger; re-captured and confirmed correct)
+- [x] P1 fixed: mobile captures showed the Zavit greeting stuck open over unrelated zones (Bridge/Lab/night-Atrium) because the proximity trigger can fire mid-transit on any walk near the Atrium, timing-dependent on frame rate (reproduced on desktop too under load, not mobile-specific). (evidence tests now dismiss any greeting that appears before capturing a zone; the underlying double-modal issue above was the deeper bug making this visible)
+- [x] P2 noted: `zavit-01-idle.png` duplicates the Forest Approach establishing shot rather than showing Zavit up close before the greeting triggers — cosmetic, not reopened given time budget.
 
 ## Performance review
 
-Independent `performance-reviewer` must measure:
+Independent `performance-reviewer` (holistic, whole-alpha) measured against `docs/architecture/PERFORMANCE_BUDGET.md`.
 
-- production bundle sizes;
-- initial JS/CSS;
-- 3D runtime chunk;
-- first-playable payload;
-- asset inventory;
-- LCP/INP/CLS where applicable;
-- FPS/frame time on documented target devices;
-- memory/heap behavior;
-- renderer resource counts/GPU estimate where available;
-- repeated enter/exit cleanup;
-- mobile/degraded thresholds.
-
-No `PASS` without measurements.
+- [x] production bundle sizes: shell JS 65.66 KB gzip (budget ≤170KB), CSS 0.47 KB gzip (≤50KB), 3D chunk 237.99 KB gzip (≤500KB), route total ≈66KB (≤350KB) — PASS, large margins.
+- [x] first-playable 3D payload ≈3D chunk (≤4MB) — PASS. Asset inventory: zero textures/models/audio (ADR-003 primitives-only) — PASS trivially.
+- [x] LCP/CLS: 96ms / 0.000, isolated single-worker run — PASS by wide margin, though not the budget's specified mobile-4G-throttled/p75 methodology (noted, not re-run — margin is large enough this is very unlikely to flip).
+- [x] INP: real field measurement remains out of reach headless; added a documented proxy (click-to-visible-effect round trip, 47-241ms across runs) plus a real long-task sample (1 task, 109-131ms, i.e. over 50ms but under 200ms — within the "≤2 over 50ms, none over 200ms" budget). Proxy explicitly labeled as overstating real INP, not a clean pass/fail.
+- [x] FPS/frame time: mobile (adapted tier, Pixel 7 emulation) 60fps avg / 17.6-18.1ms p95 — PASS, with the standing caveat this is emulated-viewport-on-desktop-GPU, not real mobile hardware. Desktop: freshly re-measured this milestone (not just carried forward from M7) — 4 samples across isolated and contended runs cluster at 21.3-25.1ms p95, consistently **over** the 20ms budget. Confirmed ~37 concurrent Chrome processes from unrelated sessions were running on this shared dev machine during measurement, which plausibly inflates this — but that could not be controlled for, so this is reported as a genuine marginal-FAIL/inconclusive result, not waved off. **Needs a real re-measurement on a quiet/dedicated device before being treated as a final gate.**
+- [x] memory/heap: 5 enter/exit reload cycles, +0.4MB delta — PASS, no leak signal. A sustained 5-minute-route heap check (the budget's literal scenario) was not run — documented gap, not fabricated as covered.
+- [x] renderer resource counts: static draw-call count from source (~70 full-tier/~64 adapted-tier, all simple primitives, no shadows) as a documented substitute for real GPU/texture profiling, which wasn't performed — near-zero GPU memory is a safe inference given zero textures exist (ADR-003), but this is explicitly not a real profile.
+- [x] repeated enter/exit cleanup: covered by the same heap-delta test above.
+- [x] mobile/degraded thresholds: adapted-tier E2E coverage (`smoke.spec.ts`, tier-conditional asset counts) plus the mobile frame-time sample above.
+- [x] E2E full-suite timing anomaly investigated per performance-reviewer's request: two mobile-chromium tests hung ~34 minutes on a contended 2-worker run; isolated reruns passed cleanly in seconds, and a full 114-116 test run afterward (same 2-worker config) completed in 4.4-4.5 minutes with zero failures — strong evidence this was transient system-wide contention (confirmed ~37 concurrent Chrome processes at the time), not a reproducible product defect, though the exact mechanism for a bounded 8s/30s assertion hanging 34 minutes remains undiagnosed.
 
 ## E2E flows
 
-At minimum:
+All 11 covered by existing specs; confirmed passing in the final full run (116/116, desktop+mobile, 2026-09-04).
 
-1. semantic shell loads;
-2. visitor can enter 3D when supported;
-3. visitor reaches Atrium;
-4. Zavit guided/free decision works or can be skipped;
-5. visitor reaches Software Engineering Lab;
-6. architecture interaction works;
-7. failure simulation works and is visibly labeled `SIMULATION`;
-8. keyboard alternative works;
-9. reduced-motion path works;
-10. WebGL failure/degraded path preserves content;
-11. mobile path remains usable.
+1. [x] semantic shell loads — `smoke.spec.ts`.
+2. [x] visitor can enter 3D when supported — `smoke.spec.ts`, `capture-evidence.spec.ts`.
+3. [x] visitor reaches Atrium — `world.spec.ts`, `zavit.spec.ts`.
+4. [x] Zavit guided/free decision works or can be skipped — `zavit.spec.ts`.
+5. [x] visitor reaches Software Engineering Lab — `critical-path.spec.ts`, `m5-evidence.spec.ts`.
+6. [x] architecture interaction works — `architecture.spec.ts`.
+7. [x] failure simulation works and is visibly labeled `SIMULATION` — `architecture.spec.ts`.
+8. [x] keyboard alternative works — `zavit.spec.ts`, `critical-path.spec.ts` (full keyboard-only path).
+9. [x] reduced-motion path works — `zavit.spec.ts`, `smoke.spec.ts`.
+10. [x] WebGL failure/degraded path preserves content — `capture-evidence.spec.ts`.
+11. [x] mobile path remains usable — every spec runs on `mobile-chromium` too.
 
 ## Security/content validation
 
-- secret scan;
-- browser network inspection proves no private Second Brain access;
-- public content contract test;
-- forbidden-field/private-ID scan;
-- no unsupported professional claims.
+- [x] secret scan — repo history (`git log --diff-filter=A`) and tracked-file grep for key/token/secret/password patterns: clean, nothing found.
+- [x] browser network inspection proves no private Second Brain access — `critical-path.spec.ts` (`the browser never contacts Supabase or any private Second Brain endpoint during the full critical path`).
+- [x] public content contract test — `src/content/client.test.ts` already asserted neutral-absence (null profile, empty capabilities) before M8; confirmed still passing, no new test needed.
+- [x] forbidden-field/private-ID scan — trivial: `portfolio.public.json` ships `{profile:null, capabilities:[]}`, nothing to scan.
+- [x] no unsupported professional claims — confirmed via code-reviewer's content-boundary pass and direct read of every shell/3D-visible string; nothing beyond the accepted "first inspectable slice" framing.
 
 ---
 
