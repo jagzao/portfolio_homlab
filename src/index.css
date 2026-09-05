@@ -1,0 +1,63 @@
+:root {
+  color-scheme: dark;
+
+  /* docs/vision/ART_DIRECTION.md palette: black structure, gold premium/highlight,
+     green nature/active, red robotics/warning, white information. */
+  --color-structure: #0b0c0e;
+  --color-structure-raised: #15171b;
+  --color-glass-border: #2a2d33;
+  --color-gold: #c9a24b;
+  --color-green: #4caf7d;
+  --color-red: #d1554a;
+  --color-text: #f4f2ec;
+  --color-text-muted: #a8a9ad;
+  --focus-ring: 0 0 0 2px var(--color-structure), 0 0 0 4px var(--color-gold);
+
+  --space-1: 0.5rem;
+  --space-2: 1rem;
+  --space-3: 1.5rem;
+  --space-4: 2.5rem;
+
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--color-structure);
+  color: var(--color-text);
+}
+
+a {
+  color: inherit;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
