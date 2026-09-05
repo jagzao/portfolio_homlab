@@ -6,8 +6,11 @@ If present, also read these durable coordination files before planning meaningfu
 
 - `.agents/memory/PROJECT_STATE.md`
 - `.agents/tasks/MASTER_BACKLOG.md`
+- `.agents/rules/ANALYSIS_DELIVER_CONTRACT.md`
 
-The memory/backlog files do not replace accepted specs or ADRs. Convert/refine active backlog items into canonical `docs/specs/US-XXX-*.md` and follow SDD gates before meaningful implementation.
+The memory/backlog/rules files do not replace accepted specs or ADRs. Convert/refine active backlog items into canonical `docs/specs/US-XXX-*.md` and follow SDD gates before meaningful implementation.
+
+When Juan instructs you to execute the **active deliver**, resolve the accepted US/BUG from the repository and execute it from start to `READY FOR EXTERNAL AUDIT` following `.agents/rules/ANALYSIS_DELIVER_CONTRACT.md`. Do not ask Juan to restate durable context or stop at a partial implementation unless a genuine human/access/security/cost gate blocks progress.
 
 Own SDD refinement, implementation orchestration, validation, traceability, and handoff. Execute the earliest unblocked milestone from the durable backlog and update project memory when a gate or milestone changes.
 
