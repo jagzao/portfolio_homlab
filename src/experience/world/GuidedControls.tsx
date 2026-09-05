@@ -3,16 +3,18 @@ import { LANDMARKS } from './landmarks'
 interface GuidedControlsProps {
   nextIndex: number
   onContinue: () => void
+  onSkip: () => void
   onExitToFree: () => void
 }
 
 /**
- * Guided Mode's "Continue" control (US-010 Movement and Input Model):
- * visible button, click/tap/Space/right-arrow all advance (the keyboard
- * bindings live in Experience3D), and exiting to Free Exploration is
- * always one click away — Guided Mode never seizes navigation.
+ * Guided Mode's controls (US-010 Movement and Input Model): a visible
+ * "Continue" button (click/tap/Space/right-arrow all advance — the keyboard
+ * bindings live in Experience3D), a "Skip stop" that jumps past the next
+ * stop's dwell, and an always-present exit to Free Exploration — Guided
+ * Mode never seizes navigation.
  */
-export function GuidedControls({ nextIndex, onContinue, onExitToFree }: GuidedControlsProps) {
+export function GuidedControls({ nextIndex, onContinue, onSkip, onExitToFree }: GuidedControlsProps) {
   const done = nextIndex >= LANDMARKS.length
   return (
     <div
@@ -33,6 +35,11 @@ export function GuidedControls({ nextIndex, onContinue, onExitToFree }: GuidedCo
       {!done && (
         <button type="button" onClick={onContinue}>
           Continue to {LANDMARKS[nextIndex].label}
+        </button>
+      )}
+      {!done && (
+        <button type="button" onClick={onSkip} style={{ fontSize: '0.8rem' }}>
+          Skip stop
         </button>
       )}
       {done && <span style={{ color: 'var(--color-text-muted)', fontSize: '0.85rem' }}>End of guided route.</span>}

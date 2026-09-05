@@ -8,7 +8,12 @@ import { LANDMARKS } from '../../experience/world/landmarks'
  */
 export function JourneyList() {
   return (
-    <section aria-labelledby="journey-heading" style={{ padding: '0 var(--space-3) var(--space-3)' }}>
+    <section
+      id="journey-list"
+      tabIndex={-1}
+      aria-labelledby="journey-heading"
+      style={{ padding: '0 var(--space-3) var(--space-3)', scrollMarginTop: 'var(--space-3)' }}
+    >
       <h2 id="journey-heading" style={{ fontSize: '1.1rem', color: 'var(--color-text)' }}>
         The Journey
       </h2>

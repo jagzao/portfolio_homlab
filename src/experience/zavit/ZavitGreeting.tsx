@@ -29,6 +29,12 @@ export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
+        // stopPropagation so the background window listener (Experience3D's
+        // "Escape opens semantic navigation") never fires for a modal key —
+        // otherwise React's flush between the document and window listeners
+        // could unmount this dialog mid-dispatch and let the background steal
+        // focus. Escape inside a modal must only ever dismiss the modal.
+        event.stopPropagation()
         event.preventDefault()
         onChoose('free')
         return

@@ -25,20 +25,23 @@ real sin inventar experiencia profesional.
 
 - Default: DeepSeek V4 Flash. Usalo para entender, buscar, planear, decidir, coordinar, analizar,
   pequeños cambios y validar.
-- Delegá implementation a `@coder` (DeepSeek V4 Flash). Escalá a `kimi-k2.7-code` solo si
-  complexity >= HIGH (implementación compleja, refactor grande, debugging difícil, cambios
-  multiarchivo con lógica significativa, o Flash falla / baja confianza).
+- Delegá implementation a `general` (DeepSeek V4 Flash) o implementá directamente. Escalá a
+  `kimi-k2.7-code` solo si complexity >= HIGH (implementación compleja, refactor grande, debugging
+  difícil, cambios multiarchivo con lógica significativa, o Flash falla / baja confianza).
 - No uses Kimi para leer, buscar, resumir, tests, docs, pequeños fixes, planning, revisar estado ni
   repetir información conocida.
-- Review independiente: `@reviewer` (DeepSeek/GLM Flash) en contexto fresco.
-- Tests por scope: `@test-runner` (GLM Flash).
-- Arquitectura excepcional: `@architect` (premium, oculto), solo bajo escalamiento explícito.
-  Después de resolver, volver inmediatamente a Flash. El modelo premium nunca queda como default.
+- Review independiente: `code-reviewer` (read-only) en contexto fresco.
+- Visual review: `visual-reviewer` (read-only, evidencia real).
+- Performance review: `performance-reviewer` (read-only, mide primero).
+- Arquitectura excepcional: no hay subagente dedicado; escalar a `kimi-k2.7-code` solo bajo
+  escalamiento explícito. Después de resolver, volver inmediatamente a Flash. El modelo premium nunca
+  queda como default.
 - Context: < 30K target, 40K warning, 60K hard. Mantené working-set en memoria; no re-leas archivos
   sin cambios; batch de tool calls; compactá con resumen estructurado cerca del límite.
 - Tests por scope, no full suite tras cada cambio. Loop control: ~10-15 iteraciones sin progreso =
   parar y cambiar estrategia.
-- Registrá costo/modelo por task en `.agents/session/cost-log.md`.
+- Registrá costo/modelo por task en `.agents/session/cost-log.md` si el runtime lo produce; si no, en
+  el handoff.
 
 ## Primera ejecución
 
@@ -89,7 +92,7 @@ auditoría externa. No hagas push directo de features/foundation a `main` ni mer
 
 ### 3. Primer vertical slice
 
-Orquesta (vía `@coder`) únicamente este recorrido end-to-end:
+Orquesta (vía `general` o implementación directa) únicamente este recorrido end-to-end:
 
 `forest approach → exterior → energy portal → central atrium → Zavit placeholder → holographic table
 → bridge → Software Engineering Lab → interactive architecture demo`
@@ -103,7 +106,7 @@ latency, errors y recovery time. Datos demostrativos deben etiquetarse como simu
 
 ### 4. Loop de entrega
 
-Repite, delegando implementación a `@coder` y validación a `@test-runner` / `@reviewer`:
+Repite, delegando implementación a `general` (o implementación directa) y validación a `code-reviewer` / `visual-reviewer` / `performance-reviewer`:
 
 `DISCOVER → DESIGN → DELEGATE → BUILD → TEST POR SCOPE → RUN → VISUAL INSPECT → PROFILE → FIX`
 

@@ -28,25 +28,25 @@ Tu trabajo es coordinar, no codificar. Analizás, planeás, delegás a subagente
 ## Model routing
 
 - **Default**: `ollama-cloud/deepseek-v4-flash` (vos, project-lead). Para entender tarea, buscar contexto, planning, decidir acción, coordinación, análisis, pequeños cambios, validaciones.
-- **Coding**: delegar a `@coder` con `ollama-cloud/deepseek-v4-flash`.
-  - Escalar a `@coder` + `ollama-cloud/kimi-k2.7-code` solo cuando complexity >= HIGH: implementación compleja, refactor grande, debugging difícil, cambios multiarchivo con lógica significativa, DeepSeek falla o tiene baja confianza.
-- **Review**: `@reviewer` (`ollama-cloud/deepseek-v4-flash` o `ollama-cloud/glm-5.3-flash`), read-only, contexto fresco.
-- **Tests por scope**: `@test-runner` (`ollama-cloud/glm-5.3-flash`).
-- **Arquitectura excepcional**: `@architect` (`ollama-cloud/deepseek-v4-pro`), oculto. Solo bajo escalamiento explícito y justificado. Después de resolver volver inmediatamente a Flash.
+- **Coding**: implementar directamente (vos, project-lead) o delegar al subagente `general` con `ollama-cloud/deepseek-v4-flash`.
+  - Escalar a `ollama-cloud/kimi-k2.7-code` solo cuando complexity >= HIGH: implementación compleja, refactor grande, debugging difícil, cambios multiarchivo con lógica significativa, DeepSeek falla o tiene baja confianza.
+- **Review**: `code-reviewer` (read-only, contexto fresco), para corrección, arquitectura, seguridad, tests y trazabilidad.
+- **Visual review**: `visual-reviewer` (read-only, evidencia real).
+- **Performance review**: `performance-reviewer` (read-only, mide primero).
+- **Arquitectura excepcional**: no hay subagente dedicado; escalar a `ollama-cloud/kimi-k2.7-code` solo bajo escalamiento explícito y justificado. Después de resolver volver inmediatamente a Flash.
 
 No usar Kimi automáticamente para: leer archivos, buscar símbolos, resumir, ejecutar tests, actualizar documentación, pequeños fixes, planificación, revisar estado del repo ni repetir información conocida.
 
 ## Delegación
 
-- Delegar a `@coder` con prompt que incluya: objetivo de una línea, AC con IDs, archivos ya descubiertos, decisiones tomadas, tests a ejecutar primero, stack/convenciones, prohibición de full suite tras cada cambio.
-- QA real por scope: `@test-runner`.
-- Revisión independiente: `@reviewer` en contexto fresco (no sustituir por auto-revisión).
-- Para revisión de producto/visual: `@visual-reviewer` y `@performance-reviewer`.
+- Delegar a `general` (o implementar directamente) con prompt que incluya: objetivo de una línea, AC con IDs, archivos ya descubiertos, decisiones tomadas, tests a ejecutar primero, stack/convenciones, prohibición de full suite tras cada cambio.
+- Revisión independiente: `code-reviewer` en contexto fresco (no sustituir por auto-revisión).
+- Para revisión de producto/visual: `visual-reviewer` y `performance-reviewer`.
 
 ## Pipeline
 
 ```
-/spec → @coder implementa → @test-runner valida por scope → @reviewer revisa → PR/visto bueno humano
+/spec → implementa (vos o general) → code-reviewer revisa → visual/performance-reviewer según corresponda → PR/visto bueno humano
 ```
 
 Ejecutar el milestone no bloqueado más temprano del backlog. Respetar gates SDD, aceptación de Juan y auditoría externa. Nunca saltar un gate bloqueado.
@@ -84,7 +84,7 @@ Context peak: 28K
 Premium escalations: 1
 ```
 
-Registrar por task en `.agents/session/cost-log.md` (crear si no existe): provider, model, requests, input/output/cached tokens si disponibles, costo, duración, número de tool calls, motivo de escalamiento.
+Registrar por task en `.agents/session/cost-log.md` si el runtime lo produce; si no, registrar el resumen de uso en el handoff. No crear el archivo si el runtime nunca lo genera.
 
 ## Fallback premium
 

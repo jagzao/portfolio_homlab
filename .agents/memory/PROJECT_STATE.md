@@ -58,7 +58,7 @@ Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this
 - Also closed, found while auditing every `US-010` AC before marking it `IMPLEMENTED`: no slice-endpoint teaser existed, no single keyboard-only full-critical-path test existed, no test proved zero browser requests to Supabase, and the simulation never mentioned "retry" despite the AC listing it.
 - 40 unit + 62 E2E tests pass.
 
-**`US-010` moves `ACCEPTED → IMPLEMENTED`** — every Acceptance Criterion checked with file/test evidence in the spec itself. `AUDITED`/`DONE` await the `M9` External Audit at the end of the achievable UI Alpha scope.
+**`US-010` moved `ACCEPTED → IMPLEMENTED`** on 2026-09-03 — every Acceptance Criterion checked with file/test evidence in the spec itself — then **reconciled `IMPLEMENTED → READY` on 2026-09-04** per External Audit `P0-01` (desktop p95 frame-time gate MARGINAL/over budget; see the M9 section above for the full reconciliation). `AUDITED`/`DONE` await the `M9` External Audit at the end of the achievable UI Alpha scope.
 
 Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
 
@@ -85,7 +85,38 @@ Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha ha
 
 `M9 — External Audit: UI Alpha` is complete: PR #4 opened (`feat/US-010-m2-application-foundation` → `main`, https://github.com/jagzao/portfolio_homlab/pull/4) with the full handoff (scope, changed files, validation, all three reviewers' findings and fixes, performance measurements, accessibility/security evidence, professional-claims provenance, known issues, deferred decisions, placeholders). **Not merged**, per instruction — development stops here pending External Audit.
 
-**Stopped for External Audit. No active milestone until Juan or the External Audit reviews PR #4.** M10+ (M6 unblock once real content is supplied, or further UI Alpha iteration per audit findings) resumes only after that review.
+External Audit returned `CHANGES REQUIRED` (`docs/audits/AUDIT-2026-09-04-pr4-ui-alpha.md`). All `P0` findings are now addressed on the branch:
+
+- **P0-01** — story state reconciled (below) and the previously-missing mandatory measurements added: sustained 5-minute-route heap (+5.3MB delta, `e2e/perf-heap-route.spec.ts`), GPU/renderer/texture-memory estimate (0MB textures, primitives-only, `e2e/perf-gpu.spec.ts`), Web Vitals (LCP 96ms / CLS 0.000), long tasks, INP proxy.
+- **P0-02** — movement/input model implemented and tested (`spline.ts`, drag-to-look, Escape-opens-semantic-navigation, skip-stop; `e2e/movement-input.spec.ts`).
+- **P0-03** — real `webglcontextlost` detection + recovery-to-semantic (`e2e/context-loss.spec.ts`).
+- **P0-04** — stable `/#software-lab` deep-link target with focus/scroll (`useDeepLinkTarget.ts`, `e2e/deep-link.spec.ts`).
+- **P0-05** — M5 stations implemented (Engineering Decisions v1 as generic scenarios; Technology Wall + Current Workbench as honest neutral empty states; `e2e/lab-stations.spec.ts`).
+- **P0-06** — M7 visual-fidelity requirements implemented (fruit-bearing plants, transparent roof/skylight, premium lab lighting, mountain sightlines, etc.).
+- **P0-07** — Zavit purposeful idle activity (repair console) with reduced-motion behavior (`activity.ts`, `activity.test.ts`, `e2e/zavit.spec.ts`).
+- **P0-08** — durable visual evidence committed under `docs/audits/evidence/`.
+- **P0-09** — CI workflow added under `.github/workflows/`.
+- **P0-10** — subagent policy reconciled to the agents that actually exist (see P0-10 section below); plus **P1-02** network assertion strengthened (`network-isolation.ts`, `network-boundary.spec.ts`).
+
+**Honest reconciliation of `US-010` (per P0-01):** `US-010` moved `IMPLEMENTED → READY` on 2026-09-04. All P0 code fixes are implemented and the missing measurements now exist, **but the desktop p95 frame-time gate (`<= 20 ms`) is MARGINAL at 18.8-21.0 ms across samples — over budget, NOT a PASS.** The scene was optimized (121→~103 meshes, clearcoat reduced; improved from 23-32ms to 18.8-21.0ms) but remains over budget. Because `IMPLEMENTED` requires mandatory internal validation complete, and this gate is still open, `US-010` honestly sits at `READY` (implementation complete, gate open) until the frame-time gate is resolved or formally re-accepted with new measured evidence.
+
+**Open gate to close before `US-010` returns to `IMPLEMENTED`/`AUDITED`:** desktop p95 frame-time ≤20ms (currently MARGINAL 18.8-21.0ms). Do not represent this as a pass.
+
+PR #4 head is being prepared for re-audit with the required handoff. Target status on the re-audit head: `READY FOR EXTERNAL RE-AUDIT — UI ALPHA`.
+
+**Stopped for External Re-Audit. No active implementation milestone until Juan or the External Auditor reviews the re-audit head of PR #4.** M10+ (M6 unblock once real content is supplied, or further UI Alpha iteration per audit findings) resumes only after that review.
+
+## P0-10 reconciliation (agent orchestration)
+
+External Audit P0-10 flagged that `project-lead` policy referenced `@coder`, `@reviewer`, `@test-runner`, and `@architect`, none of which are registered in this runtime. Resolved by **simplifying the declared pipeline to the agents that actually exist** (option B), not by inventing new agent files:
+
+- Registered operational agents: `project-lead`, `code-reviewer`, `visual-reviewer`, `performance-reviewer` (plus built-in `general`/`explore`).
+- Coding/implementation now maps to the `general` subagent or project-lead's own implementation capability; escalation to `kimi-k2.7-code` remains a model-level escalation, not a separate agent.
+- Review → `code-reviewer`; visual → `visual-reviewer`; performance → `performance-reviewer` (all read-only, fresh context).
+- The `@architect` premium handle was dropped; architecture escalation is expressed as a model escalation note, not a non-existent agent.
+- The `.agents/session/cost-log.md` mandate was softened: it is only written if the runtime actually produces it; otherwise the usage summary goes in the handoff. The runtime never creates that file, so it is no longer required.
+- Files reconciled: `.agents/project-lead.md`, `.opencode/agent/project-lead.md`, `.claude/agents/project-lead.md`, `.agents/skills/project-lead/SKILL.md`. Intent preserved: cheapest capable worker first, escalate on complexity, independent review required.
+- **2026-09-04:** this P0-10 fix is applied on the branch for the PR #4 re-audit (no non-existent agents referenced; pipeline uses only registered agents).
 
 ## Foundation audit history
 

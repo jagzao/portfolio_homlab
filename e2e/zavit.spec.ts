@@ -1,5 +1,36 @@
 import { test, expect } from '@playwright/test'
 
+// Traverse the R3F scene graph (exposed on the canvas by Experience3D) for
+// an object by name. Lets the test assert on the 3D scene itself — e.g. that
+// Zavit's idle repair console is present — without a WebGL pixel probe.
+async function findSceneObject(page: import('@playwright/test').Page, name: string) {
+  return page.evaluate((targetName) => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement & { __r3fScene?: { traverse?: (cb: (o: { name?: string }) => void) => void } }
+    if (!canvas?.__r3fScene?.traverse) return false
+    let found = false
+    canvas.__r3fScene.traverse((obj) => {
+      if (obj.name === targetName) found = true
+    })
+    return found
+  }, name)
+}
+
+// Read the console panel's emissive intensity from the scene graph: > 0 while
+// Zavit is working on it (idle), 0 once it stops (attentive to the visitor).
+async function panelGlow(page: import('@playwright/test').Page): Promise<number> {
+  return page.evaluate(() => {
+    const canvas = document.querySelector('canvas') as HTMLCanvasElement & { __r3fScene?: { traverse?: (cb: (o: { name?: string; material?: { emissiveIntensity?: number } }) => void) => void } }
+    if (!canvas?.__r3fScene?.traverse) return -1
+    let glow = -1
+    canvas.__r3fScene.traverse((obj) => {
+      if (obj.name === 'zavit-panel' && typeof obj.material?.emissiveIntensity === 'number') {
+        glow = obj.material.emissiveIntensity
+      }
+    })
+    return glow
+  })
+}
+
 test.describe('M4 Zavit v1', () => {
   test('Zavit greets the visitor on arrival at the Atrium and offers Guided/Free/Skip, never trapping navigation', async ({ page }) => {
     await page.goto('/')
@@ -130,5 +161,22 @@ test.describe('M4 Zavit v1', () => {
     const focusedHandle = await page.evaluateHandle(() => document.activeElement)
     const isInsideDialog = await greeting.evaluate((dialogEl, el) => dialogEl.contains(el as Node), focusedHandle)
     expect(isInsideDialog).toBe(true)
+  })
+
+  test('Zavit performs a purposeful idle activity (repair console) that stops when greeting', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+
+    // Before the encounter: Zavit is idle and its repair console is present
+    // in the scene, with the panel lit — the purposeful activity (US-010).
+    await expect.poll(() => findSceneObject(page, 'zavit-console')).toBe(true)
+    await expect.poll(() => panelGlow(page)).toBeGreaterThan(0)
+
+    // Trigger the greeting; Zavit becomes attentive and stops working — the
+    // console panel powers down (emissive intensity drops to 0).
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+    await nav.getByRole('button', { name: 'Central Atrium', exact: true }).click()
+    await expect(page.getByRole('dialog', { name: 'Zavit' })).toBeVisible({ timeout: 8000 })
+    await expect.poll(() => panelGlow(page)).toBe(0)
   })
 })

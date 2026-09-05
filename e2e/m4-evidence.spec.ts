@@ -7,9 +7,13 @@ test.describe('M4 Zavit visual evidence', () => {
   test('Zavit idle in the atrium (before greeting)', async ({ page }, testInfo) => {
     await page.goto('/')
     await page.getByRole('button', { name: /enter homelab/i }).click()
-    // Stop short of the Atrium landmark itself so the encounter hasn't triggered yet.
-    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' })))
-    await page.waitForTimeout(1200)
+    // Walk close to Zavit (x=1.5, z=-35) but stay outside the notice radius
+    // (7) so the encounter hasn't triggered yet — this frames Zavit up close
+    // working on its repair console, the purposeful idle activity (US-010).
+    for (let i = 0; i < 10; i++) {
+      await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp' })))
+    }
+    await page.waitForTimeout(2500)
     await page.screenshot({ path: path.join(EVIDENCE_DIR, `${testInfo.project.name}-zavit-01-idle.png`) })
   })
 

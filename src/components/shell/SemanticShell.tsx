@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { ProfileSummary } from './ProfileSummary'
 import { JourneyList } from './JourneyList'
 import { SoftwareLabSection } from '../../experience/architecture/SoftwareLabSection'
+import { useDeepLinkTarget } from './useDeepLinkTarget'
 
 interface SemanticShellProps {
   children: ReactNode
@@ -13,6 +14,7 @@ interface SemanticShellProps {
  * "semantic portfolio" experience layer. Never a blank loading screen.
  */
 export function SemanticShell({ children }: SemanticShellProps) {
+  useDeepLinkTarget('software-lab')
   return (
     <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
       <header
@@ -54,15 +56,19 @@ export function SemanticShell({ children }: SemanticShellProps) {
 
         <JourneyList />
 
-        <section aria-labelledby="lab-heading" style={{ padding: '0 var(--space-3) var(--space-3)' }}>
-          <h2 id="lab-heading" style={{ fontSize: '1.1rem', color: 'var(--color-text)' }}>
+        <section aria-labelledby="software-lab" style={{ padding: '0 var(--space-3) var(--space-3)' }}>
+          <h2
+            id="software-lab"
+            tabIndex={-1}
+            style={{ fontSize: '1.1rem', color: 'var(--color-text)', scrollMarginTop: 'var(--space-3)' }}
+          >
             Software Engineering Lab
           </h2>
           <p style={{ color: 'var(--color-text-muted)', lineHeight: 1.6 }}>
             An interactive distributed-systems demonstration — inspect the components, then run a labeled simulation of a
             downstream failure and recovery.
           </p>
-          <SoftwareLabSection />
+          <SoftwareLabSection idPrefix="shell" />
         </section>
 
         <section

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { auditNetworkRequests } from './network-isolation'
 
 /**
  * US-010 Testing Requirements #2/#3/#5/#10: full critical path coverage
@@ -88,11 +89,10 @@ test('full critical path, keyboard only: no mouse click after the initial page l
 test('the browser never contacts Supabase or any private Second Brain endpoint during the full critical path', async ({
   page,
 }) => {
-  const suspiciousRequests: string[] = []
-  page.on('request', (request) => {
-    const url = request.url()
-    if (/supabase/i.test(url)) suspiciousRequests.push(url)
-  })
+  // P1-02: strengthened from a string-only `/supabase/i` denylist to a dual
+  // allowlist + denylist audit. See e2e/network-isolation.ts and
+  // e2e/network-boundary.spec.ts for the derived sets.
+  const audit = auditNetworkRequests(page)
 
   await page.goto('/')
   await page.getByRole('button', { name: /enter homelab/i }).click()
@@ -102,5 +102,6 @@ test('the browser never contacts Supabase or any private Second Brain endpoint d
   await page.getByRole('button', { name: 'SIMULATE FAILURE' }).click()
   await page.getByRole('status').getByText(/recovered/i).waitFor({ state: 'visible', timeout: 13000 })
 
-  expect(suspiciousRequests).toEqual([])
+  expect(audit.requests, 'the critical path should have made network requests').toBeGreaterThan(0)
+  expect(audit.violations).toEqual([])
 })

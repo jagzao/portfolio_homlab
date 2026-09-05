@@ -396,6 +396,18 @@ Every essential architecture concept, failure sequence, decision, and profession
 
 A recruiter should understand Juan's primary engineering identity and core stack quickly without having to complete a game.
 
+## Status (reconciled 2026-09-04 after External Audit P0-05)
+
+M5's required product stations are now all present:
+
+- Architecture Table + `SIMULATE FAILURE` (implemented since the original M5 handoff).
+- **Engineering Decisions v1** — now implemented as generic scenarios (`EngineeringDecisions.tsx` + `engineeringDecisions.data.ts`/`.test.ts`), explicitly labeled generic and not tied to invented professional claims, as the accepted scope allows.
+- **Technology Wall v1** — implemented as an honest neutral/empty state (`TechnologyWall.tsx` + `technologyWall.data.ts`/`.test.ts`): the three buckets (CORE / PRODUCTION_EXPERIENCE / ACTIVE_EXPLORATION) render with no fabricated technologies until verified public data is supplied.
+- **Current Workbench v1** — implemented as an honest neutral/empty state (`CurrentWorkbench.tsx`): shows nothing invented, per the accepted "explicit placeholders or omit rather than invent" rule.
+- Honest recruiter-target intro, and all stations keyboard-reachable, E2E-verified (`e2e/lab-stations.spec.ts`).
+
+M5 is complete against its accepted scope. Professional content (Technology Wall / Current Workbench populated with real data) remains pending verified public content via `M6`; the neutral empty states are the honest representation of that, not missing scope.
+
 ---
 
 # M6 — Public Portfolio Projection v1
@@ -485,6 +497,10 @@ Do not implement expensive complete dynamic lighting if a cheaper convincing app
 
 Ambient water/wind/nature/robot sounds are optional and must never be required to understand content. Respect reduced-motion/autoplay/accessibility considerations.
 
+## Status (reconciled 2026-09-04 after External Audit P0-06)
+
+The accepted M7 Alpha visual-fidelity requirements are now all present on the branch: glass architecture with water/reflections, black structural metal, subtle gold accents, forest/mountain/nature sightlines, interior vegetation and vertical gardens, selected fruit-bearing plants, transparent roof/skylight intent, sky/day state with restrained night stars, central atrium tree, and premium Software Engineering Lab lighting/interior treatment — all procedural within `ADR-003`'s primitives-only constraint. Externally accessible visual evidence is now committed under `docs/audits/evidence/` (P0-08). This closes the P0-06 gap where M7 was previously recorded complete with only a partial environment.
+
 ---
 
 # M8 — Quality, Performance, Accessibility and UI Audit Readiness
@@ -521,15 +537,16 @@ Independent `performance-reviewer` (holistic, whole-alpha) measured against `doc
 - [x] LCP/CLS: 96ms / 0.000, isolated single-worker run — PASS by wide margin, though not the budget's specified mobile-4G-throttled/p75 methodology (noted, not re-run — margin is large enough this is very unlikely to flip).
 - [x] INP: real field measurement remains out of reach headless; added a documented proxy (click-to-visible-effect round trip, 47-241ms across runs) plus a real long-task sample (1 task, 109-131ms, i.e. over 50ms but under 200ms — within the "≤2 over 50ms, none over 200ms" budget). Proxy explicitly labeled as overstating real INP, not a clean pass/fail.
 - [x] FPS/frame time: mobile (adapted tier, Pixel 7 emulation) 60fps avg / 17.6-18.1ms p95 — PASS, with the standing caveat this is emulated-viewport-on-desktop-GPU, not real mobile hardware. Desktop: freshly re-measured this milestone (not just carried forward from M7) — 4 samples across isolated and contended runs cluster at 21.3-25.1ms p95, consistently **over** the 20ms budget. Confirmed ~37 concurrent Chrome processes from unrelated sessions were running on this shared dev machine during measurement, which plausibly inflates this — but that could not be controlled for, so this is reported as a genuine marginal-FAIL/inconclusive result, not waved off. **Needs a real re-measurement on a quiet/dedicated device before being treated as a final gate.**
-- [x] memory/heap: 5 enter/exit reload cycles, +0.4MB delta — PASS, no leak signal. A sustained 5-minute-route heap check (the budget's literal scenario) was not run — documented gap, not fabricated as covered.
-- [x] renderer resource counts: static draw-call count from source (~70 full-tier/~64 adapted-tier, all simple primitives, no shadows) as a documented substitute for real GPU/texture profiling, which wasn't performed — near-zero GPU memory is a safe inference given zero textures exist (ADR-003), but this is explicitly not a real profile.
+- [x] **Desktop frame time re-measured 2026-09-04 after P0-01 optimization:** the scene was optimized (121→~103 meshes, clearcoat reduced), improving desktop p95 from 23-32ms to 18.8-21.0ms across samples. This is an improvement but is **still MARGINAL, over the accepted 20ms budget — reported honestly as NOT a PASS.** This open mandatory gate is the reason `US-010` is reconciled to `READY` (implementation complete, gate open) rather than `IMPLEMENTED`.
+- [x] memory/heap: 5 enter/exit reload cycles, +0.4MB delta — PASS, no leak signal. A sustained 5-minute-route heap check (the budget's literal scenario) was not run — documented gap, not fabricated as covered. **Closed 2026-09-04 after P0-01:** `e2e/perf-heap-route.spec.ts` now runs a representative sustained multi-pass route (5-minute-route sample) and measures +5.3MB delta — well under the ≤250MB budget, PASS.
+- [x] renderer resource counts: static draw-call count from source (~70 full-tier/~64 adapted-tier, all simple primitives, no shadows) as a documented substitute for real GPU/texture profiling, which wasn't performed — near-zero GPU memory is a safe inference given zero textures exist (ADR-003), but this is explicitly not a real profile. **Closed 2026-09-04 after P0-01:** `e2e/perf-gpu.spec.ts` now produces a real GPU/renderer/texture-memory estimate — 0MB textures, primitives-only confirmed — recorded as an honest estimate, PASS trivially.
 - [x] repeated enter/exit cleanup: covered by the same heap-delta test above.
 - [x] mobile/degraded thresholds: adapted-tier E2E coverage (`smoke.spec.ts`, tier-conditional asset counts) plus the mobile frame-time sample above.
 - [x] E2E full-suite timing anomaly investigated per performance-reviewer's request: two mobile-chromium tests hung ~34 minutes on a contended 2-worker run; isolated reruns passed cleanly in seconds, and a full 114-116 test run afterward (same 2-worker config) completed in 4.4-4.5 minutes with zero failures — strong evidence this was transient system-wide contention (confirmed ~37 concurrent Chrome processes at the time), not a reproducible product defect, though the exact mechanism for a bounded 8s/30s assertion hanging 34 minutes remains undiagnosed.
 
 ## E2E flows
 
-All 11 covered by existing specs; confirmed passing in the final full run (116/116, desktop+mobile, 2026-09-04).
+All 11 covered by existing specs; confirmed passing in the final full run (desktop+mobile, 2026-09-04). New P0-fix spec files added after the audit: `context-loss.spec.ts`, `deep-link.spec.ts`, `movement-input.spec.ts`, `lab-stations.spec.ts`, `network-boundary.spec.ts`, `perf-heap-route.spec.ts`, `perf-gpu.spec.ts`.
 
 1. [x] semantic shell loads — `smoke.spec.ts`.
 2. [x] visitor can enter 3D when supported — `smoke.spec.ts`, `capture-evidence.spec.ts`.
@@ -558,6 +575,14 @@ All 11 covered by existing specs; confirmed passing in the final full run (116/1
 ## Goal
 
 Stop development and hand the complete first UI/3D vertical slice to ChatGPT for external review.
+
+## Status (reconciled 2026-09-04)
+
+PR #4 was audited and returned `CHANGES REQUIRED` (`docs/audits/AUDIT-2026-09-04-pr4-ui-alpha.md`). All `P0` findings are now addressed on the branch: P0-01 (story state reconciled + mandatory performance measurements added), P0-02 (movement/input model), P0-03 (WebGL context-loss), P0-04 (deep-link), P0-05 (M5 scope), P0-06 (M7 visual fidelity), P0-07 (Zavit purposeful activity), P0-08 (durable evidence under `docs/audits/evidence/`), P0-09 (CI workflow in `.github/workflows/`), P0-10 (subagents), plus P1-02 (network assertion). The desktop p95 frame-time gate remains MARGINAL (18.8-21.0ms vs 20ms budget) and is honestly reported as open — not a pass.
+
+PR is being prepared for re-audit. Target status on the re-audit head:
+
+`READY FOR EXTERNAL RE-AUDIT — UI ALPHA`
 
 ## Required handoff
 
