@@ -125,18 +125,25 @@ test.describe('M5 Architecture Table (from within the 3D journey)', () => {
   test('the Software Lab overlay does not block landmark navigation (overlay layer regression)', async ({ page }) => {
     await page.goto('/')
     await page.getByRole('button', { name: /enter homelab/i }).click()
+    await page.locator('#experience-boundary').waitFor({ state: 'visible' })
     const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+
+    // The Atrium greets first; dismiss Zavit so it does not block the HUD.
+    await nav.getByRole('button', { name: 'Central Atrium', exact: true }).click()
+    const greeting = page.getByRole('dialog', { name: 'Zavit' })
+    await expect(greeting).toBeVisible({ timeout: 8000 })
+    await greeting.getByRole('button', { name: 'Skip' }).click()
+    await expect(greeting).not.toBeVisible()
 
     // Go to the Software Lab so the overlay renders.
     await nav.getByRole('button', { name: 'Software Engineering Lab', exact: true }).click()
     const labButton = nav.getByRole('button', { name: 'Software Engineering Lab', exact: true })
     await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
 
-    // Verify the overlay content is visible (proves the overlay rendered).
-    // Two SoftwareLabSections exist (3D overlay + semantic shell); the overlay
-    // is inside the ExperienceBoundary wrapper, so its description paragraph
-    // appears before the semantic shell's heading/paragraph.
-    const overlayLab = page.locator('#experience-boundary').getByRole('button', { name: 'Open Architecture Table' }).first()
+    // Verify the overlay content is visible. The overlay button lives inside
+    // the 3D experience wrapper (#experience-boundary), while the semantic
+    // shell's duplicate button is outside that wrapper further down the page.
+    const overlayLab = page.locator('#experience-boundary').getByRole('button', { name: 'Open Architecture Table' })
     await expect(overlayLab).toBeVisible()
 
     // The overlay must not intercept clicks on the landmark HUD. Selecting a
