@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
-  reporter: 'list',
+  reporter: [['list'], ['html', { open: 'never', outputFolder: 'playwright-report' }]],
   // Each test spins up a real WebGL context; more than a couple concurrent
   // Chromium instances caused flaky navigations/timeouts under GPU/CPU
   // contention on a dev machine, worse once the M3 world scene added real

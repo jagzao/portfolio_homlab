@@ -74,13 +74,31 @@ export default function Experience3D({ reducedMotion, tier, onContextLost }: Exp
   const inputBlockedRef = useRef(false)
   inputBlockedRef.current = encounterPhase === 'greeting' || architectureTableOpen
 
+  // Track whether we have ever noticed the visitor so the one-shot greeting
+  // only fires once (dismissed remains dismissed). Kept in a ref because the
+  // encounter logic also needs to avoid re-entering 'noticing' after dismissal.
+  const hasNoticedRef = useRef(false)
+
   useEffect(() => {
     withinRadiusRef.current = isWithinNoticeRadius(currentPosition)
     if (encounterPhase !== 'idle') return
     if (!withinRadiusRef.current) return
+    if (hasNoticedRef.current) return
     setEncounterPhase(nextEncounterPhase('idle', true))
   }, [currentPosition, encounterPhase])
 
+  useEffect(() => {
+    if (encounterPhase === 'noticing') {
+      hasNoticedRef.current = true
+    }
+  }, [encounterPhase])
+
+  // Schedule the transition from noticing -> greeting (or idle if the visitor
+  // walked away). Reduced motion removes the delay, but we still schedule a
+  // microtask so React has committed 'noticing' and the cleanup/re-schedule
+  // behavior stays consistent. The effect must re-run if architectureTableOpen
+  // changes while noticing, so it can either defer the greeting or, once the
+  // table closes, proceed with the current proximity state.
   useEffect(() => {
     if (encounterPhase !== 'noticing') return
     const delay = reducedMotion ? 0 : NOTICING_DURATION_MS
@@ -133,10 +151,15 @@ export default function Experience3D({ reducedMotion, tier, onContextLost }: Exp
       // Escape opens semantic navigation (US-010 Movement and Input Model):
       // focus the semantic JourneyList section. Only acts when no modal is
       // open — the Zavit greeting and Architecture Table handle their own
-      // Escape separately, so we must not steal focus from them. A DOM check
-      // (rather than the inputBlocked ref) is timing-safe: it reflects the
-      // actual page state at the moment the key fires, not a React render.
+      // Escape separately, so we must not steal focus from them. We use a
+      // ref-based flag that is updated synchronously whenever a modal opens
+      // or closes, plus a transient window flag set by ZavitGreeting during
+      // its unmount cleanup, plus a live DOM check. Any one of these guards
+      // is enough; together they cover the race where React unmounts the
+      // greeting mid-dispatch and a sibling window listener sees an empty DOM.
       if (event.key === 'Escape') {
+        if (inputBlockedRef.current) return
+        if ((window as unknown as Record<string, unknown>).__homelab_greeting_dismissal_in_progress__) return
         if (document.querySelector('[role="dialog"]')) return
         const journey = document.getElementById('journey-list')
         if (journey instanceof HTMLElement) {
@@ -291,6 +314,13 @@ export default function Experience3D({ reducedMotion, tier, onContextLost }: Exp
             transform: 'translate(-50%, -50%)',
             maxHeight: 'calc(100% - 2 * var(--space-3))',
             overflowY: 'auto',
+            // The overlay sits above the canvas but must not steal pointer
+            // events from the landmark HUD / canvas behind it. Only the Open
+            // Architecture Table button and the text content itself should be
+            // interactive (Audit P0-RA5). Without this, the transparent wrapper
+            // covers the canvas and blocks clicks/taps on the landmark HUD,
+            // which broke mobile navigation in CI.
+            pointerEvents: 'none',
           }}
         >
           <SoftwareLabSection idPrefix="overlay" />

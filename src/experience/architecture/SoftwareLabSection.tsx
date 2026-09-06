@@ -35,7 +35,7 @@ export function SoftwareLabSection({ idPrefix }: { idPrefix?: string }) {
         classification will appear here once Juan&rsquo;s verified public content is published.
       </p>
 
-      <div>
+      <div style={{ pointerEvents: 'auto' }}>
         <button type="button" onClick={() => setOpen(true)}>
           Open Architecture Table
         </button>

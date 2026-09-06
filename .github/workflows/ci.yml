@@ -29,22 +29,18 @@ jobs:
         run: npm ci
 
       - name: Typecheck
-
         id: typecheck
         run: npm run typecheck
 
       - name: Lint
-
         id: lint
         run: npm run lint
 
       - name: Unit tests
-
         id: unit
         run: npm test
 
       - name: Build
-
         id: build
         run: npm run build
 
@@ -59,10 +55,10 @@ jobs:
           if rg -i -n --hidden -g '!node_modules/**' -g '!dist/**' -g '!.git/**' \
               -e 'SUPABASE_(URL|ANON_KEY|SERVICE_ROLE_KEY|KEY|SECRET)\s*[:=]' \
               -e 'sk-[A-Za-z0-9]{20,}' \
-              -e 'api[_-]?key\s*[:=]\s*["'"'"'][^"'"'"']{8,}' \
-              -e 'password\s*[:=]\s*["'"'"'][^"'"'"']{8,}' \
-              -e 'secret\s*[:=]\s*["'"'"'][^"'"'"']{8,}' \
-              -e 'token\s*[:=]\s*["'"'"'][^"'"'"']{8,}' \
+              -e 'api[_-]?key\s*[:=]\s*["'"''"'"'][^"'"''"'"']{8,}' \
+              -e 'password\s*[:=]\s*["'"''"'"'][^"'"''"'"']{8,}' \
+              -e 'secret\s*[:=]\s*["'"''"'"'][^"'"''"'"']{8,}' \
+              -e 'token\s*[:=]\s*["'"''"'"'][^"'"''"'"']{8,}' \
               .; then
             echo "::error::Potential secret/credential pattern found in tracked files. Review and remove before merging."
             exit 1
@@ -103,11 +99,11 @@ jobs:
           path: validate-summary.txt
           if-no-files-found: ignore
 
-  e2e:
-    name: E2E (Playwright + evidence capture)
+  e2e-functional:
+    name: E2E functional (core specs, deterministic)
     runs-on: ubuntu-latest
     needs: validate
-    timeout-minutes: 30
+    timeout-minutes: 25
     env:
       CI: 'true'
     steps:
@@ -124,38 +120,71 @@ jobs:
         run: npm ci
 
       - name: Build
-
         id: build
         run: npm run build
 
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E tests
-        run: npx playwright test --workers=2 --grep-invert "visual evidence capture|visual evidence|Zavit visual evidence|Architecture Table visual evidence|M7 visual fidelity evidence"
+      - name: Run core functional E2E tests
+        id: functional
+        run: |
+          npx playwright test \
+            --project=desktop-chromium --project=mobile-chromium \
+            --workers=2 \
+            --grep-invert "visual evidence capture|visual evidence|Zavit visual evidence|Architecture Table visual evidence|M7 visual fidelity evidence|M3 graybox zone evidence|perf-heap-route|perf-sample|perf-gpu|m8-perf-sample"
 
       - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report
+          name: playwright-report-functional
           path: playwright-report/
           if-no-files-found: ignore
 
-      - name: Upload test results
+      - name: Upload test results on failure
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
+          name: test-results-functional
           path: test-results/
           if-no-files-found: ignore
 
-      - name: Capture visual evidence
-        if: always()
+  e2e-evidence:
+    name: E2E visual evidence (screenshots, serial)
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 25
+    env:
+      CI: 'true'
+      EVIDENCE_DIR: evidence/ci
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Capture visual evidence (serial for stable screenshots)
+        id: evidence
         run: |
-          EVIDENCE_DIR=evidence/ci npx playwright test \
-            capture-evidence.spec.ts m4-evidence.spec.ts m5-evidence.spec.ts m7-evidence.spec.ts \
-            --workers=2
+          npx playwright test \
+            e2e/capture-evidence.spec.ts e2e/m3-evidence.spec.ts e2e/m4-evidence.spec.ts \
+            e2e/m5-evidence.spec.ts e2e/m7-evidence.spec.ts \
+            --project=desktop-chromium --project=mobile-chromium \
+            --workers=1
 
       - name: Upload evidence screenshots
         if: always()
@@ -163,4 +192,95 @@ jobs:
         with:
           name: evidence-screenshots
           path: evidence/
+          if-no-files-found: ignore
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-evidence
+          path: test-results/
+          if-no-files-found: ignore
+
+  e2e-performance:
+    name: E2E performance sampling (informational, isolated)
+    runs-on: ubuntu-latest
+    needs: validate
+    timeout-minutes: 20
+    env:
+      CI: 'true'
+      PERF_INFO_HOSTED: 'Hosted runner performance data is informational unless it matches the accepted reference profile.'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Note on hosted-runner performance data
+        run: echo "::notice::$PERF_INFO_HOSTED"
+
+      - name: Run performance sampling specs (serial / isolated)
+        id: perf
+        run: |
+          echo "$PERF_INFO_HOSTED"
+          npx playwright test \
+            e2e/perf-heap-route.spec.ts e2e/perf-sample.spec.ts e2e/perf-gpu.spec.ts e2e/m8-perf-sample.spec.ts \
+            --project=desktop-chromium --project=mobile-chromium \
+            --workers=1
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-performance
+          path: playwright-report/
+          if-no-files-found: ignore
+
+      - name: Upload test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-performance
+          path: test-results/
+          if-no-files-found: ignore
+
+  ci-summary:
+    name: CI summary
+    runs-on: ubuntu-latest
+    needs: [e2e-functional, e2e-evidence, e2e-performance]
+    if: always()
+    steps:
+      - name: Write CI outcome summary
+        run: |
+          {
+            echo "# CI Outcome Summary"
+            echo ""
+            echo "| Job | Outcome | Note |"
+            echo "|-----|---------|------|"
+            echo "| validate | ${{ needs.validate.result }} | typecheck / lint / unit / build / security / static |"
+            echo "| e2e-functional | ${{ needs.e2e-functional.result }} | core deterministic specs |"
+            echo "| e2e-evidence | ${{ needs.e2e-evidence.result }} | visual evidence screenshots |"
+            echo "| e2e-performance | ${{ needs.e2e-performance.result }} | informational hosted-runner perf sampling |"
+            echo ""
+            echo "Performance data is informational on hosted runners unless it matches the accepted reference profile."
+          } > ci-summary.md
+
+      - name: Upload CI summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: ci-summary
+          path: ci-summary.md
           if-no-files-found: ignore

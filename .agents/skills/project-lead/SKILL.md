@@ -108,13 +108,14 @@ latency, errors y recovery time. Datos demostrativos deben etiquetarse como simu
 
 Repite, delegando implementación a `general` (o implementación directa) y validación a `code-reviewer` / `visual-reviewer` / `performance-reviewer`:
 
-`DISCOVER → DESIGN → DELEGATE → BUILD → TEST POR SCOPE → RUN → VISUAL INSPECT → PROFILE → FIX`
+`DISCOVER → DESIGN → DELEGATE → BUILD → AGENT-BROWSER VALIDATE (flujo afectado, console/network) → FIX → TEST POR SCOPE → RUN → AGENT-BROWSER REGRESSION (scope) → PLAYWRIGHT E2E → VISUAL INSPECT → PROFILE → FIX`
 
-No declares terminado porque compiló. Para cada incremento relevante verifica:
+No declares terminado porque compiló. Para cada incremento relevante verifica (ver `.agents/rules/ANALYSIS_DELIVER_CONTRACT.md` → Web Validation Standard):
 
+- `agent-browser` como loop primario de implementación/debug: navega el flujo cambiado, ejercítalo, inspecciona console/network, corrige, repite el mismo flujo hasta que el scope cambiado se comporte bien;
 - lint, typecheck y build pasan;
 - unit/integration tests cubren lógica con valor;
-- Playwright cubre carga, navegación, interacción, fallback móvil y reduced motion;
+- `agent-browser` regression de los flujos cambiados, luego Playwright (gate E2E/regression final, no loop de debug) cubre carga, navegación, interacción, fallback móvil y reduced motion;
 - inspección visual desktop y mobile (vía `@visual-reviewer`, captura real);
 - consola/runtime, Web Vitals, peso inicial, assets, FPS, GPU y memoria (vía `@performance-reviewer`);
 - documentación afectada actualizada.

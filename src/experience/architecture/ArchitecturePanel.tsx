@@ -23,6 +23,13 @@ interface ArchitecturePanelProps {
  * -> DATABASE, inspectable, with a SIMULATE FAILURE run. Plain HTML/DOM, not
  * a WebGL scene object — this is what makes it the semantic equivalent too:
  * the same component works with or without the 3D canvas.
+ *
+ * The simulation uses a single real-timer effect and advances one second at a
+ * time. It always runs from 0 to `SIMULATION_DURATION_SECONDS` with exactly
+ * one tick per second, so the deterministic 10-second sequence finishes in a
+ * predictable wall-clock window. Only one ArchitecturePanel exists in the app
+ * (rendered by ArchitectureTableRoot at the top of the tree), so only one
+ * timer can run.
  */
 export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
   const [selected, setSelected] = useState<ComponentId | null>(null)
@@ -68,15 +75,35 @@ export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
+  // Deterministic real-time clock: one second per tick, one interval per
+  // simulation run. A ref guards the interval from React strict-mode double
+  // invocation so no orphaned timers can exist. The completed flag is computed
+  // from elapsed directly in render instead of setState in an effect.
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const finalSecond = SIMULATION_FRAMES[SIMULATION_FRAMES.length - 1].atSeconds
+  const running = elapsed !== null && elapsed < finalSecond
+
   useEffect(() => {
-    if (elapsed === null) return
-    if (elapsed >= SIMULATION_FRAMES[SIMULATION_FRAMES.length - 1].atSeconds) return
-    const timer = setTimeout(() => setElapsed((e) => (e ?? 0) + 1), 1000)
-    return () => clearTimeout(timer)
-  }, [elapsed])
+    if (elapsed === null || !running) {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+      return
+    }
+    if (intervalRef.current) return // already ticking
+    intervalRef.current = setInterval(() => {
+      setElapsed((current) => (current === null ? 0 : current + 1))
+    }, 1000)
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    }
+  }, [elapsed, running])
 
   const frame: SimulationFrame = elapsed === null ? SIMULATION_FRAMES[0] : frameAt(elapsed)
-  const running = elapsed !== null && elapsed < SIMULATION_FRAMES[SIMULATION_FRAMES.length - 1].atSeconds
   const selectedComponent = ARCHITECTURE_COMPONENTS.find((c) => c.id === selected)
 
   return (

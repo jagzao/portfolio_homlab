@@ -90,11 +90,13 @@ export function ExperienceBoundary() {
   return (
     <CanvasErrorBoundary onError={() => setState({ kind: 'runtime-error' })}>
       <Suspense fallback={<LoadingState />}>
-        <Experience3D
-          reducedMotion={reducedMotion}
-          tier={state.tier}
-          onContextLost={() => setState({ kind: 'context-lost' })}
-        />
+        <div id="experience-boundary" style={{ position: 'relative' }}>
+          <Experience3D
+            reducedMotion={reducedMotion}
+            tier={state.tier}
+            onContextLost={() => setState({ kind: 'context-lost' })}
+          />
+        </div>
       </Suspense>
     </CanvasErrorBoundary>
   )

@@ -121,4 +121,47 @@ test.describe('M5 Architecture Table (from within the 3D journey)', () => {
     await expect(labButton).toHaveAttribute('aria-current', 'location')
     await expect(page.getByRole('dialog', { name: 'Architecture Table' })).toHaveCount(1)
   })
+
+  test('the Software Lab overlay does not block landmark navigation (overlay layer regression)', async ({ page }) => {
+    await page.goto('/')
+    await page.getByRole('button', { name: /enter homelab/i }).click()
+    const nav = page.getByRole('navigation', { name: /homelab landmarks/i })
+
+    // Go to the Software Lab so the overlay renders.
+    await nav.getByRole('button', { name: 'Software Engineering Lab', exact: true }).click()
+    const labButton = nav.getByRole('button', { name: 'Software Engineering Lab', exact: true })
+    await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
+
+    // Verify the overlay content is visible (proves the overlay rendered).
+    // Two SoftwareLabSections exist (3D overlay + semantic shell); the overlay
+    // is inside the ExperienceBoundary wrapper, so its description paragraph
+    // appears before the semantic shell's heading/paragraph.
+    const overlayLab = page.locator('#experience-boundary').getByRole('button', { name: 'Open Architecture Table' }).first()
+    await expect(overlayLab).toBeVisible()
+
+    // The overlay must not intercept clicks on the landmark HUD. Selecting a
+    // different landmark must work immediately on desktop and mobile.
+    // (Audit P0-RA5: real navigation/layering defect on mobile.)
+    await nav.getByRole('button', { name: 'Forest Approach', exact: true }).click()
+    await expect(nav.getByRole('button', { name: 'Forest Approach', exact: true })).toHaveAttribute(
+      'aria-current',
+      'location',
+      { timeout: 8000 },
+    )
+
+    // Reopen the Architecture Table from the overlay button, then close it,
+    // and confirm navigation still works afterward.
+    await nav.getByRole('button', { name: 'Software Engineering Lab', exact: true }).click()
+    await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
+    await overlayLab.click({ timeout: 8000 })
+    const panel = page.getByRole('dialog', { name: 'Architecture Table' })
+    await expect(panel).toBeVisible()
+    await panel.getByRole('button', { name: 'Close' }).click()
+    await expect(panel).not.toBeVisible()
+
+    await nav.getByRole('button', { name: 'Bridge', exact: true }).click()
+    await expect(nav.getByRole('button', { name: 'Bridge', exact: true })).toHaveAttribute('aria-current', 'location', {
+      timeout: 8000,
+    })
+  })
 })

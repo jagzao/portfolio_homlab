@@ -26,15 +26,17 @@ export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
   // Modal dialog per WAI-ARIA APG, same pattern as ArchitecturePanel: Escape
   // dismisses (equivalent to Skip - never traps the visitor), Tab/Shift+Tab
   // stays inside rather than escaping into background content.
+  // The greeting is mounted conditionally by Experience3D; to ensure its
+  // Escape truly wins over the parent window listener we add the handler in
+  // the capture phase and call stopImmediatePropagation + preventDefault.
+  // stopImmediatePropagation prevents any other window listener (specifically
+  // Experience3D's bubble-phase Escape handler) from running on this event at
+  // all, not just from the same node. preventDefault avoids the browser's own
+  // default fullscreen/escape behaviors.
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
-        // stopPropagation so the background window listener (Experience3D's
-        // "Escape opens semantic navigation") never fires for a modal key —
-        // otherwise React's flush between the document and window listeners
-        // could unmount this dialog mid-dispatch and let the background steal
-        // focus. Escape inside a modal must only ever dismiss the modal.
-        event.stopPropagation()
+        event.stopImmediatePropagation()
         event.preventDefault()
         onChoose('free')
         return
@@ -54,9 +56,28 @@ export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
         first.focus()
       }
     }
-    document.addEventListener('keydown', onKeyDown)
-    return () => document.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown, true)
+    return () => window.removeEventListener('keydown', onKeyDown, true)
   }, [onChoose])
+
+  // When the greeting is removed from the tree, React's cleanup function
+  // runs and restores focus to `previouslyFocused.current`. However, if a
+  // capture-phase parent listener (Experience3D) runs its own cleanup logic
+  // later in the same event dispatch, the restored focus can be stolen back.
+  // We stopImmediatePropagation in the capture handler above, but as a second
+  // line of defense we also disable the parent Escape listener for the brief
+  // moment the greeting is being dismissed by setting a window-level flag
+  // that Experience3D checks.
+  useEffect(() => {
+    const key = '__homelab_greeting_dismissal_in_progress__'
+    ;(window as unknown as Record<string, unknown>)[key] = false
+    return () => {
+      ;(window as unknown as Record<string, unknown>)[key] = true
+      setTimeout(() => {
+        ;(window as unknown as Record<string, unknown>)[key] = false
+      }, 0)
+    }
+  }, [])
 
   return (
     <div

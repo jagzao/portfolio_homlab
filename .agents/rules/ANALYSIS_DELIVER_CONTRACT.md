@@ -53,9 +53,29 @@ Once Juan accepts the deliver, `project-lead` owns the work from start to audit-
 
 Required loop:
 
-`READ SPEC/MEMORY → PLAN → DELEGATE/IMPLEMENT → TARGETED TESTS → BUILD/LINT/TYPECHECK → RUN → SMOKE → E2E → REGRESSION → SECURITY → ACCESSIBILITY → VISUAL INSPECTION → PERFORMANCE MEASURE → INDEPENDENT REVIEW → FIX → RETEST → FULL RELEVANT VALIDATION → HANDOFF → PR → EXTERNAL AUDIT`
+`READ SPEC/MEMORY → PLAN → DELEGATE/IMPLEMENT → AGENT-BROWSER VALIDATE CHANGED FLOW → TARGETED TESTS → BUILD/LINT/TYPECHECK → RUN → SMOKE → AGENT-BROWSER REGRESSION (SCOPE) → PLAYWRIGHT E2E → REGRESSION → SECURITY → ACCESSIBILITY → VISUAL INSPECTION → PERFORMANCE MEASURE → INDEPENDENT REVIEW → FIX → RETEST → FULL RELEVANT VALIDATION → HANDOFF → PR → EXTERNAL AUDIT`
 
 Repeat `FIX → RETEST → REVIEW` until the accepted AC/DoD are satisfied or a genuine human/access/security/cost gate blocks progress.
+
+## Web Validation Standard (UI web projects)
+
+Status: ACTIVE — applies whenever the project/story has a web UI.
+
+`agent-browser` is the **primary** interactive validation loop during implementation and debugging. Do not default to Playwright as the debug/fix loop.
+
+Required workflow per significant web change:
+
+`IMPLEMENT → ensure dev server running → open/reuse an isolated agent-browser session (per project/worktree) → navigate to the changed flow → snapshot interactive state → exercise the flow → inspect visible behavior, console errors, relevant network/API failures → if wrong: diagnose → fix → repeat the SAME flow → continue until the changed scope behaves correctly.`
+
+Then, before `DONE`:
+
+`UNIT/INTEGRATION TESTS → AGENT-BROWSER REGRESSION of the changed flows → PLAYWRIGHT E2E (required) → REVIEW → CI`
+
+- `agent-browser`: fast smoke validation, interactive debugging, form flows, navigation, state changes, API/UI checks, console/network inspection, rapid fix/verify loops.
+- Playwright: durable E2E, contractual acceptance tests, regression suite, CI, exact reproducible evidence. It is the **final gate**, not the debug loop, once the change is stable.
+- During the fix loop, re-run only the impacted browser flows — do not run the full Playwright suite on every small change; run it only once the feature is stable.
+- Use isolated `agent-browser` sessions per project/worktree.
+- Never replace the required Playwright gate with `agent-browser`. If `agent-browser` is unavailable, record the reason and fall back safely — never report browser validation as PASS falsely.
 
 Do not mark `IMPLEMENTED`, `PASS`, or `DONE` merely because code compiles or most tests pass. A known accepted-criteria failure, unmeasured mandatory gate, BLOCKER/P0, or inaccessible audit evidence prevents completion unless Juan explicitly changes the accepted spec.
 
