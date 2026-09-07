@@ -129,9 +129,15 @@ jobs:
       - name: Run core functional E2E tests
         id: functional
         run: |
+          # Serial (--workers=1): two concurrent WebGL Chromium instances on a
+          # hosted runner contend for GPU/CPU and cause desktop-only timing
+          # flakes (mobile passes the same tests in the same run). The evidence
+          # job already runs serial for the same reason. Determinism under
+          # hosted-runner variance (Audit P0-RA2) is worth the small wall-clock
+          # cost of running the core suite one worker at a time.
           npx playwright test \
             --project=desktop-chromium --project=mobile-chromium \
-            --workers=2 \
+            --workers=1 \
             --grep-invert "visual evidence capture|visual evidence|Zavit visual evidence|Architecture Table visual evidence|M7 visual fidelity evidence|M3 graybox zone evidence|perf-heap-route|perf-sample|perf-gpu|m8-perf-sample"
 
       - name: Upload Playwright report
