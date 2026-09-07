@@ -20,6 +20,7 @@ export function LandmarkHud({ currentId, onSelect }: LandmarkHudProps) {
       aria-label="HomeLab landmarks"
       style={{
         position: 'absolute',
+        zIndex: 10,
         bottom: 'var(--space-3)',
         left: 'var(--space-3)',
         maxHeight: 'calc(100% - 2 * var(--space-3))',

@@ -9,7 +9,7 @@ interface DayNightToggleProps {
  */
 export function DayNightToggle({ isDay, onToggle }: DayNightToggleProps) {
   return (
-    <div style={{ position: 'absolute', top: 'var(--space-3)', left: 'var(--space-3)' }}>
+    <div style={{ position: 'absolute', zIndex: 10, top: 'var(--space-3)', left: 'var(--space-3)' }}>
       <button type="button" onClick={onToggle}>
         {isDay ? 'Switch to night' : 'Switch to day'}
       </button>

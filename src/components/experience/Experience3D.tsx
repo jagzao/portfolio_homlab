@@ -217,6 +217,9 @@ export default function Experience3D({ reducedMotion, tier, onContextLost }: Exp
     }
     canvas.addEventListener('webglcontextlost', onContextLostEvent)
     detachContextLostRef.current = () => canvas.removeEventListener('webglcontextlost', onContextLostEvent)
+    // Runtime-readiness signal (P0): only set once the context-loss handler is
+    // attached, so E2E tests can wait on it instead of racing the listener.
+    canvas.dataset.contextReady = 'true'
     // Expose the R3F scene graph and camera on the canvas so E2E tests can
     // assert on the 3D scene (e.g. Zavit's idle console) and the camera's
     // look yaw without a WebGL pixel probe.
@@ -309,6 +312,7 @@ export default function Experience3D({ reducedMotion, tier, onContextLost }: Exp
         <div
           style={{
             position: 'absolute',
+            zIndex: 5,
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',

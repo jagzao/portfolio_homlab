@@ -87,6 +87,7 @@ export function ZavitGreeting({ onChoose }: ZavitGreetingProps) {
       aria-label="Zavit"
       style={{
         position: 'absolute',
+        zIndex: 20,
         top: 'var(--space-3)',
         left: '50%',
         transform: 'translateX(-50%)',

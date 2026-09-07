@@ -20,6 +20,7 @@ export function GuidedControls({ nextIndex, onContinue, onSkip, onExitToFree }: 
     <div
       style={{
         position: 'absolute',
+        zIndex: 10,
         top: 'var(--space-3)',
         right: 'var(--space-3)',
         background: 'rgba(11, 12, 14, 0.75)',

@@ -75,16 +75,22 @@ export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
     return () => document.removeEventListener('keydown', onKeyDown)
   }, [onClose])
 
-  // Deterministic real-time clock: one second per tick, one interval per
-  // simulation run. A ref guards the interval from React strict-mode double
-  // invocation so no orphaned timers can exist. The completed flag is computed
-  // from elapsed directly in render instead of setState in an effect.
+  // Deterministic real-time clock: one interval per simulation run, driven by
+  // wall-clock time (P0-RA1). Elapsed is derived from performance.now() rather
+  // than counting interval callbacks, so a delayed/throttled callback under CI
+  // load still catches up to the correct simulation frame instead of drifting
+  // behind. The short 250ms tick keeps the status text reasonably smooth while
+  // still landing on whole-second frames via Math.floor. Crucially this effect
+  // depends only on `running` (not `elapsed`), so ticking does NOT tear down and
+  // re-create the interval each second — that would reset startTimeRef and
+  // freeze the clock. The completed flag is computed from elapsed in render.
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const startTimeRef = useRef<number | null>(null)
   const finalSecond = SIMULATION_FRAMES[SIMULATION_FRAMES.length - 1].atSeconds
   const running = elapsed !== null && elapsed < finalSecond
 
   useEffect(() => {
-    if (elapsed === null || !running) {
+    if (!running) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
@@ -92,16 +98,18 @@ export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
       return
     }
     if (intervalRef.current) return // already ticking
+    // Capture the wall-clock start once, when the run begins.
+    if (startTimeRef.current === null) startTimeRef.current = performance.now()
     intervalRef.current = setInterval(() => {
-      setElapsed((current) => (current === null ? 0 : current + 1))
-    }, 1000)
+      setElapsed(Math.floor((performance.now() - startTimeRef.current!) / 1000))
+    }, 250)
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
       }
     }
-  }, [elapsed, running])
+  }, [running])
 
   const frame: SimulationFrame = elapsed === null ? SIMULATION_FRAMES[0] : frameAt(elapsed)
   const selectedComponent = ARCHITECTURE_COMPONENTS.find((c) => c.id === selected)
@@ -182,7 +190,15 @@ export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
       )}
 
       <div style={{ marginTop: 'var(--space-2)' }}>
-        <button type="button" disabled={running} onClick={() => setElapsed(0)}>
+        <button
+          type="button"
+          disabled={running}
+          onClick={() => {
+            // Fresh wall-clock start for every run (SIMULATE FAILURE and Run again).
+            startTimeRef.current = null
+            setElapsed(0)
+          }}
+        >
           {running ? 'Simulation running…' : elapsed === null ? 'SIMULATE FAILURE' : 'Run again'}
         </button>
       </div>

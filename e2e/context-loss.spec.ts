@@ -7,6 +7,10 @@ import { test, expect } from '@playwright/test'
 async function loseContext(page: import('@playwright/test').Page) {
   const canvas = page.locator('canvas')
   await expect(canvas).toBeVisible()
+  // Only dispatch context loss once the listener is confirmed attached (P0):
+  // the canvas becomes visible as soon as R3F mounts it, but the listener is
+  // attached later in onCreated. The poll below remains as a safety net.
+  await expect(canvas).toHaveAttribute('data-context-ready', 'true')
   await expect
     .poll(async () => {
       await canvas.evaluate((el) => {
