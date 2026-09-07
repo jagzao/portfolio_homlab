@@ -157,10 +157,14 @@ test.describe('M5 Architecture Table (from within the 3D journey)', () => {
     )
 
     // Reopen the Architecture Table from the overlay button, then close it,
-    // and confirm navigation still works afterward.
+    // and confirm navigation still works afterward. The overlay only renders
+    // once the camera reaches the Software Lab, so wait for it to be visible
+    // (with a generous margin for the camera walk under CI load) before
+    // clicking — the aria-current above can land just as the walk finishes.
     await nav.getByRole('button', { name: 'Software Engineering Lab', exact: true }).click()
-    await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 8000 })
-    await overlayLab.click({ timeout: 8000 })
+    await expect(labButton).toHaveAttribute('aria-current', 'location', { timeout: 15000 })
+    await expect(overlayLab).toBeVisible({ timeout: 15000 })
+    await overlayLab.click({ timeout: 15000 })
     const panel = page.getByRole('dialog', { name: 'Architecture Table' })
     await expect(panel).toBeVisible()
     await panel.getByRole('button', { name: 'Close' }).click()

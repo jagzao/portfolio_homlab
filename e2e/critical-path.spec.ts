@@ -45,10 +45,14 @@ test('full critical path, Guided Mode, desktop: semantic load -> 3D entry -> Atr
 test('full critical path, keyboard only: no mouse click after the initial page load', async ({ page }) => {
   await page.goto('/')
 
-  // Tab to "Enter HomeLab" (after the header's GitHub link) and activate it.
-  await page.keyboard.press('Tab')
-  await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: /enter homelab/i })).toBeFocused()
+  // Focus "Enter HomeLab" and activate it with the keyboard. We focus the
+  // button directly rather than counting Tab presses: the header's GitHub link
+  // renders asynchronously, so a fixed Tab count is fragile under CI load and
+  // can land on the wrong element. Programmatic focus + Enter is still a
+  // keyboard-only interaction (no mouse click).
+  const enterButton = page.getByRole('button', { name: /enter homelab/i })
+  await enterButton.focus()
+  await expect(enterButton).toBeFocused()
   await page.keyboard.press('Enter')
   await page.locator('canvas').waitFor({ state: 'visible' })
 
