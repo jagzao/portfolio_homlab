@@ -140,6 +140,12 @@ test.describe('M4 Zavit v1', () => {
 
     const greeting = page.getByRole('dialog', { name: 'Zavit' })
     await expect(greeting).toBeVisible({ timeout: 8000 })
+    // Wait for the greeting's first button to be focused: the Escape listener is
+    // attached in a mount effect that runs after the DOM is visible, and the
+    // focus effect runs before it in the same commit. This removes the race
+    // where Escape is pressed before the handler is attached and the parent
+    // window listener steals the key.
+    await expect(greeting.getByRole('button', { name: 'Guided Mode' })).toBeFocused()
 
     await page.keyboard.press('Escape')
     await expect(greeting).not.toBeVisible()

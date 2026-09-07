@@ -29,6 +29,13 @@ test.describe('P0-02 movement/input model', () => {
 
     const greeting = page.getByRole('dialog', { name: 'Zavit' })
     await expect(greeting).toBeVisible({ timeout: 8000 })
+    // The greeting's Escape listener is attached in a mount effect that runs
+    // after the DOM is visible. Waiting for its first button to be focused (the
+    // focus effect runs before the Escape effect in the same commit) guarantees
+    // the Escape handler is attached before we press Escape — otherwise the
+    // parent window listener could steal the key and the greeting would not
+    // dismiss (a real race, not a timeout).
+    await expect(greeting.getByRole('button', { name: 'Guided Mode' })).toBeFocused()
 
     await page.keyboard.press('Escape')
     await expect(greeting).not.toBeVisible()
