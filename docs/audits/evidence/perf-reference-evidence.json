@@ -1,0 +1,188 @@
+{
+  "schema": "perf-reference-evidence/v1",
+  "commitSha": "ee8805a0cdf1420d4889435da847306f760c2b73",
+  "timestamp": "2026-09-08T15:33:01.794Z",
+  "command": "node scripts/perf-reference.mjs",
+  "config": {
+    "desktop": "playwright.perf.config.ts",
+    "mobile": "playwright.perf-mobile.config.ts"
+  },
+  "browserVersion": "151.0.7922.34",
+  "machine": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpuModel": "AMD Ryzen AI 9 HX 370 w/ Radeon 890M           ",
+    "cpuCount": 24,
+    "totalmemMB": 30329,
+    "hostname": "ZenMini"
+  },
+  "gpu": {
+    "renderer": "WebKit WebGL",
+    "unmaskedRenderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 890M Graphics, OpenGL 4.5.0)",
+    "unmaskedVendor": "Google Inc. (ATI Technologies Inc.)",
+    "gpuAdapter": "unknown",
+    "textures": 0,
+    "textureMemoryMB": 0
+  },
+  "swiftshaderRejected": false,
+  "frame": {
+    "runP95s": [
+      17.899999998509884,
+      18,
+      17.899999998509884
+    ],
+    "aggregateP95": 17.899999998509884,
+    "totalSamples": 11170,
+    "rawSamplesHash": "1fccbb6c5d9631ee6c066f87819548eea509b3e2862159d5be96ab5c8b500c85",
+    "rawSamplesFile": "C:\\Dev\\Zo\\zo_portfolio_lab\\docs\\audits\\evidence\\perf-frame-raw.json"
+  },
+  "vitals": {
+    "lcpAll": [
+      576,
+      560,
+      544,
+      556,
+      544,
+      576,
+      552,
+      548,
+      520,
+      540
+    ],
+    "clsAll": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lcpP75": 560,
+    "clsP75": 0
+  },
+  "heap": {
+    "beforeMB": 3.664936065673828,
+    "afterMB": 9.38895034790039,
+    "deltaMB": 5.7240142822265625,
+    "growthMB": 1.0688247680664062,
+    "perPassMB": [
+      8.320125579833984,
+      8.733783721923828,
+      8.829666137695312,
+      8.716472625732422,
+      8.801712036132812,
+      8.84029769897461,
+      8.889610290527344,
+      8.937187194824219,
+      9.165306091308594,
+      9.16485595703125,
+      9.232246398925781,
+      9.217411041259766,
+      9.28786849975586,
+      9.29391860961914,
+      9.30038070678711,
+      9.303218841552734,
+      9.304874420166016,
+      9.309104919433594,
+      9.309864044189453,
+      9.326828002929688,
+      9.359359741210938,
+      9.361492156982422,
+      9.381843566894531,
+      9.385848999023438,
+      9.38895034790039
+    ]
+  },
+  "interaction": {
+    "values": [
+      64,
+      62,
+      42,
+      51,
+      50,
+      46,
+      31,
+      34,
+      2406,
+      1385,
+      880,
+      46,
+      34
+    ],
+    "p75": 64
+  },
+  "longTasks": {
+    "count": 1,
+    "over50": 1,
+    "over200": 0,
+    "durations": [
+      67
+    ]
+  },
+  "budgets": {
+    "frameP95Ms": 20,
+    "lcpP75Ms": 2500,
+    "clsP75": 0.1,
+    "interactionP75Ms": 200,
+    "heapMB": 250,
+    "gpuTextureMB": 256,
+    "longTasksOver200": 0,
+    "longTasksOver50": 2
+  },
+  "checks": [
+    {
+      "name": "frameP95Ms",
+      "value": 17.899999998509884,
+      "budget": 20,
+      "pass": true
+    },
+    {
+      "name": "lcpP75Ms",
+      "value": 560,
+      "budget": 2500,
+      "pass": true
+    },
+    {
+      "name": "clsP75",
+      "value": 0,
+      "budget": 0.1,
+      "pass": true
+    },
+    {
+      "name": "interactionP75Ms",
+      "value": 64,
+      "budget": 200,
+      "pass": true
+    },
+    {
+      "name": "heapMB",
+      "value": 9.38895034790039,
+      "budget": 250,
+      "pass": true
+    },
+    {
+      "name": "gpuTextureMB",
+      "value": 0,
+      "budget": 256,
+      "pass": true
+    },
+    {
+      "name": "longTasksOver200",
+      "value": 0,
+      "budget": 0,
+      "pass": true
+    },
+    {
+      "name": "longTasksOver50",
+      "value": 1,
+      "budget": 2,
+      "pass": true
+    }
+  ],
+  "allBudgetsPass": true
+}
