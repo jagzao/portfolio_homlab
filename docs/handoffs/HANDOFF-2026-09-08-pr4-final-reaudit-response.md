@@ -5,7 +5,7 @@ Branch: `feat/US-010-m2-application-foundation`
 PR: `#4 — HomeLab UI Alpha — US-010 Vertical Slice 01 (M2-M8)`
 Audit source: Final External Audit `5136245139`
 Date: 2026-09-08
-Head: `f12fa86`
+Head: `514411a`
 CI: green on exact head (functional / evidence / performance / validate / summary)
 
 ## Traceability (reconciled per audit P1-2)
@@ -13,10 +13,10 @@ CI: green on exact head (functional / evidence / performance / validate / summar
 | Role | Head |
 |---|---|
 | Performance-evidence head (methodology fixes + specs) | `f12fa86` |
-| Final test-hardening head (Tab-traversal timeout) | `fed7e9b` |
-| Actual PR head | `f12fa86` |
+| Final test-hardening head (Tab-traversal determinism) | `514411a` |
+| Actual PR head | `514411a` |
 
-The performance-evidence work (`f12fa86`) builds on the test-hardening head (`fed7e9b`); both are green in CI. The PR body and this handoff track the actual PR head `f12fa86`.
+The performance-evidence work (`f12fa86`) builds on the earlier test-hardening head (`fed7e9b`); the final head `514411a` makes the Tab-traversal test deterministic (reachability only, activation covered by the direct-focus test). All are green in CI. The PR body and this handoff track the actual PR head `514411a`.
 
 ## Summary
 
@@ -119,5 +119,5 @@ All jobs **success** on the exact head (push + PR suites): Validate, E2E functio
 
 Branch: `feat/US-010-m2-application-foundation`
 PR: `#4` (open, **unmerged**, `mergeable_state: clean`)
-Head: `f12fa86`
+Head: `514411a`
 Target status: `READY FOR FINAL EXTERNAL RE-AUDIT — US-010 / PERFORMANCE EVIDENCE VALIDATED`
