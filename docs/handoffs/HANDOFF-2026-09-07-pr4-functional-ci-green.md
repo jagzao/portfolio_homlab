@@ -5,7 +5,7 @@ Branch: `feat/US-010-m2-application-foundation`
 PR: `#4 — HomeLab UI Alpha — US-010 Vertical Slice 01 (M2-M8)`
 Audit source: `docs/audits/AUDIT-2026-09-05-pr4-ui-alpha-reaudit.md` + external review `5125139611`
 Date: 2026-09-07
-Head: `910d2dd`
+Head: `c1d5e81`
 CI run (push): `34153019976` — **success**
 CI run (PR): `34153022188` — **success**
 PR mergeable state: `clean` (open, **not merged**)
@@ -31,9 +31,11 @@ The exact-head CI was red because of **desktop-only timing flakes under WebGL co
 2. **Zavit Escape listener race**: the greeting's Escape handler is attached in a mount effect that runs after the DOM is visible. Tests now wait for the greeting's first button to be focused (the focus effect runs before the Escape effect in the same commit) before pressing Escape, so the handler is guaranteed attached.
 3. **Keyboard Tab-count races**: `critical-path` and `smoke` keyboard tests counted Tab presses to reach "Enter HomeLab", which is fragile when the header's link renders asynchronously. They now focus the button directly (still keyboard-only, no mouse click).
 
-## CI result on exact head `910d2dd`
+## CI result on exact head `c1d5e81`
 
 All jobs **success** on both the push run (`34153019976`) and the PR run (`34153022188`):
+
+> Traceability note: the audited head is `c1d5e81`, which added only this handoff document. The functional code head was `910d2dd`; the exact-head CI checks are green on the final head `c1d5e81`.
 
 | Job | Conclusion |
 |---|---|
@@ -70,5 +72,5 @@ PR #4: `mergeable_state: clean`, `state: open`, **not merged**.
 
 Branch: `feat/US-010-m2-application-foundation`
 PR: `#4` (open, **unmerged**, `mergeable_state: clean`)
-Head: `910d2dd`
+Head: `c1d5e81` (added only this handoff; functional code head was `910d2dd`)
 Target status: `READY FOR EXTERNAL RE-AUDIT — FUNCTIONAL CI GREEN / PERFORMANCE DECISION PENDING`

@@ -24,12 +24,13 @@ interface ArchitecturePanelProps {
  * a WebGL scene object — this is what makes it the semantic equivalent too:
  * the same component works with or without the 3D canvas.
  *
- * The simulation uses a single real-timer effect and advances one second at a
- * time. It always runs from 0 to `SIMULATION_DURATION_SECONDS` with exactly
- * one tick per second, so the deterministic 10-second sequence finishes in a
- * predictable wall-clock window. Only one ArchitecturePanel exists in the app
- * (rendered by ArchitectureTableRoot at the top of the tree), so only one
- * timer can run.
+ * The simulation uses a single interval per run. Elapsed is derived from a
+ * captured `performance.now()` start timestamp (wall-clock deterministic), so
+ * a delayed/throttled callback catches up to the correct frame instead of
+ * drifting. A 250ms tick lands on whole-second frames via `Math.floor`. The
+ * effect depends only on `running`, so ticking does not tear down/re-create
+ * the interval. Only one ArchitecturePanel exists in the app (rendered by
+ * ArchitectureTableRoot at the top of the tree), so only one timer can run.
  */
 export function ArchitecturePanel({ onClose }: ArchitecturePanelProps) {
   const [selected, setSelected] = useState<ComponentId | null>(null)

@@ -105,10 +105,4 @@ Reconciled against `docs/adr/ADR-001-rendering-framework.md` and `docs/adr/ADR-0
 
 ## Current Measurement Status
 
-Build: N/A
-Web Vitals: NOT MEASURED
-FPS/frame time: NOT MEASURED
-Memory/GPU: NOT MEASURED
-Asset weight: NOT MEASURED
-
-No executable application exists in Foundation; these statuses must not be represented as passes.
+An executable application now exists (US-010 vertical slice). Current measured status is recorded in the latest handoff: `docs/handoffs/HANDOFF-2026-09-07-pr4-functional-ci-green.md` (and the final performance handoff that supersedes it). The reference-profile performance gate is executed per the accepted methodology in review `5134770762`; hosted-runner performance data remains informational. Budgets are unchanged.

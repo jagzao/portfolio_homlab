@@ -138,7 +138,7 @@ jobs:
           npx playwright test \
             --project=desktop-chromium --project=mobile-chromium \
             --workers=1 \
-            --grep-invert "visual evidence capture|visual evidence|Zavit visual evidence|Architecture Table visual evidence|M7 visual fidelity evidence|M3 graybox zone evidence|perf-heap-route|perf-sample|perf-gpu|m8-perf-sample"
+            --grep-invert "visual evidence capture|visual evidence|Zavit visual evidence|Architecture Table visual evidence|M7 visual fidelity evidence|M3 graybox zone evidence|perf-heap-route|perf-sample|perf-gpu|m8-perf-sample|perf-ref"
 
       - name: Upload Playwright report
         if: always()

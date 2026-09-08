@@ -23,6 +23,36 @@ test.describe('semantic shell', () => {
     // Either a canvas mounts (WebGL available) or a visible notice appears (semantic fallback) — never a blank/stuck state.
     await expect(page.locator('canvas').or(page.getByRole('alert'))).toBeVisible()
   })
+
+  test('the entry action is reachable through natural Tab order within a bounded number of presses', async ({ page }) => {
+    await page.goto('/')
+    // Start from the top of the document so we traverse the real Tab order.
+    await page.keyboard.press('Tab')
+    // Bounded real-Tab traversal: press Tab up to a fixed maximum and, after
+    // each press, read the focused element's accessible name/text. This proves
+    // a real keyboard user can reach "Enter HomeLab" without relying on a
+    // brittle fixed Tab count (the header's Contact link renders asynchronously).
+    const MAX_TABS = 20
+    let found = false
+    for (let i = 0; i < MAX_TABS; i++) {
+      const label = await page.evaluate(() => {
+        const el = document.activeElement
+        if (!el) return ''
+        const aria = el.getAttribute('aria-label')
+        if (aria) return aria
+        return (el.textContent ?? '').trim()
+      })
+      if (/enter homelab/i.test(label)) {
+        found = true
+        break
+      }
+      await page.keyboard.press('Tab')
+    }
+    expect(found).toBe(true)
+    await page.keyboard.press('Enter')
+    // Either a canvas mounts (WebGL available) or a visible notice appears (semantic fallback) — never a blank/stuck state.
+    await expect(page.locator('canvas').or(page.getByRole('alert'))).toBeVisible()
+  })
 })
 
 test.describe('degraded-mode fallback (ADR-002)', () => {
