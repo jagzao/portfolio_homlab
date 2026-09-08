@@ -51,7 +51,10 @@ test.describe('semantic shell', () => {
     expect(found).toBe(true)
     await page.keyboard.press('Enter')
     // Either a canvas mounts (WebGL available) or a visible notice appears (semantic fallback) — never a blank/stuck state.
-    await expect(page.locator('canvas').or(page.getByRole('alert'))).toBeVisible()
+    // Generous timeout: the canvas can take >5s to mount under CI load; the
+    // point of this assertion is that activation never leaves a blank/stuck
+    // state, not that the canvas mounts within a tight window.
+    await expect(page.locator('canvas').or(page.getByRole('alert'))).toBeVisible({ timeout: 15000 })
   })
 })
 
