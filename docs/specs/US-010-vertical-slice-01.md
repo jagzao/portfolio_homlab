@@ -1,13 +1,13 @@
 # US-010 — Vertical Slice 01
 
-: `ACCEPTED` — Juan-accepted scope; implementation/validation on branch, mandatory performance gate open, pending formal re-audit
+: `ACCEPTED` — Juan-accepted scope; implementation/validation on branch, performance gate closed on reference profile, pending final external audit
 Accepted by: Juan
 Accepted on: 2026-09-02
 Last transition: reconciled `READY → ACCEPTED` on 2026-09-05 (see State History)
 
 > **Honest reconciliation note (2026-09-05).** Per `.agents/AGENTS.md` §5 the canonical lifecycle is `DRAFT → READY → ACCEPTED → IMPLEMENTED → AUDITED → DONE`. The previous `READY` state was invented ad hoc to mean "code fixes complete but validation gates open." That is not a canonical state. The honest SDD position is to keep the story at `ACCEPTED` while implementation and internal validation are still in progress on the working branch. `US-010` therefore returns to `ACCEPTED`; it will move to `IMPLEMENTED` only when the branch is internally complete (including the open performance gate resolved or Juan-accepted), and to `AUDITED` only after External Audit clears the remaining findings.
 >
-> All `P0` code fixes from `docs/audits/AUDIT-2026-09-04-pr4-ui-alpha.md` and `docs/audits/AUDIT-2026-09-05-pr4-ui-alpha-reaudit.md` are now implemented on `feat/US-010-m2-application-foundation`. The previously-missing performance measurements now exist (5-minute-route heap +5.3MB delta, GPU/texture estimate 0MB textures primitives-only, Web Vitals LCP 96ms / CLS 0.000, long tasks, INP proxy). **However the desktop p95 frame-time gate (`<= 20 ms`) remains MARGINAL at 18.8-21.0 ms across samples** — over budget, not a PASS. Do not treat the open frame-time gate as a pass. A formal proposal for an alternative accepted methodology is documented under `docs/handoffs/HANDOFF-2026-09-05-pr4-ui-alpha-reaudit.md` and requires Juan's explicit acceptance.
+> **Performance gate update (2026-09-07).** Juan accepted the refined methodology proposed in external review `5134770762`. The reference-profile performance gate was then executed on the reference device (AMD Ryzen AI 9 HX 370 / Radeon 890M, 1920×1080, hardware-accelerated Chrome) and **all budgets PASS**: desktop p95 frame time 18.4ms (≤20ms, 3×60s traces), LCP 108ms / CLS 0.000 (≤2.5s / ≤0.10), INP p75 80ms (≤200ms, 13 interactions), long tasks 1×>50ms / 0×>200ms (≤2 / none), literal 5-minute-route heap 9.5MB with 1.2MB growth (≤250MB, no sustained growth), GPU/texture 0MB (≤256MB). Hosted-runner perf data remains informational. See `docs/handoffs/HANDOFF-2026-09-07-pr4-performance-gate.md` for the full evidence. The story remains `ACCEPTED` pending the final external audit.
 
 ## User Story
 
