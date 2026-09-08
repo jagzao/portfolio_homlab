@@ -1,4 +1,5 @@
 import { test } from '@playwright/test'
+import { recordEvidence } from '../scripts/perf-evidence.mjs'
 
 /**
  * Reference-profile mobile-4G LCP/CLS gate per the accepted methodology in
@@ -95,4 +96,8 @@ test('mobile-4G LCP/CLS: 10 clean-cache runs at 4Mbps/150ms RTT, p75', async ({ 
     '[perf-ref-vitals] methodology=mobile 4G (4Mbps/150ms RTT via CDP), 10 clean-cache runs (fresh context each), ' +
       'all values recorded, p75 computed; budget LCP <=2.5s / CLS <=0.10 (docs/architecture/PERFORMANCE_BUDGET.md)',
   )
+
+  recordEvidence({
+    vitals: { lcpAll: lcpValues, clsAll: clsValues, lcpP75, clsP75 },
+  })
 })

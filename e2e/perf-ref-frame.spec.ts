@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { recordEvidence, writeRawSamples } from '../scripts/perf-evidence.mjs'
 
 /**
  * Reference-profile frame-time gate per the accepted methodology in external
@@ -13,8 +14,13 @@ import { test, expect } from '@playwright/test'
  *   - concatenate ALL raw samples and compute aggregate p95 over that set
  *   - budget p95 <= 20ms (NOT relaxed)
  *
- * Informational — logs results, no pass/fail assertion (budgets compared
- * manually in the final performance handoff against PERFORMANCE_BUDGET.md).
+ * The sampler stops at exactly 60s (±1 frame) via a deadline check inside the
+ * rAF loop, and the navigation driver breaks out of the route loop when the
+ * trace deadline is reached — it does NOT wait for a full route loop to finish,
+ * so traces do not overrun to ~65-70s.
+ *
+ * Results are recorded into the shared evidence accumulator consumed by the
+ * `perf:reference` orchestrator (scripts/perf-reference.mjs).
  */
 
 const TRACES = 3
@@ -73,7 +79,13 @@ test('reference-profile frame time: 10s warm-up + 3x60s traces with real navigat
   }
 
   // Start a rAF sampler in the page that accumulates raw frame times into a
-  // window global. The test drives navigation while the sampler runs.
+  // window global. The test drives navigation while the sampler runs. The
+  // sampler does NOT self-terminate: the test calls stopSampler() after the
+  // 60s navigation window, so the sampler runs for exactly the duration of the
+  // navigation. (A self-terminating sampler keyed to performance.now() while
+  // the navigation loop is keyed to Date.now() can be cut short if the wall
+  // clock advances faster than the monotonic clock — e.g. an NTP adjustment —
+  // producing a sub-60s trace.)
   const startSampler = () =>
     page.evaluate(() => {
       const w = window as unknown as { __frameSamples: number[]; __sampling: boolean }
@@ -106,9 +118,12 @@ test('reference-profile frame time: 10s warm-up + 3x60s traces with real navigat
 
     // Drive real representative navigation for the full 60s trace: walk the
     // route repeatedly, waiting for each camera walk to complete (aria-current
-    // flips to the selected landmark) before the next click.
-    while (Date.now() - traceStart < TRACE_MS) {
+    // flips to the selected landmark) before the next click. Break out of the
+    // route loop as soon as the trace deadline is reached so the trace ends at
+    // 60s (±1 frame) instead of waiting for a full route loop to finish.
+    outer: while (Date.now() - traceStart < TRACE_MS) {
       for (const label of ROUTE) {
+        if (Date.now() - traceStart >= TRACE_MS) break outer
         await nav.getByRole('button', { name: label, exact: true }).click()
         await expect(nav.getByRole('button', { name: label, exact: true })).toHaveAttribute('aria-current', 'location', {
           timeout: 10_000,
@@ -117,6 +132,8 @@ test('reference-profile frame time: 10s warm-up + 3x60s traces with real navigat
       }
     }
 
+    // Stop the sampler immediately after the 60s navigation window so the
+    // trace is a literal 60s (±1 frame) of real navigation.
     const raw = await stopSampler()
     const sorted = [...raw].sort((a, b) => a - b)
     const p95 = sorted[Math.floor(sorted.length * 0.95)]
@@ -143,4 +160,17 @@ test('reference-profile frame time: 10s warm-up + 3x60s traces with real navigat
       '3 independent 60s traces, raw samples retained, aggregate p95 over concatenated sample set; ' +
       'budget p95 <=20ms desktop (docs/architecture/PERFORMANCE_BUDGET.md); reference machine recorded in final handoff',
   )
+
+  // Persist raw samples to a separate artifact and record the evidence for the
+  // `perf:reference` orchestrator.
+  const { file: rawSamplesFile, hash: rawSamplesHash } = writeRawSamples(allRawSamples)
+  recordEvidence({
+    frame: {
+      runP95s,
+      aggregateP95,
+      totalSamples: allRawSamples.length,
+      rawSamplesHash,
+      rawSamplesFile,
+    },
+  })
 })

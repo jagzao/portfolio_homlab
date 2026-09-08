@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { recordEvidence } from '../scripts/perf-evidence.mjs'
 
 /**
  * Reference-profile memory gate per the accepted methodology in external
@@ -80,4 +81,8 @@ test('literal 5-minute representative route JS heap (reference profile)', async 
     '[perf-ref-heap] methodology=literal 5-minute representative route on reference device; budget <=250MB desktop ' +
       '(docs/architecture/PERFORMANCE_BUDGET.md); no sustained resource growth expected',
   )
+
+  recordEvidence({
+    heap: { beforeMB: before, afterMB: after, deltaMB: after - before, growthMB: growth, perPassMB: samples },
+  })
 })

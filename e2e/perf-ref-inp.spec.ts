@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test'
+import { recordEvidence } from '../scripts/perf-evidence.mjs'
 
 /**
  * Reference-profile lab interaction latency (INP proxy) per the accepted
@@ -66,4 +67,8 @@ test('lab interaction latency p75 (INP proxy): >=10 representative interactions,
       'representative interactions; budget p75 <=200ms (docs/architecture/PERFORMANCE_BUDGET.md); ' +
       'NOT the browser Event Timing INP metric; field INP is post-deploy telemetry',
   )
+
+  recordEvidence({
+    interaction: { values: interactions, p75 },
+  })
 })

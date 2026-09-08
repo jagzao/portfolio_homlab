@@ -27,3 +27,6 @@ playwright/.cache
 *.njsproj
 *.sln
 *.sw?
+
+# perf:reference transient accumulator
+perf-evidence.tmp.json

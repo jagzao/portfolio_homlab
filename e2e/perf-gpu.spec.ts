@@ -1,4 +1,5 @@
 import { test } from '@playwright/test'
+import { recordEvidence } from '../scripts/perf-evidence.mjs'
 
 /**
  * P0-01: GPU / renderer / texture-memory estimate (US-010 mandatory gate).
@@ -32,6 +33,8 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
   // 1. Renderer / GPU adapter info via CDP.
   let gpuInfo: { name?: string; vendor?: string; deviceId?: string; vendorId?: string } | null = null
   let renderer = 'n/a'
+  let unmaskedRenderer = 'n/a'
+  let unmaskedVendor = 'n/a'
   try {
     const info = await client.send('SystemInfo.getInfo')
     const gpu = info.gpu
@@ -43,11 +46,20 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
     /* SystemInfo.getInfo not available in this browser context */
   }
   try {
-    renderer = await page.evaluate(() => {
+    const glInfo = await page.evaluate(() => {
       const canvas = document.querySelector('canvas')
       const gl = canvas?.getContext('webgl2') ?? canvas?.getContext('webgl')
-      return gl ? String(gl.getParameter(gl.RENDERER)) : 'n/a'
+      if (!gl) return { renderer: 'n/a', unmaskedRenderer: 'n/a', unmaskedVendor: 'n/a' }
+      const ext = gl.getExtension('WEBGL_debug_renderer_info')
+      return {
+        renderer: String(gl.getParameter(gl.RENDERER)),
+        unmaskedRenderer: ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : 'n/a',
+        unmaskedVendor: ext ? String(gl.getParameter(ext.UNMASKED_VENDOR_WEBGL)) : 'n/a',
+      }
     })
+    renderer = glInfo.renderer
+    unmaskedRenderer = glInfo.unmaskedRenderer
+    unmaskedVendor = glInfo.unmaskedVendor
   } catch {
     /* WebGL context not reachable */
   }
@@ -109,4 +121,16 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
       'GPU memory is an ESTIMATE (browser/driver reporting varies); budget <=256MB desktop / <=128MB mobile ' +
       '(docs/architecture/PERFORMANCE_BUDGET.md)',
   )
+
+  recordEvidence({
+    gpu: {
+      renderer,
+      unmaskedRenderer,
+      unmaskedVendor,
+      gpuAdapter: gpuName,
+      textures: scene.textures,
+      textureMemoryMB,
+    },
+    browser: { userAgent: await page.evaluate(() => navigator.userAgent) },
+  })
 })

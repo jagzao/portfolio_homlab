@@ -1,4 +1,5 @@
 import { test } from '@playwright/test'
+import { recordEvidence } from '../scripts/perf-evidence.mjs'
 
 /**
  * M8 measurements not yet captured elsewhere: JS heap after repeated 3D
@@ -109,4 +110,8 @@ test('long tasks and INP proxy during entry (semantic load -> 3D enter -> first 
     `[m8-longtask] duringEntry: count=${longTasks.length} over50ms=${over50} over200ms=${over200} durations=[${longTasks.join(',')}]ms`,
   )
   console.log(`[m8-inp-proxy] toggle-click-to-visible-effect=${interactionMs}ms (proxy only, not a field INP measurement)`)
+
+  recordEvidence({
+    longTasks: { count: longTasks.length, over50, over200, durations: longTasks },
+  })
 })
