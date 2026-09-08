@@ -1,13 +1,15 @@
 # US-010 — Vertical Slice 01
 
-: `ACCEPTED` — Juan-accepted scope; implementation/validation on branch, performance gate closed on reference profile, pending final external audit
+: `IMPLEMENTED` — implementation and applicable internal validation complete on the working branch; performance evidence validated on reference profile; pending final external re-audit
 Accepted by: Juan
 Accepted on: 2026-09-02
-Last transition: reconciled `READY → ACCEPTED` on 2026-09-05 (see State History)
+Last transition: `ACCEPTED → IMPLEMENTED` on 2026-09-08 (see State History)
 
 > **Honest reconciliation note (2026-09-05).** Per `.agents/AGENTS.md` §5 the canonical lifecycle is `DRAFT → READY → ACCEPTED → IMPLEMENTED → AUDITED → DONE`. The previous `READY` state was invented ad hoc to mean "code fixes complete but validation gates open." That is not a canonical state. The honest SDD position is to keep the story at `ACCEPTED` while implementation and internal validation are still in progress on the working branch. `US-010` therefore returns to `ACCEPTED`; it will move to `IMPLEMENTED` only when the branch is internally complete (including the open performance gate resolved or Juan-accepted), and to `AUDITED` only after External Audit clears the remaining findings.
 >
 > **Performance gate update (2026-09-07).** Juan accepted the refined methodology proposed in external review `5134770762`. The reference-profile performance gate was then executed on the reference device (AMD Ryzen AI 9 HX 370 / Radeon 890M, 1920×1080, hardware-accelerated Chrome) and **all budgets PASS**: desktop p95 frame time 18.4ms (≤20ms, 3×60s traces), LCP 108ms / CLS 0.000 (≤2.5s / ≤0.10), INP p75 80ms (≤200ms, 13 interactions), long tasks 1×>50ms / 0×>200ms (≤2 / none), literal 5-minute-route heap 9.5MB with 1.2MB growth (≤250MB, no sustained growth), GPU/texture 0MB (≤256MB). Hosted-runner perf data remains informational. See `docs/handoffs/HANDOFF-2026-09-07-pr4-performance-gate.md` for the full evidence. The story remains `ACCEPTED` pending the final external audit.
+>
+> **Lifecycle transition (2026-09-08).** Per Final External Audit `5136245139` P1-1, `US-010` moves `ACCEPTED → IMPLEMENTED`: implementation and applicable internal validation (including the reference-profile performance evidence) are complete on the working branch. The external re-audit will decide whether it can move to `AUDITED`. The performance-evidence methodology was corrected per the audit (real navigation during frame traces, aggregate p95 over concatenated samples, reproducible mobile-4G LCP/CLS with 10 clean-cache runs) and re-validated on the reference profile.
 
 ## User Story
 

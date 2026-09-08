@@ -1,16 +1,18 @@
 import { test, expect } from '@playwright/test'
 
 /**
- * Reference-profile INP gate per the accepted methodology in external review
- * 5134770762: lab interaction trace is acceptable per PERFORMANCE_BUDGET.md;
- * collect >=10 representative interactions and require p75 <=200ms. Field INP
- * becomes post-deploy telemetry, not a pre-merge gate.
+ * Reference-profile lab interaction latency (INP proxy) per the accepted
+ * methodology in external review 5134770762 / re-audit 5136245139: lab
+ * interaction trace is acceptable per PERFORMANCE_BUDGET.md; collect >=10
+ * representative interactions and require p75 <=200ms. This is a
+ * click-to-visible-effect round-trip proxy, NOT the browser Event Timing INP
+ * metric. Field INP becomes post-deploy telemetry, not a pre-merge gate.
  *
  * Informational — logs results, no pass/fail assertion (budgets compared
  * manually in the final performance handoff).
  */
 
-test('INP lab interaction trace: >=10 representative interactions, p75 <=200ms', async ({ page }) => {
+test('lab interaction latency p75 (INP proxy): >=10 representative interactions, p75 <=200ms', async ({ page }) => {
   await page.goto('/')
   await page.getByRole('button', { name: /enter homelab/i }).click()
   await page.locator('canvas').waitFor({ state: 'visible' })
@@ -60,7 +62,8 @@ test('INP lab interaction trace: >=10 representative interactions, p75 <=200ms',
     `[perf-ref-inp] interactions=${interactions.length} p75=${p75}ms all=[${interactions.join(',')}]ms`,
   )
   console.log(
-    '[perf-ref-inp] methodology=lab interaction trace (click-to-visible-effect round trips), >=10 representative ' +
-      'interactions; budget p75 <=200ms (docs/architecture/PERFORMANCE_BUDGET.md); field INP is post-deploy telemetry',
+    '[perf-ref-inp] methodology=lab interaction latency p75 (INP proxy: click-to-visible-effect round trips), >=10 ' +
+      'representative interactions; budget p75 <=200ms (docs/architecture/PERFORMANCE_BUDGET.md); ' +
+      'NOT the browser Event Timing INP metric; field INP is post-deploy telemetry',
   )
 })
