@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { dirname, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -23,6 +23,56 @@ export const BUDGETS = {
   gpuTextureMB: 256, // GPU texture memory estimate <= 256MB desktop
   longTasksOver200: 0, // no long tasks > 200ms during entry
   longTasksOver50: 2, // at most 2 long tasks > 50ms during entry
+}
+
+/**
+ * Required evidence schema for the fail-closed reference gate (external audit
+ * 5148848138, P0-FINAL-3). `validateEvidence()` enforces these contracts:
+ * `allBudgetsPass` must mean every required group is present, valid
+ * (finite, non-negative, no -1 sentinel), complete (exact run counts) and —
+ * only then — within budget. Documented here so the completeness contract is
+ * reviewable independently of the enforcement code.
+ */
+export const REQUIRED_EVIDENCE = {
+  note: 'Every field below is REQUIRED. Missing, non-finite, negative (-1 sentinel), incomplete-count, or software/unavailable-renderer evidence fails the gate closed.',
+  frame: {
+    runP95s: 'array of exactly 3 finite non-negative numbers (per-run p95 frame time ms)',
+    aggregateP95: 'finite non-negative number (p95 over all concatenated raw samples)',
+    totalSamples: 'positive integer (total raw frame samples across all runs)',
+    rawSamplesHash: 'non-empty string (SHA-256 of the raw sample artifact)',
+    rawSamplesFile: 'non-empty repo-relative path to the raw sample artifact',
+    runDurationsMs: 'array of exactly 3 finite numbers > 0 (actual per-run trace duration ms)',
+    runSampleCounts: 'array of exactly 3 positive integers (per-run raw sample counts)',
+  },
+  vitals: {
+    lcpAll: 'array of exactly 10 finite non-negative numbers (LCP ms per clean-cache run; missing LCP is recorded as -1 and rejected)',
+    clsAll: 'array of exactly 10 finite non-negative numbers (CLS per clean-cache run)',
+    lcpP75: 'finite non-negative number',
+    clsP75: 'finite non-negative number',
+  },
+  heap: {
+    beforeMB: 'finite non-negative number',
+    afterMB: 'finite non-negative number',
+    deltaMB: 'finite number (may be negative) but never the -1 sentinel',
+    growthMB: 'finite number (may be negative) but never the -1 sentinel',
+    perPassMB: 'non-empty array of finite non-negative numbers (heap after each route pass)',
+  },
+  interaction: {
+    values: 'array of >= 10 finite non-negative numbers (click-to-visible-effect ms)',
+    p75: 'finite non-negative number',
+  },
+  longTasks: {
+    count: 'integer >= 0',
+    over50: 'integer >= 0',
+    over200: 'integer >= 0',
+    durations: 'array of finite non-negative numbers (may be empty when count is 0)',
+  },
+  gpu: {
+    unmaskedRenderer: 'non-empty string; must NOT be a software renderer (SwiftShader/llvmpipe/software) or n/a/unknown',
+    unmaskedVendor: 'non-empty string; must NOT be n/a/unknown',
+    textures: 'integer >= 0 (scene traversal unavailable is recorded as -1 and rejected)',
+    textureMemoryMB: 'finite non-negative number',
+  },
 }
 
 /**
@@ -59,15 +109,220 @@ export function sha256(text) {
   return createHash('sha256').update(text).digest('hex')
 }
 
+/** True when a WebGL renderer string is a known software rasterizer. */
+export function isSoftwareRenderer(renderer) {
+  if (!renderer) return false
+  return /swiftshader|llvmpipe|software/i.test(renderer)
+}
+
+function isObject(v) {
+  return typeof v === 'object' && v !== null && !Array.isArray(v)
+}
+
+function typeLabel(v) {
+  if (v === null) return 'null'
+  if (Array.isArray(v)) return 'array'
+  return typeof v
+}
+
+function pushError(errors, path, message) {
+  errors.push(`${path}: ${message}`)
+}
+
 /**
- * Write raw frame-time samples to the evidence dir and return the file path
- * plus its SHA-256 hash so the artifact can reference an immutable raw sample
- * set.
+ * Validate a scalar number field. opts:
+ *   nonNeg     reject values < 0
+ *   positive   reject values <= 0
+ *   noSentinel reject the -1 "missing/unavailable" sentinel (negative values
+ *               other than -1 remain legal, e.g. heap delta/growth)
  */
-export function writeRawSamples(samples) {
+function checkNumber(errors, path, value, opts = {}) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    pushError(errors, path, `expected a finite number, got ${typeLabel(value)}`)
+    return false
+  }
+  if (opts.noSentinel && value === -1) {
+    pushError(errors, path, `unavailable/missing value leaked as the -1 sentinel`)
+    return false
+  }
+  if (opts.nonNeg && value < 0) {
+    pushError(errors, path, `expected a non-negative number, got ${value}`)
+    return false
+  }
+  if (opts.positive && value <= 0) {
+    pushError(errors, path, `expected a positive number, got ${value}`)
+    return false
+  }
+  return true
+}
+
+/**
+ * Validate an integer field (default: non-negative integer).
+ * opts: positive -> reject <= 0
+ */
+function checkInt(errors, path, value, { positive = false } = {}) {
+  if (!Number.isInteger(value)) {
+    pushError(errors, path, `expected an integer, got ${typeLabel(value)}`)
+    return false
+  }
+  if (positive && value <= 0) {
+    pushError(errors, path, `expected a positive integer, got ${value}`)
+    return false
+  }
+  if (!positive && value < 0) {
+    pushError(errors, path, `expected a non-negative integer, got ${value}`)
+    return false
+  }
+  return true
+}
+
+/**
+ * Validate an array of numbers. opts:
+ *   len       exact required length
+ *   minLen    minimum required length
+ *   ...       remaining opts forwarded to checkNumber (nonNeg/positive/...)
+ * A length mismatch is reported once; otherwise each element is checked.
+ */
+function checkNumberArray(errors, path, arr, { len = null, minLen = 0, ...numOpts } = {}) {
+  if (!Array.isArray(arr)) {
+    pushError(errors, path, `expected an array, got ${typeLabel(arr)}`)
+    return false
+  }
+  if (len !== null && arr.length !== len) {
+    pushError(errors, path, `expected exactly ${len} elements, got ${arr.length}`)
+    return false
+  }
+  if (arr.length < minLen) {
+    pushError(errors, path, `expected at least ${minLen} elements, got ${arr.length}`)
+    return false
+  }
+  arr.forEach((v, i) => checkNumber(errors, `${path}[${i}]`, v, numOpts))
+  return true
+}
+
+function checkNonEmptyString(errors, path, value) {
+  if (typeof value !== 'string' || value.trim() === '') {
+    pushError(errors, path, `expected a non-empty string, got ${typeLabel(value)}`)
+    return false
+  }
+  return true
+}
+
+/** n/a / unknown / none are "could not read it" placeholders, never evidence. */
+function checkNotPlaceholder(errors, path, value) {
+  if (/^(n\/a|unknown|none)$/i.test(String(value).trim())) {
+    pushError(errors, path, `placeholder "${value}" is not acceptable evidence`)
+    return false
+  }
+  return true
+}
+
+/**
+ * P0-FINAL-3: fail-closed schema validation for the reference evidence.
+ * Returns { valid, errors }. `valid` is true only when every required group is
+ * present with all required fields present, finite, non-negative (no -1
+ * sentinel), complete counts, non-empty raw-sample references, and a hardware
+ * (non-software, non-placeholder) unmasked renderer.
+ */
+export function validateEvidence(evidence) {
+  const errors = []
+  if (!isObject(evidence)) {
+    pushError(errors, 'evidence', 'expected a non-null object of recorded metrics')
+    return { valid: false, errors }
+  }
+
+  // Every group below is required; a missing group is a closed gate.
+  const requiredGroup = (name) => {
+    const groupValue = evidence[name]
+    if (!isObject(groupValue)) {
+      pushError(errors, name, 'required evidence group is missing')
+      return null
+    }
+    return groupValue
+  }
+
+  // frame
+  const frame = requiredGroup('frame')
+  if (frame) {
+    checkNumberArray(errors, 'frame.runP95s', frame.runP95s, { len: 3, nonNeg: true })
+    checkNumber(errors, 'frame.aggregateP95', frame.aggregateP95, { nonNeg: true })
+    checkInt(errors, 'frame.totalSamples', frame.totalSamples, { positive: true })
+    checkNonEmptyString(errors, 'frame.rawSamplesHash', frame.rawSamplesHash)
+    checkNonEmptyString(errors, 'frame.rawSamplesFile', frame.rawSamplesFile)
+    checkNumberArray(errors, 'frame.runDurationsMs', frame.runDurationsMs, { len: 3, positive: true })
+    if (!Array.isArray(frame.runSampleCounts)) {
+      pushError(errors, 'frame.runSampleCounts', 'expected an array of exactly 3 positive integers')
+    } else if (frame.runSampleCounts.length !== 3) {
+      pushError(errors, 'frame.runSampleCounts', `expected exactly 3 elements, got ${frame.runSampleCounts.length}`)
+    } else {
+      frame.runSampleCounts.forEach((c, i) => checkInt(errors, `frame.runSampleCounts[${i}]`, c, { positive: true }))
+    }
+  }
+
+  // vitals
+  const vitals = requiredGroup('vitals')
+  if (vitals) {
+    checkNumberArray(errors, 'vitals.lcpAll', vitals.lcpAll, { len: 10, nonNeg: true })
+    checkNumberArray(errors, 'vitals.clsAll', vitals.clsAll, { len: 10, nonNeg: true })
+    checkNumber(errors, 'vitals.lcpP75', vitals.lcpP75, { nonNeg: true })
+    checkNumber(errors, 'vitals.clsP75', vitals.clsP75, { nonNeg: true })
+  }
+
+  // heap
+  const heap = requiredGroup('heap')
+  if (heap) {
+    checkNumber(errors, 'heap.beforeMB', heap.beforeMB, { nonNeg: true })
+    checkNumber(errors, 'heap.afterMB', heap.afterMB, { nonNeg: true })
+    checkNumber(errors, 'heap.deltaMB', heap.deltaMB, { noSentinel: true })
+    checkNumber(errors, 'heap.growthMB', heap.growthMB, { noSentinel: true })
+    checkNumberArray(errors, 'heap.perPassMB', heap.perPassMB, { minLen: 1, nonNeg: true })
+  }
+
+  // interaction
+  const interaction = requiredGroup('interaction')
+  if (interaction) {
+    checkNumberArray(errors, 'interaction.values', interaction.values, { minLen: 10, nonNeg: true })
+    checkNumber(errors, 'interaction.p75', interaction.p75, { nonNeg: true })
+  }
+
+  // longTasks
+  const longTasks = requiredGroup('longTasks')
+  if (longTasks) {
+    checkInt(errors, 'longTasks.count', longTasks.count)
+    checkInt(errors, 'longTasks.over50', longTasks.over50)
+    checkInt(errors, 'longTasks.over200', longTasks.over200)
+    checkNumberArray(errors, 'longTasks.durations', longTasks.durations, { nonNeg: true })
+  }
+
+  // gpu
+  const gpu = requiredGroup('gpu')
+  if (gpu) {
+    checkNonEmptyString(errors, 'gpu.unmaskedRenderer', gpu.unmaskedRenderer)
+    checkNotPlaceholder(errors, 'gpu.unmaskedRenderer', gpu.unmaskedRenderer)
+    if (isSoftwareRenderer(gpu.unmaskedRenderer)) {
+      pushError(errors, 'gpu.unmaskedRenderer', `software renderer "${gpu.unmaskedRenderer}" is not acceptable reference-profile evidence`)
+    }
+    checkNonEmptyString(errors, 'gpu.unmaskedVendor', gpu.unmaskedVendor)
+    checkNotPlaceholder(errors, 'gpu.unmaskedVendor', gpu.unmaskedVendor)
+    checkInt(errors, 'gpu.textures', gpu.textures)
+    checkNumber(errors, 'gpu.textureMemoryMB', gpu.textureMemoryMB, { nonNeg: true })
+  }
+
+  return { valid: errors.length === 0, errors }
+}
+
+/**
+ * Write raw frame-time samples to the evidence dir, segmented by run so every
+ * per-run and aggregate p95 in the artifact is independently recomputable, and
+ * return a repo-relative file path plus the SHA-256 hash of the exact bytes
+ * written. `runs` is an array of per-run sample arrays; `meta` (e.g.
+ * runDurationsMs / runSampleCounts) is persisted alongside the samples.
+ */
+export function writeRawSamples(runs, meta = {}) {
   mkdirSync(EVIDENCE_DIR, { recursive: true })
-  const file = resolve(EVIDENCE_DIR, 'perf-frame-raw.json')
-  const json = JSON.stringify(samples, null, 2)
-  writeFileSync(file, json)
-  return { file, hash: sha256(json) }
+  const absFile = resolve(EVIDENCE_DIR, 'perf-frame-raw.json')
+  const json = JSON.stringify({ runs, ...meta }, null, 2)
+  writeFileSync(absFile, json)
+  const relFile = relative(REPO_ROOT, absFile).replaceAll('\\', '/')
+  return { file: relFile, hash: sha256(json) }
 }

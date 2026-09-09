@@ -64,32 +64,37 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
     /* WebGL context not reachable */
   }
 
-  // 2. Scene-graph walk: count textures, materials, meshes, draw calls.
+  // 2. Scene-graph walk: count textures, materials, meshes, draw calls. If the
+  //    R3F scene graph is NOT reachable, the count is unavailable — recorded as
+  //    -1 (a sentinel the fail-closed validator rejects) rather than a
+  //    fabricated 0 that would let a 0MB texture estimate pass.
   const scene = await page.evaluate(() => {
     const canvas = document.querySelector('canvas') as HTMLCanvasElement & {
       __r3fScene?: { traverse?: (cb: (o: Record<string, unknown>) => void) => void }
     }
     const counts = { textures: 0, materials: 0, meshes: 0, drawCalls: 0 }
-    if (!canvas?.__r3fScene?.traverse) return counts
-    canvas.__r3fScene.traverse((obj) => {
-      if (obj.isMesh) counts.meshes++
-      const mat = obj.material as
-        | { map?: unknown; normalMap?: unknown; roughnessMap?: unknown; metalnessMap?: unknown; emissiveMap?: unknown; aoMap?: unknown }
-        | Array<{ map?: unknown; normalMap?: unknown; roughnessMap?: unknown; metalnessMap?: unknown; emissiveMap?: unknown; aoMap?: unknown }>
-        | undefined
-      if (!mat) return
-      const mats = Array.isArray(mat) ? mat : [mat]
-      for (const m of mats) {
-        counts.materials++
-        if (m.map) counts.textures++
-        if (m.normalMap) counts.textures++
-        if (m.roughnessMap) counts.textures++
-        if (m.metalnessMap) counts.textures++
-        if (m.emissiveMap) counts.textures++
-        if (m.aoMap) counts.textures++
-      }
-    })
-    return counts
+    const available = Boolean(canvas?.__r3fScene?.traverse)
+    if (available) {
+      canvas!.__r3fScene!.traverse!((obj) => {
+        if (obj.isMesh) counts.meshes++
+        const mat = obj.material as
+          | { map?: unknown; normalMap?: unknown; roughnessMap?: unknown; metalnessMap?: unknown; emissiveMap?: unknown; aoMap?: unknown }
+          | Array<{ map?: unknown; normalMap?: unknown; roughnessMap?: unknown; metalnessMap?: unknown; emissiveMap?: unknown; aoMap?: unknown }>
+          | undefined
+        if (!mat) return
+        const mats = Array.isArray(mat) ? mat : [mat]
+        for (const m of mats) {
+          counts.materials++
+          if (m.map) counts.textures++
+          if (m.normalMap) counts.textures++
+          if (m.roughnessMap) counts.textures++
+          if (m.metalnessMap) counts.textures++
+          if (m.emissiveMap) counts.textures++
+          if (m.aoMap) counts.textures++
+        }
+      })
+    }
+    return { available, ...counts }
   })
 
   // 3. JS-heap proxy (coarse upper-bound sanity check, NOT GPU memory).
@@ -105,16 +110,20 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
 
   // Per ADR-003 the scene is primitives-only, so texture memory should be
   // near-zero. Estimate GPU texture memory as textures * a conservative
-  // per-texture allowance (0 here since the count is expected to be 0).
-  const textureMemoryMB = scene.textures * 4 // 4 MB conservative per texture, 0 when none
+  // per-texture allowance (0 when none). If the scene graph was unreachable,
+  // record -1 for both so the fail-closed validator rejects the evidence
+  // instead of a falsely clean 0 textures / 0MB.
+  const sceneAvailable = scene.available
+  const textureCount = sceneAvailable ? scene.textures : -1
+  const textureMemoryMB = sceneAvailable ? scene.textures * 4 : -1 // 4 MB conservative per texture
   const gpuName = gpuInfo?.name ?? 'unknown'
   const vendor = gpuInfo?.vendor ?? 'unknown'
 
   console.log(
-    `[perf-gpu] renderer=${renderer} gpuAdapter=${gpuName} (${vendor}) meshes=${scene.meshes} materials=${scene.materials} textures=${scene.textures} drawCalls=${scene.drawCalls}`,
+    `[perf-gpu] renderer=${renderer} unmaskedRenderer=${unmaskedRenderer} unmaskedVendor=${unmaskedVendor} gpuAdapter=${gpuName} (${vendor}) sceneAvailable=${sceneAvailable} meshes=${scene.meshes} materials=${scene.materials} textures=${scene.textures} drawCalls=${scene.drawCalls}`,
   )
   console.log(
-    `[perf-gpu] textureMemoryEstimate=${textureMemoryMB}MB (textures x 4MB conservative; 0 textures => 0MB) jsHeapProxy=${jsHeapMB.toFixed(1)}MB (proxy only, not GPU memory)`,
+    `[perf-gpu] textureMemoryEstimate=${textureMemoryMB}MB (textures x 4MB conservative; scene unavailable => -1) jsHeapProxy=${jsHeapMB.toFixed(1)}MB (proxy only, not GPU memory)`,
   )
   console.log(
     '[perf-gpu] methodology=CDP SystemInfo.getInfo + WebGL renderer string + R3F scene-graph texture/material/mesh/draw-call count; ' +
@@ -128,7 +137,7 @@ test('GPU/renderer/texture-memory estimate (informational, honest estimate)', as
       unmaskedRenderer,
       unmaskedVendor,
       gpuAdapter: gpuName,
-      textures: scene.textures,
+      textures: textureCount,
       textureMemoryMB,
     },
     browser: { userAgent: await page.evaluate(() => navigator.userAgent) },

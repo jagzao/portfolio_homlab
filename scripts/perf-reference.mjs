@@ -3,7 +3,13 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import os from 'node:os'
-import { BUDGETS, clearEvidence, loadEvidence } from './perf-evidence.mjs'
+import {
+  BUDGETS,
+  clearEvidence,
+  isSoftwareRenderer,
+  loadEvidence,
+  validateEvidence,
+} from './perf-evidence.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const REPO_ROOT = resolve(__dirname, '..')
@@ -42,10 +48,14 @@ Behavior:
   1. Runs the production build (unless skipped).
   2. Runs the accepted reference suite (desktop + mobile-4G perf specs).
   3. Collects evidence, adds machine/commit/timestamp/command metadata.
-  4. Rejects SwiftShader/software renderers for the release measurement.
-  5. Compares results against binding budgets.
+  4. Validates the evidence against the required schema (P0-FINAL-3, FAIL
+     CLOSED): any missing evidence group, -1 sentinel, non-finite value, wrong
+     run count, missing raw samples, or software/unavailable renderer makes the
+     gate fail BEFORE any budget check may pass.
+  5. Compares results against binding budgets (only after validation passes).
   6. Writes docs/audits/evidence/perf-reference-evidence.json.
-  7. Exits 0 if all budgets pass and no software renderer, else 1.
+  7. Exits 0 only if ALL required evidence is present + valid AND all budgets
+     pass AND no software renderer; else exits 1.
 `
 
 function log(msg) {
@@ -87,7 +97,8 @@ function machineInfo() {
     cpuModel: cpus.length ? cpus[0].model : 'unknown',
     cpuCount: cpus.length,
     totalmemMB: Math.round(os.totalmem() / (1024 * 1024)),
-    hostname: os.hostname(),
+    // NOTE: hostname intentionally omitted — the artifact must not leak the
+    // local machine identity (P2 audit hygiene).
   }
 }
 
@@ -96,11 +107,6 @@ function browserVersionFromUA(ua) {
   if (!ua) return 'unknown'
   const m = ua.match(/Chrome\/(\d+\.\d+\.\d+\.\d+)/)
   return m ? m[1] : 'unknown'
-}
-
-function isSoftwareRenderer(unmaskedRenderer) {
-  if (!unmaskedRenderer) return false
-  return /swiftshader|llvmpipe|software/i.test(unmaskedRenderer)
 }
 
 function checkBudget(name, value, budget) {
@@ -129,7 +135,8 @@ function main() {
     log(`  1. build: ${skipBuild ? 'SKIPPED (PERF_REF_SKIP_BUILD=1)' : 'npm run build'}`)
     log(`  2. desktop: npx playwright test --config=${DESKTOP_CONFIG} ${DESKTOP_SPECS.join(' ')}`)
     log(`  3. mobile:  npx playwright test --config=${MOBILE_CONFIG} ${MOBILE_SPECS.join(' ')}`)
-    log(`  4. write artifact: ${ARTIFACT_FILE}`)
+    log(`  4. validate evidence against required schema (fail closed)`)
+    log(`  5. write artifact: ${ARTIFACT_FILE}`)
     log('DRY RUN complete — config valid.')
     process.exit(0)
   }
@@ -159,9 +166,22 @@ function main() {
   const unmaskedRenderer = evidence.gpu?.unmaskedRenderer ?? evidence.gpu?.renderer ?? ''
   const swiftshaderRejected = isSoftwareRenderer(unmaskedRenderer)
 
+  // P1-FINAL-4: non-self-referential traceability. measuredCodeSha is the
+  // commit under measurement; evidenceCommitSha / handoffParentSha are filled
+  // by the later commit steps ('pending' at generation time).
+  const measuredCodeSha = gitHead()
+
+  // P0-FINAL-3: validate the required evidence schema BEFORE any budget check
+  // may pass. Missing/unsupported/non-finite/-1-sentinel/incomplete-count/
+  // invalid-renderer evidence forces a non-zero exit.
+  const validation = validateEvidence(evidence)
+
   const artifact = {
     schema: 'perf-reference-evidence/v1',
-    commitSha: gitHead(),
+    measuredCodeSha,
+    commitSha: measuredCodeSha, // alias kept for existing consumers
+    evidenceCommitSha: 'pending', // SHA of the commit that adds this artifact (set at commit time)
+    handoffParentSha: 'pending', // parent SHA of the handoff commit (set when the handoff is written)
     timestamp: new Date().toISOString(),
     command,
     config,
@@ -175,55 +195,69 @@ function main() {
     interaction: evidence.interaction ?? null,
     longTasks: evidence.longTasks ?? null,
     budgets: BUDGETS,
+    validationErrors: validation.errors,
   }
 
-  // 4. Compute pass/fail against binding budgets.
-  const checks = []
-  if (artifact.frame?.aggregateP95 != null) {
-    checks.push(checkBudget('frameP95Ms', artifact.frame.aggregateP95, BUDGETS.frameP95Ms))
-  }
-  if (artifact.vitals?.lcpP75 != null) {
-    checks.push(checkBudget('lcpP75Ms', artifact.vitals.lcpP75, BUDGETS.lcpP75Ms))
-  }
-  if (artifact.vitals?.clsP75 != null) {
-    checks.push(checkBudget('clsP75', artifact.vitals.clsP75, BUDGETS.clsP75))
-  }
-  if (artifact.interaction?.p75 != null) {
-    checks.push(checkBudget('interactionP75Ms', artifact.interaction.p75, BUDGETS.interactionP75Ms))
-  }
-  if (artifact.heap?.afterMB != null) {
-    checks.push(checkBudget('heapMB', artifact.heap.afterMB, BUDGETS.heapMB))
-  }
-  if (artifact.gpu?.textureMemoryMB != null) {
-    checks.push(checkBudget('gpuTextureMB', artifact.gpu.textureMemoryMB, BUDGETS.gpuTextureMB))
-  }
-  if (artifact.longTasks?.over200 != null) {
-    checks.push(checkBudget('longTasksOver200', artifact.longTasks.over200, BUDGETS.longTasksOver200))
-  }
-  if (artifact.longTasks?.over50 != null) {
-    checks.push(checkBudget('longTasksOver50', artifact.longTasks.over50, BUDGETS.longTasksOver50))
+  // 4. Fail closed: invalid/incomplete evidence is a gate failure, period.
+  if (!validation.valid) {
+    artifact.allBudgetsPass = false
+    mkdirSync(EVIDENCE_DIR, { recursive: true })
+    writeFileSync(ARTIFACT_FILE, JSON.stringify(artifact, null, 2))
+    log(`evidence artifact written: ${ARTIFACT_FILE}`)
+    console.log('\n[perf-reference] EVIDENCE VALIDATION FAILED — gate is FAIL CLOSED:')
+    for (const error of validation.errors) {
+      console.log(`  - ${error}`)
+    }
+    console.log('  allBudgetsPass=false (required evidence missing or invalid)')
+    console.log('[perf-reference] REFERENCE PROFILE INVALID — required evidence not present/valid.')
+    process.exit(1)
   }
 
+  // 5. Evidence is complete and valid — only now compute budget checks.
+  const checks = [
+    checkBudget('frameP95Ms', artifact.frame.aggregateP95, BUDGETS.frameP95Ms),
+    checkBudget('lcpP75Ms', artifact.vitals.lcpP75, BUDGETS.lcpP75Ms),
+    checkBudget('clsP75', artifact.vitals.clsP75, BUDGETS.clsP75),
+    checkBudget('interactionP75Ms', artifact.interaction.p75, BUDGETS.interactionP75Ms),
+    checkBudget('heapMB', artifact.heap.afterMB, BUDGETS.heapMB),
+    checkBudget('gpuTextureMB', artifact.gpu.textureMemoryMB, BUDGETS.gpuTextureMB),
+    checkBudget('longTasksOver200', artifact.longTasks.over200, BUDGETS.longTasksOver200),
+    checkBudget('longTasksOver50', artifact.longTasks.over50, BUDGETS.longTasksOver50),
+  ]
   artifact.checks = checks
-  artifact.allBudgetsPass = checks.every((c) => c.pass)
+  artifact.allBudgetsPass = validation.valid && checks.every((c) => c.pass) && !swiftshaderRejected
 
-  // 5. Write the final artifact.
+  // P1-FINAL-4: derive the human-facing summary directly from the machine
+  // artifact so handoffs are generated from the same source of truth.
+  artifact.summary = {
+    aggregateP95: artifact.frame.aggregateP95,
+    lcpP75: artifact.vitals.lcpP75,
+    clsP75: artifact.vitals.clsP75,
+    interactionP75: artifact.interaction.p75,
+    heapAfterMB: artifact.heap.afterMB,
+    gpuTextureMB: artifact.gpu.textureMemoryMB,
+    longTasksOver200: artifact.longTasks.over200,
+    longTasksOver50: artifact.longTasks.over50,
+    swiftshaderRejected,
+  }
+
+  // 6. Write the final artifact.
   mkdirSync(EVIDENCE_DIR, { recursive: true })
   writeFileSync(ARTIFACT_FILE, JSON.stringify(artifact, null, 2))
   log(`evidence artifact written: ${ARTIFACT_FILE}`)
 
-  // 6. Summary table.
+  // 7. Summary table.
   console.log('\n[perf-reference] budget summary')
   console.log('  ' + ['metric', 'value', 'budget', 'pass'].join('\t'))
   for (const c of checks) {
     console.log(`  ${c.name}\t${c.value}\t${c.budget}\t${c.pass ? 'PASS' : 'FAIL'}`)
   }
   console.log(`  swiftshaderRejected\t${swiftshaderRejected ? 'yes (INVALID)' : 'no'}\t-\t${swiftshaderRejected ? 'FAIL' : 'PASS'}`)
+  console.log(`  validationErrors\t${validation.errors.length}\t0\t${validation.errors.length ? 'FAIL' : 'PASS'}`)
 
-  // 7. Exit code.
-  const ok = artifact.allBudgetsPass && !swiftshaderRejected
-  if (ok) {
-    log('ALL BUDGETS PASS — reference profile valid.')
+  // 8. Exit code.
+  if (artifact.allBudgetsPass) {
+    log('ALL REQUIRED EVIDENCE PRESENT + VALID, ALL BUDGETS PASS — reference profile valid.')
     process.exit(0)
   } else {
     log('BUDGET FAILURE(S) OR SOFTWARE RENDERER — reference profile INVALID.')
