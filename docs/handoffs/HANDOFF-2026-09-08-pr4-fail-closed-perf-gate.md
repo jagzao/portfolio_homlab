@@ -12,11 +12,11 @@ GitHub PR metadata is the authority for the current head. Stable role SHAs:
 
 | Role | SHA |
 |---|---|
-| Measured-code SHA (fail-closed gate + specs) | `271e037` |
-| Evidence commit SHA (perf-reference-evidence.json + raw samples) | `fd2a57b` |
-| Handoff parent SHA | `fd2a57b` (parent of the handoff commit) |
+| Measured-code SHA (fail-closed gate + specs) | `a2c082c` |
+| Evidence commit SHA (perf-reference-evidence.json + raw samples) | `45bf72f` |
+| Handoff parent SHA | `45bf72f` (parent of the handoff commit) |
 
-The `perf-reference-evidence.json` artifact records `measuredCodeSha` = `271e037` (the exact code under measurement), `evidenceCommitSha` and `handoffParentSha` (filled at commit time). The human-facing summary in this handoff is generated from the machine artifact, so artifact and narrative cannot drift.
+The `perf-reference-evidence.json` artifact records `measuredCodeSha` = `a2c082c` (the exact code under measurement — the fail-closed gate commit head), `evidenceCommitSha` and `handoffParentSha` (filled at commit time). The human-facing summary in this handoff is generated from the machine artifact, so artifact and narrative cannot drift. The reference suite was re-run against the exact head that includes the fail-closed gate.
 
 ## Summary
 
@@ -60,21 +60,23 @@ The handoff summary is generated from the machine artifact (`perf-reference-evid
 
 ## Reference-profile performance evidence (committed artifact)
 
-`docs/audits/evidence/perf-reference-evidence.json` (measured code `271e037`):
+`docs/audits/evidence/perf-reference-evidence.json` (measured code `a2c082c`, gate re-run):
 
 | Metric | Budget | Measured | Verdict |
 |---|---|---|---|
-| Desktop p95 frame time (real nav, aggregate over 10,791 concatenated samples) | <=20ms | **17.80ms** | PASS |
-| LCP (mobile 4G, p75 of 10 clean-cache runs) | <=2.5s | **556ms** | PASS |
+| Desktop p95 frame time (real nav, aggregate over 10,803 concatenated samples) | <=20ms | **18.10ms** | PASS |
+| LCP (mobile 4G, p75 of 10 clean-cache runs) | <=2.5s | **576ms** | PASS |
 | CLS (mobile 4G, p75) | <=0.10 | **0.000** | PASS |
-| Lab interaction latency p75 (INP proxy) | <=200ms | **49ms** | PASS |
-| Literal 5-min-route heap | <=250MB | **9.45MB**, growth 1.1MB | PASS |
+| Lab interaction latency p75 (INP proxy) | <=200ms | **75ms** | PASS |
+| Literal 5-min-route heap | <=250MB | **9.40MB**, growth 1.0MB | PASS |
 | GPU/texture memory | <=256MB | 0MB (primitives-only) | PASS |
 | Long tasks during entry | none >200ms, <=2 over 50ms | 1x>50ms, 0x>200ms | PASS |
 | SwiftShader rejection | must not be software renderer | ANGLE (AMD Radeon 890M, OpenGL 4.5) | PASS |
 | Evidence validation | all required present + valid | 0 errors | PASS |
 
-Raw frame samples: `docs/audits/evidence/perf-frame-raw.json` (segmented by run, SHA-256 `c169f629...`).
+Frame traces (literal 60s each, monotonic sampler): 60013 / 60009 / 60015 ms; per-run p95 18.10 / 18.10 / 18.10 ms; 3,601 frames per run.
+
+Raw frame samples: `docs/audits/evidence/perf-frame-raw.json` (segmented by run, SHA-256 `2d099c85...`).
 
 ## Reference device (recorded automatically by perf:reference)
 
@@ -101,4 +103,5 @@ All jobs **success** on the exact head (push + PR suites): Validate, E2E functio
 
 Branch: `feat/US-010-m2-application-foundation`
 PR: `#4` (open, **unmerged**, `mergeable_state: clean`)
+Measured-code SHA: `a2c082c`; evidence commit SHA: `45bf72f`; handoff parent SHA: `45bf72f`
 Target status: `READY FOR FINAL EXTERNAL RE-AUDIT — FAIL-CLOSED PERF GATE / CI GREEN`
