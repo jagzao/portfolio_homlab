@@ -1,214 +1,212 @@
-﻿{
-    "schema":  "perf-reference-evidence/v1",
-    "measuredCodeSha":  "271e037cfcf99cdd4846b8058dba463513b712f4",
-    "commitSha":  "271e037cfcf99cdd4846b8058dba463513b712f4",
-    "evidenceCommitSha":  "fd2a57b19beea90f59a437b2c0f6ee02a2ab6563",
-    "handoffParentSha":  "fd2a57b19beea90f59a437b2c0f6ee02a2ab6563",
-    "timestamp":  "2026-09-09T16:26:23.156Z",
-    "command":  "node scripts/perf-reference.mjs",
-    "config":  {
-                   "desktop":  "playwright.perf.config.ts",
-                   "mobile":  "playwright.perf-mobile.config.ts"
-               },
-    "browserVersion":  "151.0.7922.34",
-    "machine":  {
-                    "platform":  "win32",
-                    "release":  "10.0.26200",
-                    "arch":  "x64",
-                    "cpuModel":  "AMD Ryzen AI 9 HX 370 w/ Radeon 890M           ",
-                    "cpuCount":  24,
-                    "totalmemMB":  30329
-                },
-    "gpu":  {
-                "renderer":  "WebKit WebGL",
-                "unmaskedRenderer":  "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 890M Graphics, OpenGL 4.5.0)",
-                "unmaskedVendor":  "Google Inc. (ATI Technologies Inc.)",
-                "gpuAdapter":  "unknown",
-                "textures":  0,
-                "textureMemoryMB":  0
-            },
-    "swiftshaderRejected":  false,
-    "frame":  {
-                  "runP95s":  [
-                                  17.799999999813735,
-                                  17.799999999813735,
-                                  17.700000000186265
-                              ],
-                  "aggregateP95":  17.799999999813735,
-                  "totalSamples":  10791,
-                  "rawSamplesHash":  "c169f629d1417035aa65b315c1bbb00a5d28f2d5d58c9bdc037a22ad7961933e",
-                  "rawSamplesFile":  "docs/audits/evidence/perf-frame-raw.json",
-                  "runDurationsMs":  [
-                                         60015.09999999963,
-                                         60014.299999999814,
-                                         60016.90000000037
-                                     ],
-                  "runSampleCounts":  [
-                                          3598,
-                                          3595,
-                                          3598
-                                      ]
-              },
-    "vitals":  {
-                   "lcpAll":  [
-                                  580,
-                                  552,
-                                  552,
-                                  536,
-                                  556,
-                                  556,
-                                  544,
-                                  572,
-                                  548,
-                                  556
-                              ],
-                   "clsAll":  [
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0,
-                                  0
-                              ],
-                   "lcpP75":  556,
-                   "clsP75":  0
-               },
-    "heap":  {
-                 "beforeMB":  3.664886474609375,
-                 "afterMB":  9.449844360351562,
-                 "deltaMB":  5.7849578857421875,
-                 "growthMB":  1.0988311767578125,
-                 "perPassMB":  [
-                                   8.35101318359375,
-                                   8.644489288330078,
-                                   8.60940933227539,
-                                   8.803096771240234,
-                                   8.747417449951172,
-                                   8.735549926757812,
-                                   8.783927917480469,
-                                   8.997554779052734,
-                                   9.059757232666016,
-                                   9.116691589355469,
-                                   9.130096435546875,
-                                   9.1585693359375,
-                                   9.18581771850586,
-                                   9.217475891113281,
-                                   9.389106750488281,
-                                   9.389801025390625,
-                                   9.22775650024414,
-                                   9.258373260498047,
-                                   9.396648406982422,
-                                   9.276504516601562,
-                                   9.257755279541016,
-                                   9.285392761230469,
-                                   9.279319763183594,
-                                   9.28110122680664,
-                                   9.449844360351562
-                               ]
-             },
-    "interaction":  {
-                        "values":  [
-                                       46,
-                                       47,
-                                       49,
-                                       34,
-                                       34,
-                                       32,
-                                       34,
-                                       32,
-                                       2396,
-                                       1375,
-                                       865,
-                                       35,
-                                       36
-                                   ],
-                        "p75":  49
-                    },
-    "longTasks":  {
-                      "count":  1,
-                      "over50":  1,
-                      "over200":  0,
-                      "durations":  [
-                                        68
-                                    ]
-                  },
-    "budgets":  {
-                    "frameP95Ms":  20,
-                    "lcpP75Ms":  2500,
-                    "clsP75":  0.1,
-                    "interactionP75Ms":  200,
-                    "heapMB":  250,
-                    "gpuTextureMB":  256,
-                    "longTasksOver200":  0,
-                    "longTasksOver50":  2
-                },
-    "validationErrors":  [
-
-                         ],
-    "checks":  [
-                   {
-                       "name":  "frameP95Ms",
-                       "value":  17.799999999813735,
-                       "budget":  20,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "lcpP75Ms",
-                       "value":  556,
-                       "budget":  2500,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "clsP75",
-                       "value":  0,
-                       "budget":  0.1,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "interactionP75Ms",
-                       "value":  49,
-                       "budget":  200,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "heapMB",
-                       "value":  9.449844360351562,
-                       "budget":  250,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "gpuTextureMB",
-                       "value":  0,
-                       "budget":  256,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "longTasksOver200",
-                       "value":  0,
-                       "budget":  0,
-                       "pass":  true
-                   },
-                   {
-                       "name":  "longTasksOver50",
-                       "value":  1,
-                       "budget":  2,
-                       "pass":  true
-                   }
-               ],
-    "allBudgetsPass":  true,
-    "summary":  {
-                    "aggregateP95":  17.799999999813735,
-                    "lcpP75":  556,
-                    "clsP75":  0,
-                    "interactionP75":  49,
-                    "heapAfterMB":  9.449844360351562,
-                    "gpuTextureMB":  0,
-                    "longTasksOver200":  0,
-                    "longTasksOver50":  1,
-                    "swiftshaderRejected":  false
-                }
+{
+  "schema": "perf-reference-evidence/v1",
+  "measuredCodeSha": "a2c082c69e4b3a0be188299afbc34f3c4b4b9a39",
+  "commitSha": "a2c082c69e4b3a0be188299afbc34f3c4b4b9a39",
+  "evidenceCommitSha": "pending",
+  "handoffParentSha": "pending",
+  "timestamp": "2026-09-09T22:18:06.189Z",
+  "command": "node scripts/perf-reference.mjs",
+  "config": {
+    "desktop": "playwright.perf.config.ts",
+    "mobile": "playwright.perf-mobile.config.ts"
+  },
+  "browserVersion": "151.0.7922.34",
+  "machine": {
+    "platform": "win32",
+    "release": "10.0.26200",
+    "arch": "x64",
+    "cpuModel": "AMD Ryzen AI 9 HX 370 w/ Radeon 890M           ",
+    "cpuCount": 24,
+    "totalmemMB": 30329
+  },
+  "gpu": {
+    "renderer": "WebKit WebGL",
+    "unmaskedRenderer": "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 890M Graphics, OpenGL 4.5.0)",
+    "unmaskedVendor": "Google Inc. (ATI Technologies Inc.)",
+    "gpuAdapter": "unknown",
+    "textures": 0,
+    "textureMemoryMB": 0
+  },
+  "swiftshaderRejected": false,
+  "frame": {
+    "runP95s": [
+      18.09999999962747,
+      18.09999999962747,
+      18.100000001490116
+    ],
+    "aggregateP95": 18.09999999962747,
+    "totalSamples": 10803,
+    "rawSamplesHash": "2d099c853b54eee69606cc418539cb54d1a01e40790689d9cd0839390413610a",
+    "rawSamplesFile": "docs/audits/evidence/perf-frame-raw.json",
+    "runDurationsMs": [
+      60013.40000000037,
+      60008.5,
+      60014.90000000037
+    ],
+    "runSampleCounts": [
+      3601,
+      3601,
+      3601
+    ]
+  },
+  "vitals": {
+    "lcpAll": [
+      608,
+      576,
+      568,
+      560,
+      552,
+      572,
+      540,
+      572,
+      572,
+      584
+    ],
+    "clsAll": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "lcpP75": 576,
+    "clsP75": 0
+  },
+  "heap": {
+    "beforeMB": 3.664257049560547,
+    "afterMB": 9.4010009765625,
+    "deltaMB": 5.736743927001953,
+    "growthMB": 1.03228759765625,
+    "perPassMB": [
+      8.36871337890625,
+      8.59185791015625,
+      8.68929672241211,
+      8.743358612060547,
+      8.828319549560547,
+      8.816593170166016,
+      8.86566162109375,
+      8.913089752197266,
+      9.188591003417969,
+      9.170669555664062,
+      9.235469818115234,
+      9.239200592041016,
+      9.29227066040039,
+      9.461868286132812,
+      9.468814849853516,
+      9.30533218383789,
+      9.33377456665039,
+      9.337284088134766,
+      9.312091827392578,
+      9.377372741699219,
+      9.368301391601562,
+      9.345134735107422,
+      9.367572784423828,
+      9.3978271484375,
+      9.4010009765625
+    ]
+  },
+  "interaction": {
+    "values": [
+      54,
+      48,
+      50,
+      64,
+      51,
+      50,
+      65,
+      60,
+      2381,
+      1369,
+      871,
+      75,
+      61
+    ],
+    "p75": 75
+  },
+  "longTasks": {
+    "count": 1,
+    "over50": 1,
+    "over200": 0,
+    "durations": [
+      115
+    ]
+  },
+  "budgets": {
+    "frameP95Ms": 20,
+    "lcpP75Ms": 2500,
+    "clsP75": 0.1,
+    "interactionP75Ms": 200,
+    "heapMB": 250,
+    "gpuTextureMB": 256,
+    "longTasksOver200": 0,
+    "longTasksOver50": 2
+  },
+  "validationErrors": [],
+  "checks": [
+    {
+      "name": "frameP95Ms",
+      "value": 18.09999999962747,
+      "budget": 20,
+      "pass": true
+    },
+    {
+      "name": "lcpP75Ms",
+      "value": 576,
+      "budget": 2500,
+      "pass": true
+    },
+    {
+      "name": "clsP75",
+      "value": 0,
+      "budget": 0.1,
+      "pass": true
+    },
+    {
+      "name": "interactionP75Ms",
+      "value": 75,
+      "budget": 200,
+      "pass": true
+    },
+    {
+      "name": "heapMB",
+      "value": 9.4010009765625,
+      "budget": 250,
+      "pass": true
+    },
+    {
+      "name": "gpuTextureMB",
+      "value": 0,
+      "budget": 256,
+      "pass": true
+    },
+    {
+      "name": "longTasksOver200",
+      "value": 0,
+      "budget": 0,
+      "pass": true
+    },
+    {
+      "name": "longTasksOver50",
+      "value": 1,
+      "budget": 2,
+      "pass": true
+    }
+  ],
+  "allBudgetsPass": true,
+  "summary": {
+    "aggregateP95": 18.09999999962747,
+    "lcpP75": 576,
+    "clsP75": 0,
+    "interactionP75": 75,
+    "heapAfterMB": 9.4010009765625,
+    "gpuTextureMB": 0,
+    "longTasksOver200": 0,
+    "longTasksOver50": 1,
+    "swiftshaderRejected": false
+  }
 }
