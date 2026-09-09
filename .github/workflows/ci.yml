@@ -40,6 +40,10 @@ jobs:
         id: unit
         run: npm test
 
+      - name: Perf-evidence validator tests (fail-closed)
+        id: perf-validator
+        run: node --test scripts/perf-evidence.test.mjs
+
       - name: Build
         id: build
         run: npm run build

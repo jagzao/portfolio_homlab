@@ -9,6 +9,7 @@ import {
   isSoftwareRenderer,
   loadEvidence,
   validateEvidence,
+  verifyRawEvidence,
 } from './perf-evidence.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -176,6 +177,11 @@ function main() {
   // invalid-renderer evidence forces a non-zero exit.
   const validation = validateEvidence(evidence)
 
+  // Raw-evidence physical verification: existence, SHA-256, structure, counts,
+  // and recomputed per-run + aggregate p95. Missing/corrupt/mismatched raw
+  // evidence is a closed gate (fail-closed).
+  const rawValidation = verifyRawEvidence(evidence.frame)
+
   const artifact = {
     schema: 'perf-reference-evidence/v1',
     measuredCodeSha,
@@ -196,16 +202,20 @@ function main() {
     longTasks: evidence.longTasks ?? null,
     budgets: BUDGETS,
     validationErrors: validation.errors,
+    rawValidationErrors: rawValidation.errors,
   }
 
   // 4. Fail closed: invalid/incomplete evidence is a gate failure, period.
-  if (!validation.valid) {
+  if (!validation.valid || !rawValidation.valid) {
     artifact.allBudgetsPass = false
     mkdirSync(EVIDENCE_DIR, { recursive: true })
     writeFileSync(ARTIFACT_FILE, JSON.stringify(artifact, null, 2))
     log(`evidence artifact written: ${ARTIFACT_FILE}`)
     console.log('\n[perf-reference] EVIDENCE VALIDATION FAILED — gate is FAIL CLOSED:')
     for (const error of validation.errors) {
+      console.log(`  - ${error}`)
+    }
+    for (const error of rawValidation.errors) {
       console.log(`  - ${error}`)
     }
     console.log('  allBudgetsPass=false (required evidence missing or invalid)')
@@ -254,13 +264,14 @@ function main() {
   }
   console.log(`  swiftshaderRejected\t${swiftshaderRejected ? 'yes (INVALID)' : 'no'}\t-\t${swiftshaderRejected ? 'FAIL' : 'PASS'}`)
   console.log(`  validationErrors\t${validation.errors.length}\t0\t${validation.errors.length ? 'FAIL' : 'PASS'}`)
+  console.log(`  rawValidationErrors\t${rawValidation.errors.length}\t0\t${rawValidation.errors.length ? 'FAIL' : 'PASS'}`)
 
   // 8. Exit code.
   if (artifact.allBudgetsPass) {
-    log('ALL REQUIRED EVIDENCE PRESENT + VALID, ALL BUDGETS PASS — reference profile valid.')
+    log('ALL REQUIRED EVIDENCE PRESENT + VALID, RAW EVIDENCE VERIFIED, ALL BUDGETS PASS — reference profile valid.')
     process.exit(0)
   } else {
-    log('BUDGET FAILURE(S) OR SOFTWARE RENDERER — reference profile INVALID.')
+    log('BUDGET FAILURE(S), SOFTWARE RENDERER, OR RAW EVIDENCE MISMATCH — reference profile INVALID.')
     process.exit(1)
   }
 }

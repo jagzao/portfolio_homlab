@@ -326,3 +326,103 @@ export function writeRawSamples(runs, meta = {}) {
   const relFile = relative(REPO_ROOT, absFile).replaceAll('\\', '/')
   return { file: relFile, hash: sha256(json) }
 }
+
+/**
+ * Physically verify the raw frame-sample artifact referenced by the evidence
+ * artifact. Checks, in order:
+ *   1. the raw file exists at the repo-relative path;
+ *   2. its on-disk bytes SHA-256 match the recorded rawSamplesHash;
+ *   3. it parses as JSON with the expected structure ({ runs, runDurationsMs,
+ *      runSampleCounts });
+ *   4. run count == 3, each run is a non-empty array of finite numbers, and
+ *      runSampleCounts matches the actual per-run lengths;
+ *   5. the per-run p95 recomputed from the raw samples match the recorded
+ *      runP95s, and the aggregate p95 recomputed over the concatenated samples
+ *      matches the recorded aggregateP95 (within a small float tolerance).
+ *
+ * Returns { valid, errors }. Any missing/corrupt/mismatched raw evidence is a
+ * closed gate (fail-closed), per the external audit.
+ */
+export function verifyRawEvidence(frame) {
+  const errors = []
+  if (!frame || !isObject(frame)) {
+    return { valid: false, errors: ['frame: required evidence group is missing'] }
+  }
+  const relFile = frame.rawSamplesFile
+  if (typeof relFile !== 'string' || relFile.trim() === '') {
+    return { valid: false, errors: ['frame.rawSamplesFile: missing raw sample path'] }
+  }
+  const absFile = resolve(REPO_ROOT, relFile)
+  if (!existsSync(absFile)) {
+    return { valid: false, errors: [`frame.rawSamplesFile: raw artifact not found at ${relFile}`] }
+  }
+  let rawText
+  try {
+    rawText = readFileSync(absFile, 'utf8')
+  } catch (e) {
+    return { valid: false, errors: [`frame.rawSamplesFile: cannot read raw artifact: ${e.message}`] }
+  }
+  // 2. SHA-256 of the exact on-disk bytes.
+  const diskHash = sha256(rawText)
+  if (frame.rawSamplesHash !== diskHash) {
+    return {
+      valid: false,
+      errors: [`frame.rawSamplesHash: mismatch — recorded ${frame.rawSamplesHash}, on-disk ${diskHash}`],
+    }
+  }
+  // 3. Parse + structure.
+  let raw
+  try {
+    raw = JSON.parse(rawText)
+  } catch (e) {
+    return { valid: false, errors: [`frame.rawSamplesFile: raw artifact is not valid JSON: ${e.message}`] }
+  }
+  if (!isObject(raw) || !Array.isArray(raw.runs)) {
+    return { valid: false, errors: ['frame.rawSamplesFile: raw artifact missing runs array'] }
+  }
+  if (raw.runs.length !== 3) {
+    return { valid: false, errors: [`frame.rawSamplesFile: expected 3 runs, got ${raw.runs.length}`] }
+  }
+  // 4. Per-run counts + finite samples.
+  const counts = raw.runs.map((run) => {
+    if (!Array.isArray(run) || run.length === 0) return 0
+    for (const s of run) {
+      if (typeof s !== 'number' || !Number.isFinite(s)) return -1
+    }
+    return run.length
+  })
+  if (counts.some((c) => c === -1)) {
+    return { valid: false, errors: ['frame.rawSamplesFile: a run contains a non-finite sample'] }
+  }
+  if (counts.some((c) => c === 0)) {
+    return { valid: false, errors: ['frame.rawSamplesFile: a run is empty'] }
+  }
+  if (frame.runSampleCounts?.length !== 3 || counts.some((c, i) => c !== frame.runSampleCounts[i])) {
+    return {
+      valid: false,
+      errors: [`frame.rawSamplesFile: runSampleCounts mismatch — recorded ${JSON.stringify(frame.runSampleCounts)}, actual ${JSON.stringify(counts)}`],
+    }
+  }
+  // 5. Recompute per-run p95 and aggregate p95.
+  const p95 = (arr) => {
+    const sorted = [...arr].sort((a, b) => a - b)
+    return sorted[Math.floor(sorted.length * 0.95)]
+  }
+  const recomputedRunP95s = raw.runs.map(p95)
+  const recomputedAggregate = p95(raw.runs.flat())
+  const TOL = 0.5 // ms float tolerance
+  const runMatch = recomputedRunP95s.every((v, i) => Math.abs(v - frame.runP95s[i]) <= TOL)
+  if (!runMatch) {
+    return {
+      valid: false,
+      errors: [`frame.rawSamplesFile: per-run p95 mismatch — recorded ${JSON.stringify(frame.runP95s)}, recomputed ${JSON.stringify(recomputedRunP95s.map((v) => v.toFixed(2)))}`],
+    }
+  }
+  if (Math.abs(recomputedAggregate - frame.aggregateP95) > TOL) {
+    return {
+      valid: false,
+      errors: [`frame.rawSamplesFile: aggregate p95 mismatch — recorded ${frame.aggregateP95}, recomputed ${recomputedAggregate.toFixed(2)}`],
+    }
+  }
+  return { valid: true, errors }
+}

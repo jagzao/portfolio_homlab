@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { validateEvidence } from './perf-evidence.mjs'
+import { validateEvidence, verifyRawEvidence } from './perf-evidence.mjs'
 
 /**
  * Fail-closed validator tests (external audit 5148848138, P0-FINAL-3).
@@ -192,4 +192,84 @@ test('rejects non-finite values (Infinity CLS)', () => {
 
 test('rejects a completely empty evidence object', () => {
   expectInvalid({}, 'empty evidence')
+})
+
+// --- Raw-evidence physical verification (fail-closed) ---
+
+/** A frame evidence object that points at the real committed raw artifact. */
+function validFrame() {
+  return {
+    runP95s: [18.1, 18.1, 18.1],
+    aggregateP95: 18.1,
+    totalSamples: 10803,
+    rawSamplesHash: '2d099c853b54eee69606cc418539cb54d1a01e40790689d9cd0839390413610a',
+    rawSamplesFile: 'docs/audits/evidence/perf-frame-raw.json',
+    runDurationsMs: [60013.4, 60008.5, 60014.9],
+    runSampleCounts: [3601, 3601, 3601],
+  }
+}
+
+function expectRawInvalid(frame, label) {
+  const result = verifyRawEvidence(frame)
+  assert.equal(result.valid, false, `${label}: expected INVALID`)
+  assert.ok(result.errors.length > 0, `${label}: expected at least one error`)
+  return result
+}
+
+test('raw evidence: accepts the real committed raw artifact (exists, hash, structure, counts, p95)', () => {
+  const result = verifyRawEvidence(validFrame())
+  assert.equal(result.valid, true, `expected VALID, errors=${JSON.stringify(result.errors)}`)
+  assert.deepEqual(result.errors, [])
+})
+
+test('raw evidence: rejects a missing frame group', () => {
+  expectRawInvalid(null, 'missing frame')
+})
+
+test('raw evidence: rejects a missing rawSamplesFile path', () => {
+  const f = validFrame()
+  f.rawSamplesFile = ''
+  expectRawInvalid(f, 'empty rawSamplesFile')
+})
+
+test('raw evidence: rejects a non-existent raw artifact path', () => {
+  const f = validFrame()
+  f.rawSamplesFile = 'docs/audits/evidence/does-not-exist.json'
+  expectRawInvalid(f, 'non-existent raw file')
+})
+
+test('raw evidence: rejects a SHA-256 hash mismatch', () => {
+  const f = validFrame()
+  f.rawSamplesHash = 'f'.repeat(64)
+  expectRawInvalid(f, 'hash mismatch')
+})
+
+test('raw evidence: rejects a corrupt (non-JSON) raw artifact', () => {
+  const f = validFrame()
+  f.rawSamplesFile = 'docs/audits/evidence/perf-reference-evidence.json' // valid JSON but wrong structure
+  expectRawInvalid(f, 'wrong structure (not a runs array)')
+})
+
+test('raw evidence: rejects a wrong run count', () => {
+  const f = validFrame()
+  f.runSampleCounts = [3601, 3601] // 2 instead of 3
+  expectRawInvalid(f, 'wrong run count')
+})
+
+test('raw evidence: rejects a runSampleCounts mismatch', () => {
+  const f = validFrame()
+  f.runSampleCounts = [3601, 3601, 999] // third run count wrong
+  expectRawInvalid(f, 'runSampleCounts mismatch')
+})
+
+test('raw evidence: rejects a per-run p95 mismatch', () => {
+  const f = validFrame()
+  f.runP95s = [18.1, 18.1, 99.9] // third run p95 wrong
+  expectRawInvalid(f, 'per-run p95 mismatch')
+})
+
+test('raw evidence: rejects an aggregate p95 mismatch', () => {
+  const f = validFrame()
+  f.aggregateP95 = 99.9
+  expectRawInvalid(f, 'aggregate p95 mismatch')
 })
