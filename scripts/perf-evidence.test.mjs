@@ -1,5 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
+import { readFileSync } from 'node:fs'
 import { validateEvidence, verifyRawEvidence } from './perf-evidence.mjs'
 
 /**
@@ -198,14 +200,24 @@ test('rejects a completely empty evidence object', () => {
 
 /** A frame evidence object that points at the real committed raw artifact. */
 function validFrame() {
+  // Read the real committed raw artifact so the "accepts" test is always
+  // self-consistent with whatever raw evidence is currently committed (the
+  // hash and p95 values change on every gate re-run). This keeps the positive
+  // test green without hardcoding a stale hash.
+  const rawText = readFileSync('docs/audits/evidence/perf-frame-raw.json', 'utf8')
+  const raw = JSON.parse(rawText)
+  const p95 = (arr) => {
+    const sorted = [...arr].sort((a, b) => a - b)
+    return sorted[Math.floor(sorted.length * 0.95)]
+  }
   return {
-    runP95s: [18.1, 18.1, 18.1],
-    aggregateP95: 18.1,
-    totalSamples: 10803,
-    rawSamplesHash: '2d099c853b54eee69606cc418539cb54d1a01e40790689d9cd0839390413610a',
+    runP95s: raw.runs.map(p95),
+    aggregateP95: p95(raw.runs.flat()),
+    totalSamples: raw.runs.reduce((a, r) => a + r.length, 0),
+    rawSamplesHash: createHash('sha256').update(rawText).digest('hex'),
     rawSamplesFile: 'docs/audits/evidence/perf-frame-raw.json',
-    runDurationsMs: [60013.4, 60008.5, 60014.9],
-    runSampleCounts: [3601, 3601, 3601],
+    runDurationsMs: raw.runDurationsMs,
+    runSampleCounts: raw.runSampleCounts,
   }
 }
 
