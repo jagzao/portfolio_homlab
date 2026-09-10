@@ -1,0 +1,207 @@
+﻿{
+    "schema":  "perf-reference-evidence/v1",
+    "measuredCodeSha":  "acdef01e8920ec3e8496a452c303c2505d0b3a32",
+    "commitSha":  "acdef01e8920ec3e8496a452c303c2505d0b3a32",
+    "evidenceCommitSha":  "7a23ac4a7b2afcaefa0839498f5ebda1698f660f",
+    "handoffParentSha":  "7a23ac4a7b2afcaefa0839498f5ebda1698f660f",
+    "timestamp":  "2026-09-09T23:31:18.759Z",
+    "command":  "node scripts/perf-reference.mjs",
+    "config":  {
+                   "desktop":  "playwright.perf.config.ts",
+                   "mobile":  "playwright.perf-mobile.config.ts"
+               },
+    "browserVersion":  "151.0.7922.34",
+    "machine":  {
+                    "platform":  "win32",
+                    "release":  "10.0.26200",
+                    "arch":  "x64",
+                    "cpuModel":  "AMD Ryzen AI 9 HX 370 w/ Radeon 890M           ",
+                    "cpuCount":  24,
+                    "totalmemMB":  30329
+                },
+    "gpu":  {
+                "renderer":  "WebKit WebGL",
+                "unmaskedRenderer":  "ANGLE (ATI Technologies Inc., AMD Radeon(TM) 890M Graphics, OpenGL 4.5.0)",
+                "unmaskedVendor":  "Google Inc. (ATI Technologies Inc.)",
+                "gpuAdapter":  "unknown",
+                "textures":  0,
+                "textureMemoryMB":  0
+            },
+    "swiftshaderRejected":  false,
+    "frame":  {
+                  "runP95s":  [
+                                  19.09999999962747,
+                                  18.09999999962747,
+                                  18.100000001490116
+                              ],
+                  "aggregateP95":  18.300000000745058,
+                  "totalSamples":  10756,
+                  "rawSamplesHash":  "4f8973be339bbfb1e9951e9ee5d8153b0e7cb7fd3bca901959e7035dba2a0d43",
+                  "rawSamplesFile":  "docs/audits/evidence/perf-frame-raw.json",
+                  "runDurationsMs":  [
+                                         60007.199999999255,
+                                         60000.699999999255,
+                                         60007.20000000112
+                                     ],
+                  "runSampleCounts":  [
+                                          3555,
+                                          3600,
+                                          3601
+                                      ]
+              },
+    "vitals":  {
+                   "lcpAll":  [
+                                  592,
+                                  592,
+                                  572,
+                                  572,
+                                  576,
+                                  592,
+                                  572,
+                                  568,
+                                  584,
+                                  572
+                              ],
+                   "clsAll":  [
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0,
+                                  0
+                              ],
+                   "lcpP75":  592,
+                   "clsP75":  0
+               },
+    "heap":  {
+                 "beforeMB":  3.6642799377441406,
+                 "afterMB":  8.96725082397461,
+                 "deltaMB":  5.302970886230469,
+                 "growthMB":  0.4638328552246094,
+                 "perPassMB":  [
+                                   8.50341796875,
+                                   8.454475402832031,
+                                   8.466121673583984,
+                                   8.503257751464844,
+                                   8.570255279541016,
+                                   8.601425170898438,
+                                   8.635536193847656,
+                                   8.657169342041016,
+                                   8.743255615234375,
+                                   8.764442443847656,
+                                   8.805221557617188,
+                                   8.810791015625,
+                                   8.928535461425781,
+                                   8.954559326171875,
+                                   8.96725082397461
+                               ]
+             },
+    "interaction":  {
+                        "values":  [
+                                       53,
+                                       56,
+                                       43,
+                                       49,
+                                       53,
+                                       50,
+                                       50,
+                                       58,
+                                       2402,
+                                       1382,
+                                       867,
+                                       51,
+                                       63
+                                   ],
+                        "p75":  63
+                    },
+    "longTasks":  {
+                      "count":  1,
+                      "over50":  1,
+                      "over200":  0,
+                      "durations":  [
+                                        99
+                                    ]
+                  },
+    "budgets":  {
+                    "frameP95Ms":  20,
+                    "lcpP75Ms":  2500,
+                    "clsP75":  0.1,
+                    "interactionP75Ms":  200,
+                    "heapMB":  250,
+                    "gpuTextureMB":  256,
+                    "longTasksOver200":  0,
+                    "longTasksOver50":  2
+                },
+    "validationErrors":  [
+
+                         ],
+    "rawValidationErrors":  [
+
+                            ],
+    "checks":  [
+                   {
+                       "name":  "frameP95Ms",
+                       "value":  18.300000000745058,
+                       "budget":  20,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "lcpP75Ms",
+                       "value":  592,
+                       "budget":  2500,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "clsP75",
+                       "value":  0,
+                       "budget":  0.1,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "interactionP75Ms",
+                       "value":  63,
+                       "budget":  200,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "heapMB",
+                       "value":  8.96725082397461,
+                       "budget":  250,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "gpuTextureMB",
+                       "value":  0,
+                       "budget":  256,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "longTasksOver200",
+                       "value":  0,
+                       "budget":  0,
+                       "pass":  true
+                   },
+                   {
+                       "name":  "longTasksOver50",
+                       "value":  1,
+                       "budget":  2,
+                       "pass":  true
+                   }
+               ],
+    "allBudgetsPass":  true,
+    "summary":  {
+                    "aggregateP95":  18.300000000745058,
+                    "lcpP75":  592,
+                    "clsP75":  0,
+                    "interactionP75":  63,
+                    "heapAfterMB":  8.96725082397461,
+                    "gpuTextureMB":  0,
+                    "longTasksOver200":  0,
+                    "longTasksOver50":  1,
+                    "swiftshaderRejected":  false
+                }
+}

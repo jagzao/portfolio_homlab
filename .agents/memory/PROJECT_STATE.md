@@ -1,6 +1,6 @@
 # HomeLab — Durable Project State
 
-Last updated: 2026-09-02
+Last updated: 2026-09-04
 Owner: Juan
 External Auditor: ChatGPT
 
@@ -27,11 +27,96 @@ Foundation is closed. `M0 — Foundation Closeout` is complete:
 
 GitHub could not record a formal `APPROVE` from the connected account because the PR belongs to the same GitHub identity; the External Audit PASS is recorded as PR review comments `5089914053` and `5089927962`.
 
-**Active milestone: `M1 — US-010 Refinement and Technical/UX Decisions`.** `US-010` is refined to `READY` (2026-09-02): journey/movement model defined with measurable Acceptance Criteria, `docs/adr/ADR-001`..`ADR-005` decided (rendering framework, degraded-mode strategy, asset pipeline, hosting baseline, alpha content delivery — the rendering-framework ADR is backed by a real Vite bundle-size spike), and `docs/architecture/PERFORMANCE_BUDGET.md` reconciled against that spike.
+`M1 — US-010 Refinement` is complete. `US-010` reached `READY` (2026-09-02), then Juan explicitly `ACCEPTED` scope/AC/ADR-001..005 in chat ("si adelante con todo"). PR #3 merged to `main`.
 
-Refinement lives on branch `refine/US-010-vertical-slice-01`, open as PR `#3` (not merged). Independent `code-reviewer` pass complete: no BLOCKER/P0; P1/P2 fixed in `ee3e75f`.
+`M2 — Application Foundation + Semantic UI` is complete on branch `feat/US-010-m2-application-foundation`:
 
-**Gate: awaiting Juan's explicit `ACCEPTED` decision on `US-010`.** No M2+ implementation begins until then. Only Juan may move a story to `ACCEPTED` (AGENTS.md §5).
+- React + TypeScript + Vite + React Three Fiber app (per `ADR-001`) with a real semantic shell, ADR-002 capability-detection boundary, ADR-003 graybox 3D entry, and an ADR-005 static knowledge-client interface proven end-to-end via `ProfileSummary`.
+- Independent `code-reviewer`, `visual-reviewer`, and `performance-reviewer` passes all complete: no BLOCKER/P0 from any; code-reviewer's one P1 (missing recoverable-failure test coverage) and several P2s fixed in `750821b`.
+- Validation: typecheck/lint/build clean; 17 unit tests and 24 E2E tests (desktop+mobile) pass; production bundle measured (shell 62.65 KB gzip, 3D chunk 233.87 KB gzip, both under `PERFORMANCE_BUDGET.md`); 7 required visual states captured at both viewports.
+
+Per the explicit UI Alpha instruction: milestones `M2`–`M9` accumulate on this **one** branch with an internal `IMPLEMENT → BUILD → TEST → RUN → VISUAL INSPECTION → MEASURE → REVIEW → FIX → RETEST` loop (specialist reviewers = the required independent internal review) at each milestone; a single PR opens only once, at the end of the achievable Alpha scope, for External Audit. No merge before that audit.
+
+`M3 — 3D Graybox: First Physical Journey` is complete on the same branch:
+
+- Full graybox route: forest → exterior → portal → atrium → bridge → Software Lab entry, primitives only (`ADR-003`). Click-to-walk + keyboard landmark HUD + arrow keys, path-and-endpoint collision, semantic `JourneyList` equivalent.
+- Independent `code-reviewer`/`performance-reviewer`: no BLOCKER/P0; found P1s (missed mid-path collision, per-frame React churn, weak keyboard test) and P2s, all fixed in `d54562c`.
+- Independent `visual-reviewer`: took **3 rounds** — round 1 found BLOCKER (empty Lab zone) + 3×P0 (Atrium FOV overflow, Portal not framed, Bridge near-black) + P1 (Exterior indistinct); round 2 fixed 2 of 3 P0s; round 3 (lighter sky/fog, real Lab doorway geometry, wider mullioned Exterior facade) resolved everything. See `docs/handoffs/HANDOFF-2026-09-03-m3-graybox-journey.md` for the full trail — worth reading before trusting a first-pass visual review as sufficient on later milestones.
+- 25 unit + 44 E2E tests pass; real frame-time sample (~60fps avg, p95 ~18ms on both viewport projects — confirms the code path, not real mobile-hardware headroom).
+
+`M4 — Zavit v1` is complete on the same branch:
+
+- Graybox Zavit at the Central Atrium (black body, white belly, state-colored eyes, head buttons, red claw hands, per `ART_DIRECTION.md` — nothing fabricated beyond the accepted description). Proximity-triggered greeting offers Guided Mode / Free Exploration / Skip, never retriggers, never traps navigation. Guided Mode adds a "Continue" control (click/Space/right-arrow) walking the route stop by stop.
+- Independent `code-reviewer` found a real **P0**: the keyboard-bound guided-advance handler closed over `guidedIndex` at mount time (empty-dep listener), so Space/ArrowRight always re-targeted the same landmark while the mouse button worked — fixed via a ref read at call time, with a regression e2e test (two consecutive keyboard advances land on different stops) that would have caught it. Also fixed: Zavit missing from the keyboard-movement obstacle list (click-to-walk had it, arrow keys didn't), a timer race (greeting could pop up somewhere the visitor already walked away from), a fragile landmark-index fallback, and dialog focus management (WCAG 2.4.3/4.1.2).
+- Independent `visual-reviewer` found one **P1**: Zavit's position fell almost entirely outside the horizontal FOV on mobile/portrait viewports — repositioned. Also fixed proactively: red hands sat near the floor with nothing else nearby, reading as feet — added a base and raised the arms.
+- 32 unit + 62 E2E tests pass (both self-verified against fresh evidence after each fix round).
+
+`M5 — Software Engineering Lab: Architecture Table + SIMULATE FAILURE` is complete (the explicit UI Alpha minimum; Engineering Decisions Wall/Technology Wall/Current Workbench remain out of scope pending Juan's verified content):
+
+- `API → QUEUE → WORKER → CACHE → DATABASE`, inspectable, with a labeled `SIMULATION` failure/recovery sequence explaining real engineering reasoning (queue absorbing backpressure, retries, circuit breaker opening/closing). One component works both in the semantic shell and as a 3D overlay.
+- **Two rounds of real bugs**, worth remembering for how later milestones get reviewed: round 1's "fix" for a duplicate-dialog P1 (shared context) was itself still broken — both mount points independently rendered the panel — and the regression test for it passed anyway on what looks like a `toHaveCount` timing fluke. Caught only by writing a broader full-critical-path e2e test with stricter locators, confirmed by screenshot. Real fix: the panel renders exactly once, globally, as a real fixed-position modal. A second focused review then found the modal didn't actually block background 3D movement despite `aria-modal="true"` — fixed by gating the movement listener on any overlay being open.
+- Also closed, found while auditing every `US-010` AC before marking it `IMPLEMENTED`: no slice-endpoint teaser existed, no single keyboard-only full-critical-path test existed, no test proved zero browser requests to Supabase, and the simulation never mentioned "retry" despite the AC listing it.
+- 40 unit + 62 E2E tests pass.
+
+**`US-010` moved `ACCEPTED → IMPLEMENTED`** on 2026-09-03 — every Acceptance Criterion checked with file/test evidence in the spec itself — then **reconciled `IMPLEMENTED → READY` on 2026-09-04** per External Audit `P0-01` (desktop p95 frame-time gate MARGINAL/over budget; see the M9 section above for the full reconciliation). `AUDITED`/`DONE` await the `M9` External Audit at the end of the achievable UI Alpha scope.
+
+Per-milestone handoff notes live under `docs/handoffs/`; the durable UI Alpha handoff is finalized at `M9`.
+
+**`M6 — Public Portfolio Projection v1` is blocked, not skipped.** Its own scope requires real `VERIFIED + PUBLISHED` content (Profile, at least one Project/Experience record) sourced from Juan's private Second Brain — this session has no Second Brain access, and AGENTS.md §17/§36 forbid inventing it or unilaterally deciding what crosses the publication boundary. `ADR-005` already anticipated this: Alpha ships on the static-empty artifact, content arrives later once Juan supplies/approves it. Per `MASTER_BACKLOG.md`'s own Project Lead Execution Rule ("do not skip forward into implementation" when blocked, but also don't stall on a blocked gate), moving to the next actually-unblocked milestone.
+
+`M7 — Visual Fidelity Alpha` is complete on the same branch:
+
+- Hemisphere sky/ground lighting, manual day/night toggle with restrained night stars, glass/water materials, vertical-garden leaf accents, multi-lobe atrium tree canopy — procedural fidelity within `ADR-003`'s primitives-only constraint, no new asset pipeline.
+- Self-investigating a visual-reviewer note found a real, non-obvious bug: the corridor's single opaque ground plane had been sitting on top of both water planes since `M3` — water was never actually visible, in any prior milestone's evidence, despite screenshots being reviewed and passed at the time. Fixed by reordering the Y-layering. **Worth remembering**: a visual review pass can miss things that are only "not there" rather than "wrong," and evidence gets re-approved without anyone noticing an element was silently absent the whole time.
+- code-reviewer's flag of an unmeasured `meshPhysicalMaterial` rollout caught a real signal (desktop p95 briefly measured at ~28ms vs. the 20ms budget), though follow-up measurement showed the dev machine has genuine 18-31ms run-to-run variance — applied the budget's prescribed mitigation (fewer clearcoat surfaces, fewer vine draw calls) regardless of how much was signal vs. noise.
+- 40 unit + 50 E2E tests pass.
+
+`M8 — Quality, Performance, Accessibility and UI Audit Readiness` is complete on the same branch:
+
+- Holistic (whole-alpha, M2-M7) independent `code-reviewer`, `visual-reviewer`, `performance-reviewer` passes, run in parallel with fresh context, no self-review.
+- `code-reviewer` P1: `ZavitGreeting.tsx` declared `aria-modal="true"` with no focus-trap/Escape, unlike `ArchitecturePanel.tsx` — fixed, mirroring the existing pattern, with new Escape/Tab-wrap e2e regression tests.
+- `code-reviewer` P2: Guided Mode/LandmarkHud jump movement never obstacle-checked its path (unlike click-to-walk/keyboard nudge) — the Atrium tree sat directly on the Atrium→Bridge straight line. Fixed by moving the obstacle off the corridor centerline (documented as a tradeoff in `landmarks.ts` rather than adding full path-routing), with a new unit test asserting every real consecutive-landmark pair stays clear.
+- `visual-reviewer` found 3 P1s across 33 fresh captures: Atrium water never actually visible (tree blocked the view + landmark stop point kept water outside camera FOV — fixed by repositioning both), the in-3D Architecture Table capture showing the wrong location (test clicked before the walk finished — fixed by waiting for real arrival and scoping to the right button), and mobile captures showing Zavit's greeting stuck open over unrelated zones.
+- Investigating that last P1 (not either reviewer) surfaced a real, previously-undetected bug: the Zavit greeting and the Architecture Table could be open **simultaneously** — two independent `aria-modal="true"` dialogs stacked, reproducible on desktop too under load, not mobile-specific. Fixed by making the two modals mutually exclusive in the state machine (this is the third time in this project a review finding led to discovering a deeper bug than the one originally reported — see the M5 and M7 notes above; worth continuing to treat "looks fine but let me check anyway" as the default).
+- `performance-reviewer`: bundle/delivery budgets all PASS with large margins; heap-delta clean (+0.4MB/5 cycles); added real INP-proxy and long-task measurements (previously entirely unmeasured); freshly re-measured desktop 3D frame time (not just carried forward from M7) at 21.3-25.1ms p95 across 4 samples — **consistently over the 20ms budget**, though the dev machine had ~37 concurrent Chrome processes from unrelated sessions during measurement, which plausibly inflates this. Reported honestly as an inconclusive/marginal-fail needing a real quiet-device re-measurement, not waved off. Sustained 5-minute heap and real GPU/renderer profiling remain documented gaps (not fabricated as covered).
+- Investigated the apparent ~34-minute E2E hang (2 mobile-chromium tests) `performance-reviewer` was skeptical of: isolated reruns passed in seconds, and a full 114-116 test suite run afterward completed cleanly in 4.4-4.5 minutes — strong evidence of transient system contention, though the exact mechanism for a bounded 8s/30s assertion hanging 34 minutes wasn't fully diagnosed.
+- Security/content validation: secret scan clean, network-isolation proof already covered by `critical-path.spec.ts`, public-content contract already tested (`client.test.ts`), no unsupported claims found.
+- 41 unit + 116 E2E tests pass (desktop+mobile, final full run 2026-09-04).
+
+`M9 — External Audit: UI Alpha` is complete: PR #4 opened (`feat/US-010-m2-application-foundation` → `main`, https://github.com/jagzao/portfolio_homlab/pull/4) with the full handoff (scope, changed files, validation, all three reviewers' findings and fixes, performance measurements, accessibility/security evidence, professional-claims provenance, known issues, deferred decisions, placeholders). **Not merged**, per instruction — development stops here pending External Audit.
+
+External Audit returned `CHANGES REQUIRED` (`docs/audits/AUDIT-2026-09-04-pr4-ui-alpha.md`). All `P0` findings are now addressed on the branch:
+
+- **P0-01** — story state reconciled (below) and the previously-missing mandatory measurements added: sustained 5-minute-route heap (+5.3MB delta, `e2e/perf-heap-route.spec.ts`), GPU/renderer/texture-memory estimate (0MB textures, primitives-only, `e2e/perf-gpu.spec.ts`), Web Vitals (LCP 96ms / CLS 0.000), long tasks, INP proxy.
+- **P0-02** — movement/input model implemented and tested (`spline.ts`, drag-to-look, Escape-opens-semantic-navigation, skip-stop; `e2e/movement-input.spec.ts`).
+- **P0-03** — real `webglcontextlost` detection + recovery-to-semantic (`e2e/context-loss.spec.ts`).
+- **P0-04** — stable `/#software-lab` deep-link target with focus/scroll (`useDeepLinkTarget.ts`, `e2e/deep-link.spec.ts`).
+- **P0-05** — M5 stations implemented (Engineering Decisions v1 as generic scenarios; Technology Wall + Current Workbench as honest neutral empty states; `e2e/lab-stations.spec.ts`).
+- **P0-06** — M7 visual-fidelity requirements implemented (fruit-bearing plants, transparent roof/skylight, premium lab lighting, mountain sightlines, etc.).
+- **P0-07** — Zavit purposeful idle activity (repair console) with reduced-motion behavior (`activity.ts`, `activity.test.ts`, `e2e/zavit.spec.ts`).
+- **P0-08** — durable visual evidence committed under `docs/audits/evidence/`.
+- **P0-09** — CI workflow added under `.github/workflows/`.
+- **P0-10** — subagent policy reconciled to the agents that actually exist (see P0-10 section below); plus **P1-02** network assertion strengthened (`network-isolation.ts`, `network-boundary.spec.ts`).
+
+**Honest reconciliation of `US-010` (per P0-01):** `US-010` moved `IMPLEMENTED → READY` on 2026-09-04. All P0 code fixes are implemented and the missing measurements now exist, **but the desktop p95 frame-time gate (`<= 20 ms`) is MARGINAL at 18.8-21.0 ms across samples — over budget, NOT a PASS.** The scene was optimized (121→~103 meshes, clearcoat reduced; improved from 23-32ms to 18.8-21.0ms) but remains over budget. Because `IMPLEMENTED` requires mandatory internal validation complete, and this gate is still open, `US-010` honestly sits at `READY` (implementation complete, gate open) until the frame-time gate is resolved or formally re-accepted with new measured evidence.
+
+**Open gate to close before `US-010` returns to `IMPLEMENTED`/`AUDITED`:** desktop p95 frame-time ≤20ms (currently MARGINAL 18.8-21.0ms). Do not represent this as a pass.
+
+PR #4 head is being prepared for re-audit with the required handoff. Target status on the re-audit head: `READY FOR EXTERNAL RE-AUDIT — UI ALPHA`.
+
+**Stopped for External Re-Audit. No active implementation milestone until Juan or the External Auditor reviews the re-audit head of PR #4.** M10+ (M6 unblock once real content is supplied, or further UI Alpha iteration per audit findings) resumes only after that review.
+
+## P0-10 reconciliation (agent orchestration)
+
+External Audit P0-10 flagged that `project-lead` policy referenced `@coder`, `@reviewer`, `@test-runner`, and `@architect`, none of which are registered in this runtime. Resolved by **simplifying the declared pipeline to the agents that actually exist** (option B), not by inventing new agent files:
+
+- Registered operational agents: `project-lead`, `code-reviewer`, `visual-reviewer`, `performance-reviewer` (plus built-in `general`/`explore`).
+- Coding/implementation now maps to the `general` subagent or project-lead's own implementation capability; escalation to `kimi-k2.7-code` remains a model-level escalation, not a separate agent.
+- Review → `code-reviewer`; visual → `visual-reviewer`; performance → `performance-reviewer` (all read-only, fresh context).
+- The `@architect` premium handle was dropped; architecture escalation is expressed as a model escalation note, not a non-existent agent.
+- The `.agents/session/cost-log.md` mandate was softened: it is only written if the runtime actually produces it; otherwise the usage summary goes in the handoff. The runtime never creates that file, so it is no longer required.
+- Files reconciled: `.agents/project-lead.md`, `.opencode/agent/project-lead.md`, `.claude/agents/project-lead.md`, `.agents/skills/project-lead/SKILL.md`. Intent preserved: cheapest capable worker first, escalate on complexity, independent review required.
+- **2026-09-04:** this P0-10 fix is applied on the branch for the PR #4 re-audit (no non-existent agents referenced; pipeline uses only registered agents).
 
 ## Foundation audit history
 
