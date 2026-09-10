@@ -20,13 +20,13 @@ The `perf-reference-evidence.json` artifact records `measuredCodeSha` = `acdef01
 
 ## Summary
 
-This handoff responds to External Final Re-Audit `5148848138`. The `perf:reference` gate is now **fail-closed**: any missing, invalid, negative-sentinel, unknown/software renderer, incomplete-count, or incomplete-raw evidence forces a non-zero exit. The 60s traces are literal (monotonic self-terminating sampler), raw samples are segmented by run, and the artifact→handoff consistency is enforced by generating the summary from the machine artifact. The PR remains **unmerged** and is now `READY FOR FINAL EXTERNAL RE-AUDIT — FAIL-CLOSED PERF GATE / CI GREEN`.
+This handoff responds to External Final Re-Audit `5148848138`. The `perf:reference` gate is now **fail-closed**: any missing, invalid, negative-sentinel, unknown/software renderer, incomplete-count, or incomplete-raw evidence forces a non-zero exit. The 60s traces are literal (monotonic self-terminating sampler), raw samples are segmented by run, and the artifact→handoff consistency is enforced by generating the summary from the machine artifact. The PR passed the Final External Re-Audit (`5161229936` — PASSED) and is cleared for merge.
 
 ## P0-FINAL-3 — Fail-closed gate (fixed)
 
 `scripts/perf-evidence.mjs` now exports `REQUIRED_EVIDENCE` (the completeness contract) and `validateEvidence(evidence)` → `{ valid, errors }`. `scripts/perf-reference.mjs` runs validation **before** any budget check; on invalid evidence it writes the artifact with `validationErrors` + `allBudgetsPass: false` and exits 1. `allBudgetsPass` now means **all required evidence is present + valid + within budget**.
 
-Validator tests (`scripts/perf-evidence.test.mjs`, 21 cases via `node:test`) prove these fail closed:
+Validator tests (`scripts/perf-evidence.test.mjs`, 31 cases via `node:test`) prove these fail closed:
 - missing metric (no `frame` group)
 - LCP `-1` (unsupported/missing LCP)
 - heap `-1` (missing `JSHeapUsedSize`)
