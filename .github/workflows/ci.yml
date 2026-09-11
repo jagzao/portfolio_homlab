@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - feat/US-010-m2-application-foundation
+      - main
 
 concurrency:
   group: ci-${{ github.ref }}
