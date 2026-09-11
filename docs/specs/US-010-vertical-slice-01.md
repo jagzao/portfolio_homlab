@@ -1,9 +1,9 @@
 # US-010 — Vertical Slice 01
 
-: `AUDITED` — External Auditor reviewed PR #4 and all required BLOCKER/P0 findings are resolved; cleared to merge to `main`
+: `DONE` — audited work merged to `main`; durable artifacts reflect final result
 Accepted by: Juan
 Accepted on: 2026-09-02
-Last transition: `IMPLEMENTED → AUDITED` on 2026-09-09 (see State History)
+Last transition: `AUDITED → DONE` on 2026-09-11 (see State History)
 
 > **Honest reconciliation note (2026-09-05).** Per `.agents/AGENTS.md` §5 the canonical lifecycle is `DRAFT → READY → ACCEPTED → IMPLEMENTED → AUDITED → DONE`. The previous `READY` state was invented ad hoc to mean "code fixes complete but validation gates open." That is not a canonical state. The honest SDD position is to keep the story at `ACCEPTED` while implementation and internal validation are still in progress on the working branch. `US-010` therefore returns to `ACCEPTED`; it will move to `IMPLEMENTED` only when the branch is internally complete (including the open performance gate resolved or Juan-accepted), and to `AUDITED` only after External Audit clears the remaining findings.
 >
@@ -12,6 +12,8 @@ Last transition: `IMPLEMENTED → AUDITED` on 2026-09-09 (see State History)
 > **Lifecycle transition (2026-09-08).** Per Final External Audit `5136245139` P1-1, `US-010` moves `ACCEPTED → IMPLEMENTED`: implementation and applicable internal validation (including the reference-profile performance evidence) are complete on the working branch. The external re-audit will decide whether it can move to `AUDITED`. The performance-evidence methodology was corrected per the audit (real navigation during frame traces, aggregate p95 over concatenated samples, reproducible mobile-4G LCP/CLS with 10 clean-cache runs) and re-validated on the reference profile.
 >
 > **Lifecycle transition (2026-09-09).** Per Final External Re-Audit `5161229936` (PASSED), all required BLOCKER/P0 findings are resolved and `US-010` moves `IMPLEMENTED → AUDITED`. The PR is cleared to merge to `main` under the repo's normal lifecycle. A non-blocking P2 documentation hygiene item (a stale status sentence and a stale `21 cases` reference in the handoff) was cleaned opportunistically without reopening scope.
+>
+> **Lifecycle transition (2026-09-11).** Per the Final External Re-Audit verdict and the repo lifecycle, `US-010` merges to `main` (PR #4, merge commit `f9aea45`) and moves `AUDITED → DONE`. Post-merge CI was verified green on main (CI now runs on push to `main` per PR #5). Durable artifacts (`docs/specs/US-010-vertical-slice-01.md`, performance evidence, handoffs) reflect the final result.
 
 ## User Story
 
@@ -157,3 +159,4 @@ Deferred to implementation time, after `ACCEPTED`. This story's refinement outpu
 | 2026-09-05 | READY | ACCEPTED | project-lead | Re-audit `AUDIT-2026-09-05-pr4-ui-alpha-reaudit.md` found CI still failing at the audited head, lifecycle state invalid, and performance contract unresolved. All functional/code fixes for P0-RA1, P0-RA2, and P0-RA5 implemented and validated locally (112 core functional E2E tests passing desktop + mobile). Lifecycle reconciled to canonical `ACCEPTED` while validation/performance gates remain open. Performance methodology proposal prepared for Juan acceptance. Target: `READY FOR EXTERNAL RE-AUDIT — UI ALPHA / CI GREEN`. |
 | 2026-09-08 | ACCEPTED | IMPLEMENTED | project-lead | Implementation and applicable internal validation complete on `feat/US-010-m2-application-foundation`: performance-evidence methodology corrected per Final External Audit `5136245139` (real navigation during frame traces, aggregate p95 over concatenated samples, reproducible mobile-4G LCP/CLS with 10 clean-cache runs) and re-validated on the reference profile. Reference-profile gate all budgets PASS. |
 | 2026-09-09 | IMPLEMENTED | AUDITED | External Auditor | Final External Re-Audit `5161229936` (PASSED): raw-evidence physical verification (existence/SHA-256/structure/counts/recomputed p95) and fail-closed gate verified; validator negative tests wired into CI; fresh committed evidence records measured code `acdef01`, evidence commit `7a23ac4`, zero schema + zero raw-validation errors, aggregate frame p95 18.30ms, all binding budgets PASS; exact-head CI green. No BLOCKER/P0 findings remain. Cleared to merge. |
+| 2026-09-11 | AUDITED | DONE | project-lead | PR #4 merged to `main` (merge commit `f9aea45`). Post-merge CI verified green on `main` (CI now runs on push to main per PR #5, run `34554916550`). Durable artifacts reflect the final result. |
