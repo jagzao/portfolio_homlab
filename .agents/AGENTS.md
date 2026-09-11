@@ -338,3 +338,11 @@ A recruiter should think: “Juan knows a remarkable number of technologies and 
 A senior engineer should think: “This isn't just visual decoration. There is real engineering behind it.”
 
 Every feature must support at least one goal; best features support both.
+
+## 39. EXTERNAL EVIDENCE MUST LIVE IN REMOTE
+
+Any significant checkpoint and every `READY FOR EXTERNAL AUDIT` state must exist in the remote repository via commit + push + PR. Never present locally-only changes as external audit evidence. The external auditor inspects the real diff, files, tests, CI, evidence, and exact SHA from GitHub; an unaudited local working tree is not evidence. Concretely:
+- Commit + push frequently, and open a Draft PR early.
+- Before requesting external audit, ensure the branch (with all functional, test, evidence, and documentation changes) is pushed and the PR is open.
+- After `AUDITED` clears, merge and verify main CI green.
+- The authoritative SHA for any audit is the exact pushed commit, not a local worktree state.
