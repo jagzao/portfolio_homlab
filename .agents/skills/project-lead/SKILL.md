@@ -23,19 +23,21 @@ real sin inventar experiencia profesional.
 
 ## Costo de contexto
 
-- Default: DeepSeek V4 Flash. Usalo para entender, buscar, planear, decidir, coordinar, analizar,
-  pequeños cambios y validar.
+- Default: DeepSeek V4 Flash. Usalo para leer, buscar, implementar, tests, docs, pequeños cambios y
+  validar.
+- Planning/coordinación/análisis (discovery, arquitectura, specs, decisiones de dirección):
+  primario **Claude CLI** (`claude -p "..."` vía Bash), no Flash. Fallback **`kimi-k2.7-code`** solo
+  si Claude no está disponible (cuota/CLI/red) — nunca por preferencia.
 - Delegá implementation a `general` (DeepSeek V4 Flash) o implementá directamente. Escalá a
   `kimi-k2.7-code` solo si complexity >= HIGH (implementación compleja, refactor grande, debugging
   difícil, cambios multiarchivo con lógica significativa, o Flash falla / baja confianza).
-- No uses Kimi para leer, buscar, resumir, tests, docs, pequeños fixes, planning, revisar estado ni
-  repetir información conocida.
+- No uses Kimi para leer, buscar, resumir, tests, docs ni pequeños fixes.
 - Review independiente: `code-reviewer` (read-only) en contexto fresco.
 - Visual review: `visual-reviewer` (read-only, evidencia real).
 - Performance review: `performance-reviewer` (read-only, mide primero).
-- Arquitectura excepcional: no hay subagente dedicado; escalar a `kimi-k2.7-code` solo bajo
-  escalamiento explícito. Después de resolver, volver inmediatamente a Flash. El modelo premium nunca
-  queda como default.
+- Arquitectura excepcional: no hay subagente dedicado; escalar a Claude CLI primero, `kimi-k2.7-code`
+  como fallback si Claude no responde. Después de resolver, volver inmediatamente a Flash. Ningún
+  modelo premium queda como default de implementación.
 - Context: < 30K target, 40K warning, 60K hard. Mantené working-set en memoria; no re-leas archivos
   sin cambios; batch de tool calls; compactá con resumen estructurado cerca del límite.
 - Tests por scope, no full suite tras cada cambio. Loop control: ~10-15 iteraciones sin progreso =
