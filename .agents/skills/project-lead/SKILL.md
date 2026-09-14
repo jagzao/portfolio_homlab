@@ -108,11 +108,12 @@ latency, errors y recovery time. Datos demostrativos deben etiquetarse como simu
 
 ### 4. Loop de entrega
 
-Repite, delegando implementación a `general` (o implementación directa) y validación a `code-reviewer` / `visual-reviewer` / `performance-reviewer`:
+Unidad de trabajo es el AC, no el milestone completo. Ciclo por AC:
 
-`DISCOVER → DESIGN → DELEGATE → BUILD → AGENT-BROWSER VALIDATE (flujo afectado, console/network) → FIX → TEST POR SCOPE → RUN → AGENT-BROWSER REGRESSION (scope) → PLAYWRIGHT E2E → VISUAL INSPECT → PROFILE → FIX`
+`Seleccionar US/AC → fijar Acceptance Criteria → implementar slice → tests impactados → review → corregir → validar AC → commit → siguiente AC`
 
-No declares terminado porque compiló. Para cada incremento relevante verifica (ver `.agents/rules/ANALYSIS_DELIVER_CONTRACT.md` → Web Validation Standard):
+Dentro de "implementar slice → tests → review → corregir → validar AC" aplica, cuando hay UI web
+(ver `.agents/rules/ANALYSIS_DELIVER_CONTRACT.md` → Web Validation Standard):
 
 - `agent-browser` como loop primario de implementación/debug: navega el flujo cambiado, ejercítalo, inspecciona console/network, corrige, repite el mismo flujo hasta que el scope cambiado se comporte bien;
 - lint, typecheck y build pasan;
@@ -122,8 +123,28 @@ No declares terminado porque compiló. Para cada incremento relevante verifica (
 - consola/runtime, Web Vitals, peso inicial, assets, FPS, GPU y memoria (vía `@performance-reviewer`);
 - documentación afectada actualizada.
 
-Si aún no existe infraestructura de tests, añade solo la mínima necesaria para el slice. Corrige causa
-raíz. Máximo cinco ciclos sobre el mismo fallo; después reporta diagnóstico y bloqueo.
+No declares terminado porque compiló. Si aún no existe infraestructura de tests, añade solo la mínima
+necesaria para el slice.
+
+**Métrica real: AC cerrados por ciclo — no llamadas, agentes invocados ni archivos tocados.** Abrir
+frentes en paralelo porque "hay agentes disponibles" no cuenta como progreso. Los subagentes son
+herramientas del project-lead, no propietarios paralelos del producto: cada uno devuelve un handoff
+estructurado (scope, archivos, evidencia, riesgos) y el project-lead es el único que integra/escribe
+al branch de entrega (single-writer).
+
+**Rework loop por finding**: `REPRODUCE → ROOT CAUSE → REGRESSION TEST → FIX → VALIDATE`. Un finding
+se cierra una vez con causa raíz, no regenerando evidencia del mismo síntoma en commits sucesivos. Si
+la segunda validación del mismo finding sigue igual (marginal, inconclusa o repetida) no hay una
+tercera vuelta de "más evidencia": es `STAGNATION_DETECTED` (ver abajo).
+
+**Stagnation**: si pasan dos ciclos completos sin cerrar ningún AC, o un mismo finding/gate se
+re-mide/re-evidencía dos veces sin reducir el hallazgo, se declara `STAGNATION_DETECTED`: parar,
+abandonar la estrategia actual, y o (a) cambiar de enfoque técnico, o (b) escalar a Juan como decisión
+de scope/budget/aceptación (p. ej. un gate de performance marginal no se re-mide una tercera vez: se
+ajusta el budget, se acepta con caveat documentado, o se defiere — decisión de Juan, no más commits de
+evidencia). Corrige causa raíz siempre; máximo cinco ciclos totales sobre el mismo fallo como límite
+duro final si la escalada de Stagnation aún no lo resolvió — después reporta diagnóstico y bloqueo, no
+sigas iterando en silencio.
 
 ## Producto y mundo
 
@@ -147,6 +168,12 @@ raíz. Máximo cinco ciclos sobre el mismo fallo; después reporta diagnóstico 
 Forest, único Energy Portal, Central Atrium, Software Engineering Lab, AI Lab, Robotics Lab, Smart Home,
 Second Floor, Library, Observatory, Underground Innovation Vault, water, bridges y gardens. Diseña
 extensiones por datos/configuración cuando aporte valor; no abstraigas prematuramente.
+
+Cuando cada Lab se convierta en su propio EPIC: no lo implementes como mini-aplicación aislada con su
+propia cámara, interacción, UI/HUD o pipeline de assets. Antes de abrir el primer EPIC de Lab más allá
+del Software Engineering Lab, define una vez el sistema transversal compartido (interacción 3D,
+componentes UI/HUD reusables, contrato de performance/accesibilidad) y trátalo como gate previo; cada
+EPIC de Lab después solo aporta contenido sobre ese sistema, no lo reinventa.
 
 Atrio: gran volumen de cristal, agua visible, árbol central, vegetación, techo transparente, mesa
 holográfica circular y vistas hacia otros labs. Mesa da contexto; nunca parece menú tradicional.
@@ -208,7 +235,13 @@ Usa uno:
 
 - `done`: alcance solicitado funciona, gates relevantes verdes, inspección visual y docs actualizadas.
 - `blocked`: falta acceso, dato profesional, credencial o decisión exclusiva del dueño.
-- `failed`: cinco ciclos sin progreso sobre fallo reproducible, con diagnóstico.
+- `failed`: cinco ciclos sin progreso sobre fallo reproducible, con diagnóstico (normalmente ya
+  escalado antes como `STAGNATION_DETECTED`).
+
+Juan solo debe intervenir ante excepción real: bloqueo externo (acceso/credencial/dato faltante),
+decisión delicada de producto, seguridad, migración destructiva, o aprobación explícita (push/merge/PR,
+gasto cloud, `ACCEPTED` de scope). Fuera de esa lista, el project-lead decide y continúa; no consulta
+por impaciencia ni para repartir trabajo entre agentes.
 
 Nunca llames `done` a placeholders, contenido falso o trabajo no inspeccionado. Entrega evidencia y rutas,
 no teoría genérica.

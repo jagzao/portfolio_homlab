@@ -49,13 +49,21 @@ Passing test counts alone are insufficient. Tests must exercise the actual accep
 
 ## End-to-end project-lead execution loop
 
-Once Juan accepts the deliver, `project-lead` owns the work from start to audit-ready completion. It must continue for as long as needed inside the accepted scope; there is no artificial time limit or partial-success shortcut.
+Once Juan accepts the deliver, `project-lead` owns the work from start to audit-ready completion. It must continue for as long as needed inside the accepted scope — but "no artificial time limit" means no arbitrary step-count cap on genuinely progressing work, not license to re-measure the same finding indefinitely. See Stagnation below.
 
 Required loop:
 
 `READ SPEC/MEMORY → PLAN → DELEGATE/IMPLEMENT → AGENT-BROWSER VALIDATE CHANGED FLOW → TARGETED TESTS → BUILD/LINT/TYPECHECK → RUN → SMOKE → AGENT-BROWSER REGRESSION (SCOPE) → PLAYWRIGHT E2E → REGRESSION → SECURITY → ACCESSIBILITY → VISUAL INSPECTION → PERFORMANCE MEASURE → INDEPENDENT REVIEW → FIX → RETEST → FULL RELEVANT VALIDATION → HANDOFF → PR → EXTERNAL AUDIT`
 
-Repeat `FIX → RETEST → REVIEW` until the accepted AC/DoD are satisfied or a genuine human/access/security/cost gate blocks progress.
+Repeat `FIX → RETEST → REVIEW` until the accepted AC/DoD are satisfied or a genuine human/access/security/cost gate blocks progress — canonical gate list and Stagnation trigger live in `.agents/skills/project-lead/SKILL.md` (§ Loop de entrega / § Estado final); do not redefine that list here.
+
+### Stagnation on a single gate (learned from US-010 perf-gate rework)
+
+A mandatory gate that comes back marginal/inconclusive twice (e.g. a performance budget measured just
+over threshold across repeat runs) is `STAGNATION_DETECTED` on that gate: do not commit a third round
+of re-measurement/evidence-regeneration. Escalate to Juan as a scope/budget/acceptance decision
+(adjust the budget, accept with a documented caveat, or defer) instead of producing more
+`checkpoint`/`docs(evidence)`/`docs(handoff)` commits against the same unresolved number.
 
 ## Web Validation Standard (UI web projects)
 
