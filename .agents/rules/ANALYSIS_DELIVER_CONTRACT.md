@@ -3,7 +3,7 @@
 Status: ACTIVE TEAM RULE
 Owner: Juan
 External Auditor: ChatGPT
-Last updated: 2026-09-04
+Last updated: 2026-09-14
 
 ## Purpose
 
@@ -49,13 +49,39 @@ Passing test counts alone are insufficient. Tests must exercise the actual accep
 
 ## End-to-end project-lead execution loop
 
-Once Juan accepts the deliver, `project-lead` owns the work from start to audit-ready completion. It must continue for as long as needed inside the accepted scope; there is no artificial time limit or partial-success shortcut.
+Once Juan accepts the deliver, `project-lead` owns the work from start to audit-ready completion. It must continue for as long as needed inside the accepted scope — but "no artificial time limit" means no arbitrary step-count cap on genuinely progressing work, not license to re-measure the same finding indefinitely. See Stagnation below.
 
 Required loop:
 
 `READ SPEC/MEMORY → PLAN → DELEGATE/IMPLEMENT → AGENT-BROWSER VALIDATE CHANGED FLOW → TARGETED TESTS → BUILD/LINT/TYPECHECK → RUN → SMOKE → AGENT-BROWSER REGRESSION (SCOPE) → PLAYWRIGHT E2E → REGRESSION → SECURITY → ACCESSIBILITY → VISUAL INSPECTION → PERFORMANCE MEASURE → INDEPENDENT REVIEW → FIX → RETEST → FULL RELEVANT VALIDATION → HANDOFF → PR → EXTERNAL AUDIT`
 
-Repeat `FIX → RETEST → REVIEW` until the accepted AC/DoD are satisfied or a genuine human/access/security/cost gate blocks progress.
+Repeat `FIX → RETEST → REVIEW` until the accepted AC/DoD are satisfied or a genuine human/access/security/cost gate blocks progress. The canonical gate list and operational `single-writer`/Stagnation rules live in `.agents/skills/project-lead/SKILL.md` (§ Loop de entrega / § Git, evidencia remota y gates humanos / § Estado final); do not redefine a conflicting list here.
+
+## Remote Git autonomy after ACCEPTED
+
+Once the active US/BUG is `ACCEPTED`, normal delivery operations are autonomous on the delivery branch:
+
+`branch → commit → push → Draft PR early → CI → fixes → push → handoff → READY FOR EXTERNAL AUDIT`
+
+`project-lead` must not ask Juan for permission to commit, push to the delivery branch, create/update the Draft PR, or run CI/review inside the accepted scope. Direct push to `main` remains prohibited. Final merge and the human gates listed in the project-lead skill remain gated.
+
+This is required by `.agents/AGENTS.md` §39 so remote state, exact SHA, CI and evidence are independently auditable throughout execution rather than only at the end.
+
+## Stagnation on a single gate
+
+A mandatory gate that remains marginal/inconclusive after two real remediation + validation cycles is `STAGNATION_DETECTED` on that gate. This rule exists to stop evidence churn, not to make quality bars easier.
+
+Required behavior:
+
+1. Reproduce and identify root cause.
+2. Add a regression test when applicable.
+3. Implement a material technical remediation and validate it.
+4. If the second validation still does not reduce/resolve the finding, do **not** perform a third unchanged re-measurement merely to regenerate evidence.
+5. Evaluate a materially different technical strategy that stays within accepted scope/cost/risk. If viable, implement and validate it; this is a new remediation strategy, not an evidence-only retry.
+6. If no reasonable alternative exists, it requires a scope/architecture/cost decision, or the alternative also fails, escalate to Juan with diagnosis and explicit options: preserve the accepted budget and defer, accept a documented caveat, change scope, or explicitly adjust the budget.
+7. **Never relax or rewrite a budget/acceptance criterion automatically to obtain PASS.**
+
+Do not produce repeated `checkpoint`/`docs(evidence)`/`docs(handoff)` commits that only re-measure the same unchanged implementation.
 
 ## Web Validation Standard (UI web projects)
 
