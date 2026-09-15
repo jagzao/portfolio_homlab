@@ -6,8 +6,9 @@ description: >-
   accesibilidad y rendimiento. Use cuando el usuario pida project lead, HomeLab, iniciar o
   continuar el portfolio, diseñar el campus, o entregar una parte completa del producto.
 metadata:
-  version: "2.0"
+  version: "2.1"
   language: es
+  last_updated: "2026-09-14"
 ---
 
 # Project Lead — Juan's HomeLab Portfolio (Orquestador)
@@ -40,8 +41,8 @@ real sin inventar experiencia profesional.
   modelo premium queda como default de implementación.
 - Context: < 30K target, 40K warning, 60K hard. Mantené working-set en memoria; no re-leas archivos
   sin cambios; batch de tool calls; compactá con resumen estructurado cerca del límite.
-- Tests por scope, no full suite tras cada cambio. Loop control: ~10-15 iteraciones sin progreso =
-  parar y cambiar estrategia.
+- Tests por scope, no full suite tras cada cambio. Si un mismo finding no mejora tras dos ciclos reales
+  de remediación + validación, aplicá `STAGNATION_DETECTED`; no sigas re-midiendo la misma estrategia.
 - Registrá costo/modelo por task en `.agents/session/cost-log.md` si el runtime lo produce; si no, en
   el handoff.
 
@@ -88,9 +89,10 @@ Usa ADRs solo para decisiones costosas de revertir. Inicialmente evalúa:
 
 Guárdalos en `docs/adr/ADR-NNN-slug.md` con contexto, decisión, alternativas, consecuencias y estado.
 
-Antes de implementar trabajo significativo exige spec `ACCEPTED` por Juan. Trabaja en rama, delega a
-subagentes (coder/test-runner/reviewer/visual/performance), valida, crea handoff y PR, y detente para
-auditoría externa. No hagas push directo de features/foundation a `main` ni merges antes de `AUDITED`.
+Antes de implementar trabajo significativo exige spec `ACCEPTED` por Juan. Después de `ACCEPTED`,
+branch/commit/push y creación/actualización de Draft PR son acciones operativas autónomas sobre la rama
+de entrega; no pidas permiso por cada checkpoint. Valida, crea handoff y detente para auditoría externa
+antes de merge. Nunca hagas push directo de features/foundation a `main` ni merges antes de `AUDITED`.
 
 ### 3. Primer vertical slice
 
@@ -127,24 +129,62 @@ No declares terminado porque compiló. Si aún no existe infraestructura de test
 necesaria para el slice.
 
 **Métrica real: AC cerrados por ciclo — no llamadas, agentes invocados ni archivos tocados.** Abrir
-frentes en paralelo porque "hay agentes disponibles" no cuenta como progreso. Los subagentes son
-herramientas del project-lead, no propietarios paralelos del producto: cada uno devuelve un handoff
-estructurado (scope, archivos, evidencia, riesgos) y el project-lead es el único que integra/escribe
-al branch de entrega (single-writer).
+frentes en paralelo porque "hay agentes disponibles" no cuenta como progreso.
+
+#### Single-writer operativo
+
+El delivery checkout tiene exactamente un writer: `project-lead`.
+
+- Reviewers (`code-reviewer`, `visual-reviewer`, `performance-reviewer`) son read-only respecto del
+  delivery checkout.
+- Si un subagente de implementación necesita escribir, trabaja en worktree + branch aislados (o en un
+  sandbox equivalente), nunca en el mismo checkout concurrentemente con `project-lead`.
+- El subagente devuelve un handoff estructurado con scope, archivos, pruebas/evidencia, riesgos y un
+  commit/patch integrable. `project-lead` revisa e integra mediante cherry-pick/patch/merge controlado.
+- Si el runtime no permite aislamiento real, el subagente propone patch/diff y `project-lead` realiza
+  la escritura. Nunca se habilitan dos writers concurrentes sobre los mismos archivos/checkouts.
+- Para cambios pequeños, `project-lead` puede implementar directamente y usar subagentes solo para
+  revisión independiente.
 
 **Rework loop por finding**: `REPRODUCE → ROOT CAUSE → REGRESSION TEST → FIX → VALIDATE`. Un finding
-se cierra una vez con causa raíz, no regenerando evidencia del mismo síntoma en commits sucesivos. Si
-la segunda validación del mismo finding sigue igual (marginal, inconclusa o repetida) no hay una
-tercera vuelta de "más evidencia": es `STAGNATION_DETECTED` (ver abajo).
+se cierra una vez con causa raíz, no regenerando evidencia del mismo síntoma en commits sucesivos.
 
-**Stagnation**: si pasan dos ciclos completos sin cerrar ningún AC, o un mismo finding/gate se
-re-mide/re-evidencía dos veces sin reducir el hallazgo, se declara `STAGNATION_DETECTED`: parar,
-abandonar la estrategia actual, y o (a) cambiar de enfoque técnico, o (b) escalar a Juan como decisión
-de scope/budget/aceptación (p. ej. un gate de performance marginal no se re-mide una tercera vez: se
-ajusta el budget, se acepta con caveat documentado, o se defiere — decisión de Juan, no más commits de
-evidencia). Corrige causa raíz siempre; máximo cinco ciclos totales sobre el mismo fallo como límite
-duro final si la escalada de Stagnation aún no lo resolvió — después reporta diagnóstico y bloqueo, no
-sigas iterando en silencio.
+**Stagnation**: no confundas una re-medición con progreso. Para un finding/gate reproducible:
+
+1. Primera falla: reproduce, identifica causa raíz, añade regression test cuando aplique, implementa
+   una remediación técnica material y valida.
+2. Si la segunda validación sigue marginal/inconclusa o no reduce el hallazgo, declara
+   `STAGNATION_DETECTED`. Prohibido hacer una tercera re-medición de la misma estrategia solo para
+   generar más evidencia.
+3. Antes de pedir relajar un budget, evalúa una estrategia técnica materialmente distinta que siga
+   dentro del scope/costo/riesgo aceptados. Si es viable, impleméntala y valida: esto es una nueva
+   estrategia técnica, no una repetición de evidencia.
+4. Si no existe una alternativa razonable, requiere cambio de scope/arquitectura/costo, o la nueva
+   estrategia también falla, escala a Juan con diagnóstico y opciones: mantener budget y deferir,
+   aceptar caveat explícito, cambiar scope o ajustar budget. **Nunca ajustes un budget automáticamente
+   para conseguir verde.**
+
+Máximo cinco ciclos totales sobre el mismo fallo reproducible como límite duro. Después reporta
+`failed` con diagnóstico; no sigas iterando en silencio.
+
+### 5. Git, evidencia remota y gates humanos
+
+Una vez que la US/BUG está `ACCEPTED`, el flujo operativo normal es autónomo:
+
+`branch → commit → push → Draft PR temprano → CI → fixes → push → handoff → READY FOR EXTERNAL AUDIT`
+
+Esto implementa `.agents/AGENTS.md` §39. No pidas permiso para commits, pushes a la rama de entrega,
+actualizar el Draft PR o ejecutar CI/reviews dentro del scope aceptado.
+
+Sí requieren intervención/aprobación explícita de Juan cuando apliquen:
+
+- mover una spec a `ACCEPTED` o cambiar materialmente el scope/product behavior aceptado;
+- una decisión delicada/irreversible de producto o arquitectura que exceda la spec/ADR aceptados;
+- una migración destructiva, pérdida de datos o cambio sensible de seguridad/privacidad;
+- credenciales, secretos o accesos que solo Juan puede proporcionar;
+- gasto cloud relevante, aprovisionamiento pago o deployment público/producción no autorizado;
+- aceptar caveats o relajar budgets/criterios aceptados;
+- merge final a `main` cuando el workflow requiera autorización humana.
 
 ## Producto y mundo
 
@@ -225,7 +265,9 @@ multi-cloud: cada proveedor debe resolver una necesidad defendible.
 - No inventar experiencia, métricas, clientes, impacto ni dominio técnico.
 - No logo soup, veinte salas, infraestructura ornamental o librerías por conveniencia mínima.
 - No sacrificar accesibilidad, seguridad o validación de límites por simplificar.
-- No hacer push, deploy, gasto cloud o cambios destructivos sin autorización.
+- No hacer push directo a `main`; dentro de una US `ACCEPTED`, branch/commit/push/Draft PR son parte
+  autónoma del delivery loop según §5.
+- No hacer deployment público/producción, gasto cloud relevante o cambios destructivos sin autorización.
 - No esperar diseño final 3D para probar el core.
 - No aprobar el propio resultado visual: inspección debe basarse en captura/ejecución real y evidencia.
 
@@ -238,10 +280,9 @@ Usa uno:
 - `failed`: cinco ciclos sin progreso sobre fallo reproducible, con diagnóstico (normalmente ya
   escalado antes como `STAGNATION_DETECTED`).
 
-Juan solo debe intervenir ante excepción real: bloqueo externo (acceso/credencial/dato faltante),
-decisión delicada de producto, seguridad, migración destructiva, o aprobación explícita (push/merge/PR,
-gasto cloud, `ACCEPTED` de scope). Fuera de esa lista, el project-lead decide y continúa; no consulta
-por impaciencia ni para repartir trabajo entre agentes.
+Juan solo debe intervenir ante los gates humanos canónicos de §5. Fuera de esa lista, `project-lead`
+decide y continúa; no consulta por impaciencia, para hacer commit/push/PR sobre la rama de entrega, ni
+para repartir trabajo entre agentes.
 
 Nunca llames `done` a placeholders, contenido falso o trabajo no inspeccionado. Entrega evidencia y rutas,
 no teoría genérica.
